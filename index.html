@@ -3,25 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Accessible disability medical simulation for communication, respiratory assessment and evidence-gated clinical reasoning.">
-  <title>Disability Medical Simulations</title>
+  <meta name="description" content="Accessible multi-branch paediatric respiratory simulation with persistent body, voice and system ledgers.">
+  <title>Rohan: Consent, Crisis and Recovery</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to simulation</a>
-
   <header class="site-header">
     <div>
-      <p class="eyebrow">Australian disability medical learning</p>
-      <h1>Disability Medical Simulations</h1>
-      <p>Person-first respiratory simulation with AAC, baseline-aware assessment and evidence-gated stations.</p>
+      <p class="eyebrow">Disability Medical Simulations</p>
+      <h1>Rohan: Consent, Crisis and Recovery</h1>
+      <p>Multi-branch decision simulation with persistent physiology, communication, consent and system consequences.</p>
     </div>
-
     <div class="header-controls" aria-label="Simulation preferences">
-      <label>
-        Scenario
-        <select id="scenario-select"></select>
-      </label>
       <label class="check-row"><input id="low-sensory" type="checkbox"> Low-sensory mode</label>
       <label class="check-row"><input id="reduced-motion" type="checkbox"> Reduced motion</label>
     </div>
@@ -29,49 +23,47 @@
 
   <main id="main">
     <section class="status-grid" aria-label="Current simulation status">
-      <article class="status-card"><span>Patient</span><strong id="patient-name"></strong><small id="patient-profile"></small></article>
-      <article class="status-card"><span>Communication</span><strong id="communication-method"></strong><small id="communication-detail"></small></article>
+      <article class="status-card"><span>Phase</span><strong id="phase"></strong><small id="node-title"></small></article>
       <article class="status-card"><span>Simulation clock</span><strong id="clock">00:00</strong><small id="clock-note">Running</small></article>
-      <article class="status-card"><span>Scenario state</span><strong id="scenario-state">Assessment</strong><small>Educational simulation only</small></article>
+      <article class="status-card"><span>Latest reliable message</span><strong id="latest-message">WAIT</strong><small id="voice-reliability"></small></article>
+      <article class="status-card"><span>Crisis debt</span><strong id="crisis-debt">0</strong><small>Unresolved risk carried forward</small></article>
+    </section>
+
+    <section class="panel phase-map" aria-labelledby="phase-map-title">
+      <div class="section-heading">
+        <div><p class="eyebrow">Decision tree</p><h2 id="phase-map-title">Scenario pathway</h2></div>
+        <button id="reset" class="secondary" type="button">Restart scenario</button>
+      </div>
+      <ol id="phase-list" class="phase-list"></ol>
     </section>
 
     <div class="workspace">
-      <aside class="panel sidebar" aria-label="Person-first clinical frame">
-        <h2>Usual baseline</h2>
-        <ul id="baseline-list"></ul>
-        <h2>New or changed</h2>
-        <ul id="change-list"></ul>
-        <h2>Do not assume</h2>
-        <ul id="assumption-list"></ul>
-        <div class="safety-boundary">
-          <strong>Safety boundary</strong>
-          <p>No medication doses, ventilator settings or procedural technique. Follow local protocol and the person's current plan.</p>
-        </div>
+      <aside class="panel sidebar" aria-label="Persistent ledgers">
+        <h2>Body ledger</h2>
+        <div id="body-ledger" class="ledger"></div>
+        <h2>Voice ledger</h2>
+        <dl id="voice-ledger"></dl>
+        <h2>System ledger</h2>
+        <dl id="system-ledger"></dl>
       </aside>
 
       <div class="main-column">
         <section class="panel scene-panel" aria-labelledby="scene-title">
-          <div>
-            <p class="eyebrow" id="scene-setting"></p>
-            <h2 id="scene-title"></h2>
-            <blockquote id="patient-voice"></blockquote>
-            <p id="opening-text"></p>
-          </div>
-          <figure>
-            <img id="scene-image" src="./assets/icu-scene.svg" alt="Stylised ICU scene showing a patient using an AAC display while clinicians assess the airway and family remain nearby.">
-            <figcaption>Illustrated training scene. Media is context, not proof of clinical indication.</figcaption>
-          </figure>
+          <p class="eyebrow" id="scene-phase"></p>
+          <h2 id="scene-title"></h2>
+          <p id="scene-text" class="scene-text"></p>
+          <div class="safety-boundary"><strong>Educational boundary</strong><p>No procedural technique, medication dose or ventilator setting is supplied. Follow local clinical policy and trained responders.</p></div>
         </section>
 
         <section class="panel aac-panel" aria-labelledby="aac-title">
           <div>
             <p class="eyebrow">Communication access</p>
-            <h2 id="aac-title">AAC dock</h2>
+            <h2 id="aac-title">AAC remains part of the emergency system</h2>
             <p id="aac-description"></p>
           </div>
           <div class="button-row">
             <button id="pause-aac" type="button">Pause for communication</button>
-            <button id="restore-aac" type="button" class="secondary">Restore AAC</button>
+            <button id="restore-aac" type="button" class="secondary">Restore / recalibrate AAC</button>
           </div>
           <p id="aac-live" class="live-region" aria-live="polite"></p>
         </section>
@@ -81,36 +73,23 @@
           <h2 id="decision-title"></h2>
           <div id="choice-list" class="choice-list"></div>
           <button id="commit-decision" type="button">Commit decision</button>
-          <div id="feedback" class="feedback" role="status" aria-live="polite">Choose an action. The simulation rewards sequence, reassessment and direct communication—not speed alone.</div>
-        </section>
-
-        <section class="panel" aria-labelledby="stations-title">
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow">Evidence-gated equipment</p>
-              <h2 id="stations-title">Instrumental action stations</h2>
-            </div>
-            <button id="reassess" type="button" class="secondary">Reassess patient</button>
-          </div>
-          <p>Each station progresses through <strong>available → selected → checked → assigned → committed</strong>. Selection never authorises use.</p>
-          <div id="station-grid" class="station-grid"></div>
+          <div id="feedback" class="feedback" role="status" aria-live="polite">Choose an action. Consequences persist across later scenes.</div>
         </section>
       </div>
 
-      <aside class="panel rightbar" aria-label="Event log and debrief">
+      <aside class="panel rightbar" aria-label="Event log and outcome">
+        <h2>Path history</h2>
+        <ol id="history-list" class="event-log"></ol>
         <h2>Event log</h2>
         <ol id="event-log" class="event-log"></ol>
-        <h2>Accessible debrief</h2>
-        <ul id="debrief-list"></ul>
-        <button id="reset-scenario" type="button" class="secondary">Reset scenario</button>
+        <h2>Relationship state</h2>
+        <div id="trust-ledger" class="ledger"></div>
+        <button id="reassess" type="button" class="secondary">Reassess and reduce uncertainty</button>
       </aside>
     </div>
   </main>
 
-  <footer>
-    <p>Fictional educational cases. Communication access is a clinical safety control. Completion does not certify clinical competence.</p>
-  </footer>
-
+  <footer><p>Fictional educational case. Communication loss is clinical data, not proof of incapacity or consent.</p></footer>
   <script type="module" src="./src/app.js"></script>
 </body>
 </html>
