@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">Noah ambulance transfer training scene</title>
+  <desc id="desc">A stylised ambulance interior with Noah supported on a stretcher, two paramedics working in parallel, respiratory equipment secured, and Noah's AAC route visible beside him.</desc>
+  <rect width="1200" height="700" fill="#dfe7ee"/>
+  <rect x="45" y="45" width="1110" height="610" rx="34" fill="#f8fbfd" stroke="#a9bbc9" stroke-width="6"/>
+  <rect x="95" y="90" width="1010" height="110" rx="18" fill="#d4e1eb"/>
+  <circle cx="225" cy="145" r="28" fill="#fff3c8"/>
+  <circle cx="385" cy="145" r="28" fill="#fff3c8"/>
+  <circle cx="545" cy="145" r="28" fill="#fff3c8"/>
+  <circle cx="705" cy="145" r="28" fill="#fff3c8"/>
+  <circle cx="865" cy="145" r="28" fill="#fff3c8"/>
+  <rect x="220" y="390" width="630" height="125" rx="26" fill="#d9e4ec" stroke="#8fa5b6" stroke-width="6"/>
+  <circle cx="525" cy="345" r="46" fill="#b77f68"/>
+  <path d="M490 395 C550 370 675 382 760 466" fill="none" stroke="#255276" stroke-width="74" stroke-linecap="round"/>
+  <path d="M565 370 C640 345 770 350 850 420" fill="none" stroke="#147d78" stroke-width="18" stroke-linecap="round"/>
+  <rect x="75" y="265" width="260" height="150" rx="18" fill="#10263d"/>
+  <path d="M100 340 L130 340 L150 300 L175 385 L200 325 L230 340 L300 340" fill="none" stroke="#58d68d" stroke-width="8"/>
+  <text x="205" y="395" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" fill="#ffffff">VISIBLE TREND</text>
+  <rect x="865" y="250" width="255" height="150" rx="18" fill="#ffffff" stroke="#1e67a8" stroke-width="8"/>
+  <text x="992" y="310" text-anchor="middle" font-family="Arial, sans-serif" font-size="25" font-weight="700" fill="#172333">AAC READY</text>
+  <text x="992" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#172333">YES · NO · WAIT · STOP</text>
+  <circle cx="150" cy="500" r="42" fill="#6a7a89"/>
+  <path d="M150 545 L150 640" stroke="#6a7a89" stroke-width="42" stroke-linecap="round"/>
+  <circle cx="965" cy="480" r="42" fill="#6a7a89"/>
+  <path d="M965 525 L965 635" stroke="#6a7a89" stroke-width="42" stroke-linecap="round"/>
+  <rect x="370" y="560" width="460" height="62" rx="31" fill="#147d78"/>
+  <text x="600" y="600" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#ffffff">ONE VOICE · PARALLEL WORK · ACCESS PRESERVED</text>
+  <text x="600" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#607085">Vehicle noise, radio and monitor layers are optional</text>
+</svg>
