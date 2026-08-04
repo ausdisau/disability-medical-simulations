@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">Noah school response training scene</title>
+  <desc id="desc">A stylised school or community response scene with Noah in a powered wheelchair, several adults nearby, an AAC screen within reach and a clear one-voice communication prompt.</desc>
+  <rect width="1200" height="700" fill="#edf3f7"/>
+  <rect x="55" y="55" width="1090" height="590" rx="30" fill="#ffffff" stroke="#becbd6" stroke-width="6"/>
+  <rect x="75" y="85" width="690" height="120" rx="18" fill="#dfeaf2"/>
+  <rect x="110" y="105" width="150" height="70" rx="12" fill="#ffffff" stroke="#9db1c1" stroke-width="4"/>
+  <rect x="305" y="105" width="150" height="70" rx="12" fill="#ffffff" stroke="#9db1c1" stroke-width="4"/>
+  <rect x="500" y="105" width="150" height="70" rx="12" fill="#ffffff" stroke="#9db1c1" stroke-width="4"/>
+  <circle cx="520" cy="350" r="48" fill="#b77f68"/>
+  <path d="M480 405 C535 375 625 390 680 465" fill="none" stroke="#255276" stroke-width="78" stroke-linecap="round"/>
+  <rect x="430" y="460" width="300" height="95" rx="24" fill="#2e587d"/>
+  <circle cx="470" cy="575" r="54" fill="#32495c"/>
+  <circle cx="700" cy="575" r="54" fill="#32495c"/>
+  <path d="M470 455 L430 560 M690 455 L730 560" stroke="#32495c" stroke-width="18" stroke-linecap="round"/>
+  <rect x="765" y="250" width="300" height="170" rx="18" fill="#ffffff" stroke="#1e67a8" stroke-width="8"/>
+  <text x="915" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#172333">STOP</text>
+  <text x="915" y="375" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#172333">TOO MANY VOICES</text>
+  <circle cx="245" cy="345" r="42" fill="#6f7f8d"/>
+  <path d="M245 390 L245 525" stroke="#6f7f8d" stroke-width="40" stroke-linecap="round"/>
+  <circle cx="890" cy="520" r="42" fill="#6f7f8d"/>
+  <path d="M890 565 L890 635" stroke="#6f7f8d" stroke-width="40" stroke-linecap="round"/>
+  <circle cx="1030" cy="520" r="42" fill="#6f7f8d"/>
+  <path d="M1030 565 L1030 635" stroke="#6f7f8d" stroke-width="40" stroke-linecap="round"/>
+  <rect x="90" y="565" width="300" height="58" rx="29" fill="#147d78"/>
+  <text x="240" y="603" text-anchor="middle" font-family="Arial, sans-serif" font-size="23" font-weight="700" fill="#ffffff">ONE VOICE · DIRECT TO NOAH</text>
+</svg>
