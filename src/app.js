@@ -1,59 +1,50 @@
-import { scenarios, stationDefinitions } from "./scenarios.js";
+import { rohanTree, phaseOrder } from "./rohan-tree.js";
 import {
-  advanceStation,
-  commitChoice,
-  createRuntime,
+  commitTreeChoice,
+  createTreeRuntime,
   formatTime,
   pauseForCommunication,
   reassess,
   restoreCommunication,
   selectChoice,
-  stationNextLabel,
+  summarizeOutcome,
   tick
 } from "./runtime.js";
 
 const byId = (id) => document.getElementById(id);
-let scenarioIndex = 0;
-let state = createRuntime(scenarios[scenarioIndex].id);
+let state = createTreeRuntime(rohanTree);
 
-function list(target, items) {
-  target.innerHTML = items.map((item) => `<li>${item}</li>`).join("");
+function labelForKey(key) {
+  return key.replace(/([A-Z])/g, " $1").replace(/^./, (letter) => letter.toUpperCase());
 }
 
-function currentScenario() {
-  return scenarios[scenarioIndex];
+function meter(label, value) {
+  const safeValue = Math.max(0, Math.min(5, value));
+  return `<div class="meter-row"><span>${label}</span><meter min="0" max="5" value="${safeValue}">${safeValue} of 5</meter><strong>${safeValue}/5</strong></div>`;
 }
 
-function renderLog() {
-  const items = state.events.map((event) => `<li><strong>${formatTime(event.seconds)}</strong> ${event.message}</li>`);
-  byId("event-log").innerHTML = items.join("") || "<li>No events yet.</li>";
+function renderBody() {
+  byId("body-ledger").innerHTML = Object.entries(state.body)
+    .map(([key, value]) => meter(labelForKey(key), value))
+    .join("");
 }
 
-function renderStations() {
-  byId("station-grid").innerHTML = stationDefinitions.map((station) => {
-    const status = state.stations[station.id];
-    return `
-      <article class="station" data-kind="${station.kind}">
-        <h3>${station.id} · ${station.label}</h3>
-        <span class="station-state">${status}</span>
-        <p>${station.purpose}</p>
-        <button type="button" data-station-id="${station.id}" ${status === "committed" ? "disabled" : ""}>
-          ${stationNextLabel(status)}
-        </button>
-      </article>`;
-  }).join("");
-
-  document.querySelectorAll("[data-station-id]").forEach((button) => {
-    button.addEventListener("click", () => {
-      state = advanceStation(state, button.dataset.stationId);
-      render();
-    });
-  });
+function renderDefinitionList(target, object) {
+  target.innerHTML = Object.entries(object)
+    .map(([key, value]) => `<div><dt>${labelForKey(key)}</dt><dd>${Array.isArray(value) ? value.join(", ") : String(value)}</dd></div>`)
+    .join("");
 }
 
-function renderChoices() {
-  const scenario = currentScenario();
-  byId("choice-list").innerHTML = scenario.choices.map((choice) => `
+function renderChoices(node) {
+  if (!node.choices.length) {
+    const outcome = summarizeOutcome(state);
+    byId("choice-list").innerHTML = `<div class="outcome"><h3>Pathway complete</h3><p>${outcome.decisions} decisions recorded. Crisis debt: ${outcome.crisisDebt}. Rohan-team trust: ${outcome.rohanTrust}. Mother-team trust: ${outcome.motherTrust}.</p></div>`;
+    byId("commit-decision").disabled = true;
+    return;
+  }
+
+  byId("commit-decision").disabled = false;
+  byId("choice-list").innerHTML = node.choices.map((choice) => `
     <label class="choice">
       <input type="radio" name="decision" value="${choice.id}" ${state.selectedChoiceId === choice.id ? "checked" : ""}>
       <span>${choice.label}</span>
@@ -66,61 +57,87 @@ function renderChoices() {
   });
 }
 
+function renderPhaseMap() {
+  const currentPhase = rohanTree.nodes[state.nodeId].phase;
+  byId("phase-list").innerHTML = phaseOrder.map((phase) => {
+    const visited = state.history.some((nodeId) => rohanTree.nodes[nodeId]?.phase === phase);
+    const current = phase === currentPhase;
+    return `<li class="${visited ? "visited" : ""} ${current ? "current" : ""}"><span>${phase}</span></li>`;
+  }).join("");
+}
+
+function renderHistory() {
+  byId("history-list").innerHTML = state.history.map((nodeId) => {
+    const node = rohanTree.nodes[nodeId];
+    return `<li><strong>${node.phase}</strong><br>${node.title}</li>`;
+  }).join("");
+}
+
+function renderLog() {
+  byId("event-log").innerHTML = state.events.length
+    ? state.events.map((event) => `<li><strong>${formatTime(event.seconds)}</strong> ${event.message}</li>`).join("")
+    : "<li>No decisions committed yet.</li>";
+}
+
 function render() {
-  const scenario = currentScenario();
-  byId("patient-name").textContent = scenario.patient.name;
-  byId("patient-profile").textContent = scenario.patient.profile;
-  byId("communication-method").textContent = scenario.patient.communication;
-  byId("communication-detail").textContent = scenario.patient.communicationDetail;
+  const node = rohanTree.nodes[state.nodeId];
+  byId("phase").textContent = node.phase;
+  byId("node-title").textContent = node.title;
   byId("clock").textContent = formatTime(state.seconds);
-  byId("clock-note").textContent = state.pauseReason === "communication" ? "Paused for communication" : state.paused ? "Paused" : "Running";
-  byId("scenario-state").textContent = state.completed ? "Cause-led branch opened" : "Assessment";
-  byId("scene-setting").textContent = `${scenario.setting} · ${scenario.jurisdiction}`;
-  byId("scene-title").textContent = scenario.title;
-  byId("patient-voice").textContent = `“${scenario.patient.voice}”`;
-  byId("opening-text").textContent = scenario.opening;
-  byId("aac-description").textContent = scenario.patient.communicationDetail;
-  byId("decision-title").textContent = scenario.decisionPrompt;
-  list(byId("baseline-list"), scenario.baseline);
-  list(byId("change-list"), scenario.changes);
-  list(byId("assumption-list"), scenario.assumptions);
-  list(byId("debrief-list"), scenario.debrief);
-  renderChoices();
-  renderStations();
+  byId("clock-note").textContent = state.pauseReason === "communication" ? "Paused for communication" : state.completed ? "Complete" : "Running";
+  byId("latest-message").textContent = state.voice.latestReliableMessage;
+  byId("voice-reliability").textContent = state.voice.reliability;
+  byId("crisis-debt").textContent = state.crisisDebt;
+  byId("scene-phase").textContent = node.phase;
+  byId("scene-title").textContent = node.title;
+  byId("scene-text").textContent = node.scene;
+  byId("decision-title").textContent = node.prompt;
+  byId("aac-description").textContent = `${rohanTree.patient.communication}. Current reliability: ${state.voice.reliability}. No response is recorded as unknown, not consent.`;
+
+  renderBody();
+  renderDefinitionList(byId("voice-ledger"), state.voice);
+  renderDefinitionList(byId("system-ledger"), state.system);
+  byId("trust-ledger").innerHTML = [
+    meter("Rohan ↔ team", state.trust.rohanTeam),
+    meter("Mother ↔ team", state.trust.motherTeam)
+  ].join("");
+  renderChoices(node);
+  renderPhaseMap();
+  renderHistory();
   renderLog();
 }
 
-function loadScenario(index) {
-  scenarioIndex = Number(index);
-  state = createRuntime(currentScenario().id);
-  byId("feedback").textContent = "Choose an action. The simulation rewards sequence, reassessment and direct communication—not speed alone.";
-  byId("aac-live").textContent = "";
+byId("commit-decision").addEventListener("click", () => {
+  const result = commitTreeChoice(state, rohanTree);
+  state = result.state;
+  byId("feedback").textContent = result.feedback;
   render();
-}
+});
 
-byId("scenario-select").innerHTML = scenarios.map((scenario, index) => `<option value="${index}">${scenario.title}</option>`).join("");
-byId("scenario-select").addEventListener("change", (event) => loadScenario(event.target.value));
 byId("pause-aac").addEventListener("click", () => {
   state = pauseForCommunication(state);
   byId("aac-live").textContent = "Simulation clock paused while communication is composed or scanned.";
   render();
 });
+
 byId("restore-aac").addEventListener("click", () => {
   state = restoreCommunication(state);
-  byId("aac-live").textContent = "AAC access restored and confirmed.";
+  byId("aac-live").textContent = "AAC returned, positioned and recalibrated. Reliability must still be verified.";
   render();
 });
-byId("commit-decision").addEventListener("click", () => {
-  const result = commitChoice(state, currentScenario());
-  state = result.state;
-  byId("feedback").textContent = result.feedback;
-  render();
-});
+
 byId("reassess").addEventListener("click", () => {
   state = reassess(state);
+  byId("feedback").textContent = "Reassessment documented. One point of unresolved crisis debt was removed where possible.";
   render();
 });
-byId("reset-scenario").addEventListener("click", () => loadScenario(scenarioIndex));
+
+byId("reset").addEventListener("click", () => {
+  state = createTreeRuntime(rohanTree);
+  byId("feedback").textContent = "Scenario restarted. Consequences persist only within the current run.";
+  render();
+});
+
 byId("low-sensory").addEventListener("change", (event) => document.body.classList.toggle("low-sensory", event.target.checked));
 byId("reduced-motion").addEventListener("change", (event) => document.body.classList.toggle("reduced-motion", event.target.checked));
 
