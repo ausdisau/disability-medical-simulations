@@ -54,13 +54,29 @@
           <div>
             <p class="eyebrow" id="scene-setting"></p>
             <h2 id="scene-title"></h2>
+            <p id="scene-phase" class="scene-phase"></p>
             <blockquote id="patient-voice"></blockquote>
             <p id="opening-text"></p>
+            <div id="content-notice" class="content-notice" role="note"></div>
           </div>
           <figure>
             <img id="scene-image" src="./assets/icu-scene.svg" alt="Stylised ICU scene showing a patient using an AAC display while clinicians assess the airway and family remain nearby.">
-            <figcaption>Illustrated training scene. Media is context, not proof of clinical indication.</figcaption>
+            <figcaption id="scene-caption">Illustrated training scene. Media is context, not proof of clinical indication.</figcaption>
+            <div class="scene-nav" aria-label="Scene frame controls">
+              <button id="previous-scene" type="button" class="secondary">Previous frame</button>
+              <span id="scene-position" aria-live="polite">Frame 1 of 1</span>
+              <button id="next-scene" type="button" class="secondary">Next frame</button>
+            </div>
           </figure>
+        </section>
+
+        <section class="panel sensory-panel" aria-labelledby="sensory-title">
+          <div>
+            <p class="eyebrow">Trauma-informed sensory control</p>
+            <h2 id="sensory-title">Optional sensory layers</h2>
+            <p>Clinical cues can be separated from atmosphere. Nothing autoplays.</p>
+          </div>
+          <ul id="sensory-layer-list" class="sensory-layer-list"></ul>
         </section>
 
         <section class="panel aac-panel" aria-labelledby="aac-title">
@@ -98,6 +114,8 @@
       </div>
 
       <aside class="panel rightbar" aria-label="Event log and debrief">
+        <h2>Asset and review status</h2>
+        <p id="source-status" class="review-status"></p>
         <h2>Event log</h2>
         <ol id="event-log" class="event-log"></ol>
         <h2>Accessible debrief</h2>
