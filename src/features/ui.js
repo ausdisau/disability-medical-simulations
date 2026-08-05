@@ -1,4 +1,4 @@
-import { scenarios, stationDefinitions } from "../scenarios.js";
+import { scenarios, stationDefinitions } from "./scenarios.js";
 import { isThirdPartyApiKeyConfigured } from "../config.js";
 import {
   advanceStation,
@@ -11,7 +11,7 @@ import {
   selectChoice,
   stationNextLabel,
   tick
-} from "../runtime.js";
+} from "./runtime.js";
 
 const byId = (id) => document.getElementById(id);
 let scenarioIndex = 0;

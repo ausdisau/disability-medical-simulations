@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { scenarios } from "../src/scenarios.js";
+import { scenarios } from "../src/features/scenarios.js";
 import {
   advanceStation,
   commitChoice,
@@ -10,7 +10,7 @@ import {
   restoreCommunication,
   selectChoice,
   tick
-} from "../src/runtime.js";
+} from "../src/features/runtime.js";
 
 test("runtime starts with all stations available", () => {
   const state = createRuntime("adult-suction");
