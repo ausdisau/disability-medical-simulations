@@ -1,4 +1,5 @@
 import { scenarios, stationDefinitions } from "./scenarios.js";
+import { isThirdPartyApiKeyConfigured } from "./config.js";
 import {
   advanceStation,
   commitChoice,
@@ -133,3 +134,9 @@ setInterval(() => {
 }, 1000);
 
 render();
+
+// Non-sensitive runtime status for developer UX: do not expose the secret itself.
+const apiStatusEl = byId('api-config-status');
+if (apiStatusEl) {
+  apiStatusEl.textContent = isThirdPartyApiKeyConfigured() ? 'Third-party APIs: configured' : 'Third-party APIs: missing — see README.md';
+}
