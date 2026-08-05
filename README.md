@@ -47,3 +47,24 @@ Import `ausdisau/disability-medical-simulations` as a new Vercel project.
 ## Review status
 
 Prototype content requires formal clinical, lived-experience and accessibility review before use as accredited training. Completion demonstrates awareness and communication learning only; it does not certify clinical competence.
+
+## Development environment and secrets
+
+A safe example environment file is provided as `.env.dev.example`. Do NOT commit real secrets into the repository. To run locally with any third-party API keys:
+
+1. Copy the example to a local file (ignored by git):
+
+```bash
+cp .env.dev.example .env.dev
+```
+
+2. Populate the VITE-prefixed variable for Vite client exposure (example):
+
+```
+VITE_THIRD_PARTY_API_KEY=your_key_here
+```
+
+3. Restart the dev server. In client code read the key with `import.meta.env.VITE_THIRD_PARTY_API_KEY` or via the helper `src/config.js`.
+
+If a secret was accidentally committed elsewhere, rotate or revoke it with the provider immediately and follow the repository history purge steps in the main project tools (BFG or git-filter-repo) before sharing the repo.
+
