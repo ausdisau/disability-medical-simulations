@@ -10,7 +10,7 @@ import {
   restoreCommunication,
   selectChoice,
   stationNextLabel,
-  tick
+  tick,
 } from "./runtime.js";
 
 const byId = (id) => document.getElementById(id);
@@ -26,14 +26,17 @@ function currentScenario() {
 }
 
 function renderLog() {
-  const items = state.events.map((event) => `<li><strong>${formatTime(event.seconds)}</strong> ${event.message}</li>`);
+  const items = state.events.map(
+    (event) => `<li><strong>${formatTime(event.seconds)}</strong> ${event.message}</li>`
+  );
   byId("event-log").innerHTML = items.join("") || "<li>No events yet.</li>";
 }
 
 function renderStations() {
-  byId("station-grid").innerHTML = stationDefinitions.map((station) => {
-    const status = state.stations[station.id];
-    return `
+  byId("station-grid").innerHTML = stationDefinitions
+    .map((station) => {
+      const status = state.stations[station.id];
+      return `
       <article class="station" data-kind="${station.kind}">
         <h3>${station.id} · ${station.label}</h3>
         <span class="station-state">${status}</span>
@@ -42,7 +45,8 @@ function renderStations() {
           ${stationNextLabel(status)}
         </button>
       </article>`;
-  }).join("");
+    })
+    .join("");
 
   document.querySelectorAll("[data-station-id]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -54,11 +58,15 @@ function renderStations() {
 
 function renderChoices() {
   const scenario = currentScenario();
-  byId("choice-list").innerHTML = scenario.choices.map((choice) => `
+  byId("choice-list").innerHTML = scenario.choices
+    .map(
+      (choice) => `
     <label class="choice">
       <input type="radio" name="decision" value="${choice.id}" ${state.selectedChoiceId === choice.id ? "checked" : ""}>
       <span>${choice.label}</span>
-    </label>`).join("");
+    </label>`
+    )
+    .join("");
 
   document.querySelectorAll("input[name='decision']").forEach((input) => {
     input.addEventListener("change", () => {
@@ -74,11 +82,19 @@ function render() {
   byId("communication-method").textContent = scenario.patient.communication;
   byId("communication-detail").textContent = scenario.patient.communicationDetail;
   byId("clock").textContent = formatTime(state.seconds);
-  byId("clock-note").textContent = state.pauseReason === "communication" ? "Paused for communication" : state.paused ? "Paused" : "Running";
+  let clockNote;
+  if (state.pauseReason === "communication") {
+    clockNote = "Paused for communication";
+  } else if (state.paused) {
+    clockNote = "Paused";
+  } else {
+    clockNote = "Running";
+  }
+  byId("clock-note").textContent = clockNote;
   byId("scenario-state").textContent = state.completed ? "Cause-led branch opened" : "Assessment";
   byId("scene-setting").textContent = `${scenario.setting} · ${scenario.jurisdiction}`;
   byId("scene-title").textContent = scenario.title;
-  byId("patient-voice").textContent = `“${scenario.patient.voice}”`;
+  byId("patient-voice").textContent = `"${scenario.patient.voice}"`;
   byId("opening-text").textContent = scenario.opening;
   byId("aac-description").textContent = scenario.patient.communicationDetail;
   byId("decision-title").textContent = scenario.decisionPrompt;
@@ -94,16 +110,20 @@ function render() {
 function loadScenario(index) {
   scenarioIndex = Number(index);
   state = createRuntime(currentScenario().id);
-  byId("feedback").textContent = "Choose an action. The simulation rewards sequence, reassessment and direct communication—not speed alone.";
+  byId("feedback").textContent =
+    "Choose an action. The simulation rewards sequence, reassessment and direct communication—not speed alone.";
   byId("aac-live").textContent = "";
   render();
 }
 
-byId("scenario-select").innerHTML = scenarios.map((scenario, index) => `<option value="${index}">${scenario.title}</option>`).join("");
+byId("scenario-select").innerHTML = scenarios
+  .map((scenario, index) => `<option value="${index}">${scenario.title}</option>`)
+  .join("");
 byId("scenario-select").addEventListener("change", (event) => loadScenario(event.target.value));
 byId("pause-aac").addEventListener("click", () => {
   state = pauseForCommunication(state);
-  byId("aac-live").textContent = "Simulation clock paused while communication is composed or scanned.";
+  byId("aac-live").textContent =
+    "Simulation clock paused while communication is composed or scanned.";
   render();
 });
 byId("restore-aac").addEventListener("click", () => {
@@ -122,8 +142,12 @@ byId("reassess").addEventListener("click", () => {
   render();
 });
 byId("reset-scenario").addEventListener("click", () => loadScenario(scenarioIndex));
-byId("low-sensory").addEventListener("change", (event) => document.body.classList.toggle("low-sensory", event.target.checked));
-byId("reduced-motion").addEventListener("change", (event) => document.body.classList.toggle("reduced-motion", event.target.checked));
+byId("low-sensory").addEventListener("change", (event) =>
+  document.body.classList.toggle("low-sensory", event.target.checked)
+);
+byId("reduced-motion").addEventListener("change", (event) =>
+  document.body.classList.toggle("reduced-motion", event.target.checked)
+);
 
 setInterval(() => {
   const next = tick(state);
@@ -138,5 +162,7 @@ render();
 // Non-sensitive runtime status for developer UX: do not expose the secret itself.
 const apiStatusEl = byId("api-config-status");
 if (apiStatusEl) {
-  apiStatusEl.textContent = isThirdPartyApiKeyConfigured() ? "Third-party APIs: configured" : "Third-party APIs: missing — see README.md";
+  apiStatusEl.textContent = isThirdPartyApiKeyConfigured()
+    ? "Third-party APIs: configured"
+    : "Third-party APIs: missing — see README.md";
 }
