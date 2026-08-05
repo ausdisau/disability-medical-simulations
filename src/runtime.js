@@ -32,7 +32,7 @@ export function appendEvent(state, type, message, detail = {}) {
 }
 
 export function tick(state) {
-  if (state.paused) return state;
+  if (state.paused) {return state;}
   return { ...state, seconds: state.seconds + 1 };
 }
 
@@ -79,7 +79,7 @@ export function commitChoice(state, scenario) {
 export function advanceStation(state, stationId) {
   const current = state.stations[stationId];
   const index = stationOrder.indexOf(current);
-  if (index < 0 || index === stationOrder.length - 1) return state;
+  if (index < 0 || index === stationOrder.length - 1) {return state;}
 
   const nextStatus = stationOrder[index + 1];
   return appendEvent(
@@ -103,7 +103,7 @@ export function reassess(state) {
 
 export function stationNextLabel(status) {
   const index = stationOrder.indexOf(status);
-  if (index < 0 || index === stationOrder.length - 1) return "Committed";
+  if (index < 0 || index === stationOrder.length - 1) {return "Committed";}
   const next = stationOrder[index + 1];
   return next.charAt(0).toUpperCase() + next.slice(1);
 }
