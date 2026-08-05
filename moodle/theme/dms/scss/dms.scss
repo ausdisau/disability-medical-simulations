@@ -1,0 +1,37 @@
+$dms-navy: #0D2340;
+$dms-blue: #1E67A8;
+$dms-teal: #147D78;
+$dms-focus: #FFBF47;
+$dms-bg: #F4F7FA;
+
+body {
+  background: $dms-bg;
+}
+
+#page-header {
+  background: $dms-navy;
+  color: white;
+}
+
+.btn-primary {
+  background-color: $dms-blue;
+  border-color: $dms-blue;
+}
+
+.btn-primary:focus,
+button:focus,
+a:focus {
+  outline: 4px solid $dms-focus;
+  outline-offset: 2px;
+}
+
+.communication-access {
+  border-left: 6px solid $dms-teal;
+  padding: 1rem;
+}
+
+.simulation-safety-boundary {
+  border-left: 6px solid #A66A10;
+  background: #FFF7E7;
+  padding: 1rem;
+}
