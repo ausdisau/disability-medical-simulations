@@ -95,6 +95,35 @@
           <p>Each station progresses through <strong>available → selected → checked → assigned → committed</strong>. Selection never authorises use.</p>
           <div id="station-grid" class="station-grid"></div>
         </section>
+
+        <section class="panel equipment-effect-panel" aria-labelledby="equipment-effect-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Interactive cause → effect</p>
+              <h2 id="equipment-effect-title">Equipment and the deteriorating body</h2>
+            </div>
+            <button id="reset-equipment-effects" type="button" class="secondary">Reset visual model</button>
+          </div>
+          <p>
+            Explore what equipment is allowed to influence in the synthetic body model. This is a teaching visualization, not a clinical score or treatment predictor. Equipment must pass an evidence gate and the same <strong>available → selected → checked → assigned → committed</strong> sequence before any synthetic state can move.
+          </p>
+
+          <div id="body-visual-summary" class="body-visual-summary" aria-label="Synthetic body-state visualization"></div>
+          <div id="body-metric-grid" class="body-metric-grid"></div>
+
+          <h3>Equipment controls</h3>
+          <div id="equipment-effect-grid" class="equipment-effect-grid"></div>
+
+          <h3>Current causal map</h3>
+          <ul id="equipment-cause-graph" class="cause-graph"></ul>
+
+          <div class="equipment-safety-note">
+            <strong>Interpretation boundary:</strong>
+            <span>oxygenation ≠ ventilation · alarm ≠ indication · equipment available ≠ equipment required · AAC interruption ≠ incapacity</span>
+          </div>
+          <p id="equipment-effect-live" class="live-region" role="status" aria-live="polite"></p>
+          <p><small id="equipment-ledger-count">0 committed equipment events</small></p>
+        </section>
       </div>
 
       <aside class="panel rightbar" aria-label="Event log and debrief">
