@@ -12,6 +12,10 @@ import {
   stationNextLabel,
   tick
 } from "../runtime.js";
+import {
+  initEquipmentEffectUI,
+  resetEquipmentEffectUI
+} from "./equipment-cause-effect-ui.js";
 
 const byId = (id) => document.getElementById(id);
 let scenarioIndex = 0;
@@ -97,6 +101,7 @@ export function initApp() {
     state = createRuntime(currentScenario().id);
     byId("feedback").textContent = "Choose an action. The simulation rewards sequence, reassessment and direct communication—not speed alone.";
     byId("aac-live").textContent = "";
+    resetEquipmentEffectUI(currentScenario().id);
     render();
   }
 
@@ -135,6 +140,7 @@ export function initApp() {
   }, 1000);
 
   render();
+  initEquipmentEffectUI(currentScenario().id);
 
   // Non-sensitive runtime status for developer UX: do not expose the secret itself.
   const apiStatusEl = byId('api-config-status');
