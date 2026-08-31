@@ -1,37 +1,65 @@
 # Biosocial Family Relational Substrate
 
-Version: 0.1.0  
-Status: educational simulation backend / research prototype
+## Status
 
-## Purpose
+Educational/research prototype for Project Hope / Disability Medical Simulations.
 
-The biosocial family relational substrate adds a deterministic social-state layer beneath Project Hope / Disability Medical Simulations. It models how acute illness, uncertainty, communication access, family/support relationships, boundaries, trust and repair change over time without turning family behavior into a stereotype or letting social-state variables determine clinical treatment, capacity, prognosis or legal authority.
+This backend models a synthetic relational network around a patient during critical illness. It is designed to interact with the existing biomedical cardiorespiratory engine, accessible respiratory simulation signals, AI Roleplay Chat Simulator, and the external Patient Autonomy and Rights Safeguards gate.
 
-It is intended to sit beside the biomedical model, not inside it.
+It is **not** a psychological diagnostic system, capacity assessment, legal-authority engine, prognosis tool, treatment decision system, or model of any real family.
+
+## Architecture
 
 ```text
-Biomedical physiology      Respiratory/access state
-        │                            │
-        └───────── normalized signals ─────────┐
-                                               ▼
-                                 Biosocial relational substrate
-                                  actors + directed relationships
-                                               │
-                           ┌───────────────────┼──────────────────┐
-                           ▼                   ▼                  ▼
-                    scenario cues       role-play context    debrief telemetry
-                           │                   │                  │
-                           └──────────────┬────┴──────────────────┘
-                                          ▼
-                                   rights/autonomy gate
-                                   remains authoritative
+PROJECT HOPE CLINICAL / RESPIRATORY ENGINE
+                 |
+                 v
+      ACCESSIBLE RESPIRATORY ADAPTER
+                 |
+      clinical threat / uncertainty
+      communication access reliability
+      direct patient voice availability
+                 |
+                 v
+      BIOSOCIAL RELATIONAL SUBSTRATE
+        |                         |
+        v                         v
+     ACTORS                    EDGES
+ stress / threat         trust / conflict
+ coping reserve          autonomy alignment
+ information need        communication reliability
+ control impulse         boundary respect
+ role clarity            support availability
+        |                         |
+        +------------+------------+
+                     v
+            DYNAMIC NPC RENDERER
+                     |
+            descriptive dialogue
+                     |
+                     v
+         AI ROLEPLAY CHAT ADAPTER
+                     |
+                     v
+              MODERATOR / CONTROLLER
+                     |
+             typed relational event
+                     |
+                     v
+                 RIGHTS GATE
 ```
 
-## What the substrate models
+The core rule is:
 
-### Actor state
+```text
+dialogue generation != state mutation
+```
 
-Each actor has explicit, scenario-authored normalized values in `[0,1]`:
+The dynamic NPC layer may render fear, hesitation, disagreement, information seeking, repair or support. Only a separately validated typed event changes relational state.
+
+## Actor state
+
+Each actor can carry bounded normalized values such as:
 
 - stress;
 - coping reserve;
@@ -39,18 +67,16 @@ Each actor has explicit, scenario-authored normalized values in `[0,1]`:
 - information need;
 - control impulse;
 - emotional availability;
-- direct-communication skill;
+- direct communication skill;
 - role clarity;
 - support capacity;
 - threat sensitivity.
 
-These are **simulation state variables**, not diagnoses, personality assessments, or claims about real families.
+These are simulation-control variables, not diagnoses or claims about a real person's personality.
 
-### Relationship state
+## Directed relationship state
 
-Relationships are directed edges. A mother-to-patient relationship can therefore differ from patient-to-mother state.
-
-Each edge contains:
+Each relationship edge can carry:
 
 - influence weight;
 - closeness;
@@ -61,322 +87,123 @@ Each edge contains:
 - boundary respect;
 - support availability.
 
-### Environment and access
+Edges are directed. A patient's trust in a supporter need not numerically equal the supporter's trust in the patient.
 
-The substrate receives normalized, scenario-controlled signals:
+## Current authored event set
 
-- `clinicalThreat`;
-- `uncertainty`;
-- `staffContinuity`;
-- family/support presence;
-- `communicationAccessReliability`;
-- privacy reliability;
-- direct patient voice availability.
+The substrate supports events including:
 
-It does not infer those inputs from disability severity.
+- `RESPIRATORY_DETERIORATION`
+- `ICU_TRANSFER`
+- `CARDIAC_ARREST`
+- `ROSC`
+- `AAC_ACCESS_DISRUPTED`
+- `AAC_ACCESS_RESTORED`
+- `PRIVATE_CONVERSATION_REQUEST`
+- `FAMILY_DISAGREEMENT`
+- `BOUNDARY_RESPECTED`
+- `BOUNDARY_OVERRIDE_ATTEMPT`
+- `PATIENT_VOICE_ACKNOWLEDGED`
+- `REPAIR_CONVERSATION`
+- `SUPPORT_OFFERED`
+- `INFORMATION_CLARIFIED`
+
+Clinical events can increase threat or uncertainty but do not alter legal authority, capacity or treatment ceilings.
+
+## Respiratory integration
+
+`adaptRespiratorySimulationSignal()` accepts only a narrow safe interface:
+
+```js
+{
+  clinicalThreat,
+  uncertainty,
+  communicationAccessReliability,
+  directPatientVoiceAvailable
+}
+```
+
+It intentionally excludes disability severity, wheelchair use, AAC use as a capacity proxy, and family presence as legal authority.
+
+## AI Roleplay integration
+
+`src/features/ai-roleplay-relational-adapter.js` creates read-only roleplay payloads from the deterministic substrate.
+
+`src/features/dynamic-npc-response-engine.js` adds state-aware response rendering. It ranks descriptive intents such as:
+
+- boundary resistance;
+- anxious information seeking;
+- tentative boundary respect;
+- repair attempt;
+- supportive presence;
+- clinical clarification.
+
+The selected response remains descriptive. The moderator must separately decide whether an event such as `BOUNDARY_RESPECTED`, `BOUNDARY_OVERRIDE_ATTEMPT` or `REPAIR_CONVERSATION` actually occurred.
 
 ## Rights invariants
 
-The model hard-codes architectural invariants rather than asking social dynamics to decide them:
+The backend is designed around the following non-negotiable constraints:
+
+- communication failure does not equal incapacity;
+- family presence does not equal substitute authority;
+- relational stress or conflict does not equal treatment futility;
+- disability does not determine a person's relational baseline;
+- free-text roleplay cannot directly mutate deterministic state;
+- severe clinical threat does not itself change decision-making authority;
+- generated dialogue cannot prescribe treatment.
+
+## Example: Maya's ICU privacy request
+
+A current state might include high clinical threat, high uncertainty, elevated supporter stress, reduced information clarity and substantial conflict.
+
+Maya uses AAC to state:
 
 ```text
-communication failure != incapacity
-family presence != substitute authority
-relational stress != treatment futility
-disability severity != relational baseline
-role-play free text != deterministic state mutation
+I WANT FIVE MINUTES ALONE WITH THE DOCTOR.
 ```
 
-`rightsContext` is a read-only snapshot supplied by the external autonomy/rights layer. The relational substrate can carry it for rendering and audit, but its update functions do not promote a supporter to substitute decision-maker or perform capacity assessment.
+The dynamic NPC renderer may produce a high-probability family response such as:
 
-## Respiratory coupling
+> I heard what Maya asked. I am still struggling with being sent out when things are this serious. Can someone tell me what happens while I am outside?
 
-The Accessible Respiratory Simulation Author model requires four concurrent layers: personal baseline, acute clinical change, access state and system state. This substrate consumes only normalized signals from those layers.
+That dialogue does not itself mean the privacy boundary was breached.
 
-Example:
-
-```js
-const signal = adaptRespiratorySimulationSignal({
-  clinicalThreat: 0.8,
-  uncertainty: 0.6,
-  communicationAccessReliability: 0.45,
-  directPatientVoiceAvailable: true
-});
-
-state = stepRelationalSubstrate(state, signal, 1);
-```
-
-The adapter deliberately strips unrelated fields such as cerebral-palsy severity, wheelchair use or family status so they cannot silently become social/clinical proxies.
-
-## Supported authored events
-
-The initial event vocabulary is:
+The moderator must separately commit one of the relevant event paths, for example:
 
 ```text
-RESPIRATORY_DETERIORATION
-ICU_TRANSFER
-CARDIAC_ARREST
-ROSC
-AAC_ACCESS_DISRUPTED
-AAC_ACCESS_RESTORED
-PRIVATE_CONVERSATION_REQUEST
-FAMILY_DISAGREEMENT
-BOUNDARY_RESPECTED
+PRIVATE_CONVERSATION_REQUEST respected=true
+```
+
+or, if scenario facts establish an attempted override:
+
+```text
 BOUNDARY_OVERRIDE_ATTEMPT
-PATIENT_VOICE_ACKNOWLEDGED
-REPAIR_CONVERSATION
-SUPPORT_OFFERED
-INFORMATION_CLARIFIED
 ```
 
-Events produce transient deterministic stimuli. A cardiac arrest can raise stress and threat, for example, but it does not create a treatment ceiling or an assumption that family decision authority has changed.
+The rights gate then evaluates whether progression is permissible.
 
-## Dynamical model
+## Wolfram validation
 
-### Social stress
+Two synthetic engineering validation layers are maintained under `validation/`:
 
-For actor `i`, the update is conceptually:
+1. `wolfram-biosocial-relational-validation.wl` — normalized graph influence/stress stability and bounded-state checks;
+2. `wolfram-biosocial-family-system-envelope.wl` — nonlinear six-state family-system envelope for trust, autonomy support, conflict load, information clarity, supporter burden and crisis stress.
 
-```text
-socialStress_i = sum(normalizedInfluence_ji * stress_j)
+Negative Jacobian eigenvalue real parts in representative synthetic equilibria establish local numerical convergence for those illustrative coefficients only. They do not empirically validate family psychology.
 
-Δstress_i =
-    threatGain * threat_i
-  + contagionGain * socialStress_i
-  + uncertaintyGain * uncertainty * informationNeed_i
-  - recoveryRate * copingReserve_i * stress_i
-  - supportBuffer * receivedSupport_i
-  - communicationRelief * accessReliability * communicationSkill_i
-  + authoredEventShock
-```
+## Accessibility
 
-The result is projected into `[0,1]`.
+The runtime should provide:
 
-This is a **synthetic interaction model**. The coefficients are not presented as empirical family-psychology constants.
+- captions and transcripts;
+- speaker identification;
+- AAC dwell/scanning time without learner penalty;
+- keyboard and switch-accessible response choices;
+- reduced-motion presentation;
+- non-colour status cues;
+- an explicit pause/repair path when communication access fails;
+- patient-first direct address when the patient is participating.
 
-### Control impulse
+## Validation boundary
 
-The backend includes a bounded `controlImpulse` variable to represent a scenario pattern in which acute fear, uncertainty and unclear supporter roles can increase the urge to take control.
-
-It is never treated as inevitable behavior. It changes only from an explicitly authored baseline and current scenario inputs.
-
-Crucially:
-
-```text
-controlImpulse high
-        !=
-legal authority
-```
-
-### Trust and conflict
-
-Relationship trust can be repaired by authored events such as direct patient voice, boundary respect, clarification and repair conversations. It can be eroded by explicitly authored boundary violations, conflict, misinformation and poor communication reliability.
-
-The model therefore supports both rupture and recovery rather than producing a permanently adversarial family after one disagreement.
-
-### Autonomy alignment
-
-`autonomyAlignment` represents whether an interaction pattern is currently aligned with the patient's expressed choices. It is not a capacity score and does not define legal authority.
-
-Examples:
-
-```text
-patient asks for a private conversation + supporter respects it
-  -> boundary respect signal
-  -> role clarity can improve
-  -> autonomy alignment and trust can recover
-
-supporter tries to override the patient's expressed boundary
-  -> authored boundary violation
-  -> conflict can rise
-  -> trust/autonomy alignment can fall
-  -> repair remains possible
-```
-
-## Wolfram verification
-
-A representative five-node network was checked in Wolfram Language using a row-normalized influence matrix and the linearized stress update core.
-
-For the illustrative parameters:
-
-```text
-dt = 0.25
-recovery = 0.55
-contagion = 0.20
-```
-
-Wolfram produced a spectral radius of approximately:
-
-```text
-0.9125
-```
-
-for the linearized core, below one. This supports numerical stability of that illustrative local update before projection/clamping.
-
-The same synthetic check showed:
-
-```text
-stress initial:
-{0.35, 0.55, 0.25, 0.30, 0.25}
-
-stress after acute threat:
-{0.469, 0.626625, 0.25875, 0.393, 0.325875}
-```
-
-and demonstrated that a boundary-respecting direct-voice signal can drive trust upward while an authored boundary override can drive it downward.
-
-These results establish numerical coherence only; they do not validate the coefficients as real human psychology.
-
-See `validation/wolfram-biosocial-relational-validation.wl` for the reproducible calculation and parameter sweep.
-
-## AI Roleplay Chat Simulator integration
-
-The role-play engine is treated as a **dialogue renderer and rehearsal surface**, not a source of deterministic truth.
-
-`deriveRoleplayContext(state, actorId, targetId)` produces a bounded context object containing:
-
-- current actor stress/threat/information need;
-- current relationship trust/conflict/autonomy alignment;
-- communication reliability;
-- clinical threat/uncertainty;
-- explicit rights constraints.
-
-The returned instruction states that free text must not mutate relational state directly.
-
-Recommended integration:
-
-```text
-relational substrate
-       │
-       ▼
-deriveRoleplayContext()
-       │
-       ▼
-AI role-play conversation
-       │
-       ▼
-learner / facilitator interprets outcome
-       │
-       ▼
-explicit authored event
-BOUNDARY_RESPECTED / REPAIR_CONVERSATION / etc.
-       │
-       ▼
-deterministic state transition
-```
-
-Avoid this unsafe pattern:
-
-```text
-LLM says "Mum is furious"
-       ↓
-automatically set conflict = 1
-```
-
-That would make model prose an unreviewed state controller.
-
-## Example Maya-family network
-
-A simulation can define:
-
-```text
-Maya (patient)
-  ↕
-Mother (trusted family supporter)
-
-Maya
-  ← Aisha (friend)
-
-Maya
-  ← ICU nurse
-
-Mother
-  ← ICU nurse
-```
-
-The mother can be highly frightened and still remain capable of respecting Maya's boundaries. Aisha can provide identity continuity and ordinary social support. The nurse can reduce uncertainty and improve role clarity. None of those relationships changes Maya's decision-making authority by itself.
-
-## Example sequence
-
-```js
-state = applyRelationalEvent(state, {
-  type: "CARDIAC_ARREST"
-});
-state = stepRelationalSubstrate(state, {}, 1);
-
-state = applyRelationalEvent(state, {
-  type: "ROSC"
-});
-state = stepRelationalSubstrate(state, {}, 1);
-
-state = applyRelationalEvent(state, {
-  type: "PRIVATE_CONVERSATION_REQUEST",
-  supporterId: "mother",
-  respected: true
-});
-state = stepRelationalSubstrate(state, {}, 1);
-```
-
-The expected result is not "happy family" or "conflict resolved." Instead, the substrate keeps a continuous state in which stress can remain high while trust, role clarity and boundary respect improve.
-
-## Backend boundary with biomedical model
-
-The biomedical model can provide a normalized `clinicalThreat` signal through the scenario controller, but the relational layer should not directly inspect raw measurements and invent social meaning.
-
-For example:
-
-```text
-PaO2 / MAP / ventilation data
-        │
-        ▼
-scenario + clinical interpretation
-        │
-        ▼
-normalized clinicalThreat + uncertainty
-        │
-        ▼
-relational substrate
-```
-
-This separation prevents a numeric blood-pressure threshold from automatically deciding that a family member becomes panicked, coercive, or legally authoritative.
-
-## Accessibility behavior
-
-- AAC access has a first-class state variable.
-- Loss of eye-gaze reliability reduces information reliability, not presumed cognition.
-- Direct patient voice remains a separate signal from family/support presence.
-- The simulation clock can still pause for AAC/switch scanning at the main runtime layer.
-- All relational states must be available as text, not color-only diagrams.
-- A relationship graph needs an equivalent keyboard/screen-reader list representation.
-- Role-play interfaces should allow extra response time and a clear pause/stop route.
-
-## Audit telemetry
-
-Each deterministic step records:
-
-```text
-time
-clinical threat
-uncertainty
-communication access reliability
-```
-
-Each authored event records its type and payload.
-
-For a production implementation, additionally persist:
-
-- scenario/case version;
-- relational model version;
-- actor/edge definition version;
-- rights-gate snapshot version;
-- dialogue-model/version when role play is used;
-- learner-selected event/outcome;
-- facilitator override and reason.
-
-## Safety and validation boundary
-
-This substrate is not a family-therapy model, psychological assessment, mental-health diagnosis, capacity assessment, legal decision-maker classifier or predictor of how a real relative will behave.
-
-Before using relational scores in research involving real people, validate the construct definitions, obtain appropriate research governance, minimise identifiable data and review the model with disabled people and family/support representatives.
-
-For clinical education, relational variables should drive plausible cues and debrief prompts rather than high-stakes automated scoring about whether a learner, patient or family is "good," "difficult," "compliant" or "unsafe."
+Before use with real-person data, psychological profiling, competency assessment, autonomous decision support or research participants, the project requires additional construct validation, paid lived-experience review, clinical/accessibility review, privacy/data governance and any applicable research governance.
