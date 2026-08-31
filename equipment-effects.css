@@ -1,0 +1,29 @@
+.equipment-effect-panel{border-top:6px solid var(--teal)}
+.body-visual-summary{display:grid;grid-template-columns:150px 1fr;gap:1rem;align-items:center;margin:1rem 0;padding:1rem;border:1px solid var(--border);border-radius:.9rem;background:#f7fafc}
+.body-stability-figure{position:relative;width:120px;height:180px;margin:auto;border:1px dashed var(--border);border-radius:1rem;background:#fff;overflow:hidden}
+.body-head{position:absolute;width:34px;height:34px;border:4px solid var(--navy);border-radius:50%;left:43px;top:16px;background:#fff}
+.body-torso{position:absolute;width:54px;height:92px;border:4px solid var(--navy);border-radius:24px 24px 16px 16px;left:33px;top:51px;transform-origin:50% 10%;transition:transform .35s ease;background:#edf5fc}
+.breathing-pulse{position:absolute;left:46px;top:78px;width:28px;height:22px;border:3px solid var(--teal);border-radius:50%;opacity:calc(.35 + (var(--effort) / 200));animation:respiratoryPulse 1.4s ease-in-out infinite}
+@keyframes respiratoryPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.body-metric-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;margin-bottom:1rem}
+.body-metric{border:1px solid var(--border);border-radius:.75rem;padding:.65rem;background:#fff}
+.body-metric-heading{display:flex;justify-content:space-between;gap:.8rem;font-size:.88rem;margin-bottom:.35rem}
+.body-metric-heading strong{font-size:.78rem;color:var(--muted)}
+.body-meter{height:.8rem;border:1px solid var(--border);border-radius:999px;background:#eef1f5;overflow:hidden}
+.body-meter span{display:block;height:100%;background:var(--blue);transition:width .35s ease}
+.equipment-effect-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;margin:1rem 0}
+.equipment-effect-card{border:1px solid var(--border);border-radius:.85rem;padding:.8rem;background:#fff}
+.equipment-card-heading{display:flex;justify-content:space-between;align-items:start;gap:.6rem}
+.equipment-card-heading h3{margin:0;font-size:1rem}
+.equipment-effect-card p{margin:.5rem 0}
+.equipment-preview{color:var(--muted);font-size:.88rem}
+.equipment-effect-card button{width:100%;margin-top:.4rem}
+.cause-graph{display:grid;gap:.4rem;padding-left:1.2rem}
+.cause-graph li{padding:.45rem .55rem;border-left:4px solid var(--blue);background:#f7fafc}
+.synthetic-tag{display:inline-block;padding:.05rem .35rem;border:1px solid var(--border);border-radius:999px;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.equipment-safety-note{display:flex;gap:.55rem;flex-wrap:wrap;border-left:5px solid var(--amber);background:#fff7e7;padding:.8rem;margin-top:1rem}
+.low-sensory .body-stability-figure{display:none}
+.low-sensory .body-visual-summary{grid-template-columns:1fr}
+.reduced-motion .body-torso,.reduced-motion .body-meter span{transition:none}
+.reduced-motion .breathing-pulse{animation:none}
+@media(max-width:720px){.body-visual-summary,.body-metric-grid,.equipment-effect-grid{grid-template-columns:1fr}.body-stability-figure{margin:0 auto}}
