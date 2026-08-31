@@ -20,6 +20,11 @@ async function post(payload) {
   return response.json();
 }
 
+function eventSequence(event) {
+  const prefix = Number.parseInt(String(event.id).split("-", 1)[0], 10);
+  return Number.isInteger(prefix) && prefix > 0 ? prefix : null;
+}
+
 export async function startPersistenceSession(scenarioId, accessibility = {}) {
   syncedEventIds = new Set();
   const result = await post({ op: "start", scenarioId, accessibility });
@@ -33,9 +38,9 @@ export async function syncEvents(events) {
   const pending = [...events]
     .reverse()
     .filter((event) => !syncedEventIds.has(event.id))
-    .map((event, index) => ({
+    .map((event) => ({
       id: event.id,
-      sequenceNo: events.length - index,
+      sequenceNo: eventSequence(event),
       simSeconds: event.seconds,
       eventType: event.type,
       actor: event.detail?.actor ?? null,
@@ -43,7 +48,8 @@ export async function syncEvents(events) {
         message: event.message,
         detail: event.detail ?? {}
       }
-    }));
+    }))
+    .filter((event) => event.sequenceNo !== null);
 
   if (pending.length === 0) return;
   await post({ op: "events", sessionId, events: pending });
