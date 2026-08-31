@@ -3,6 +3,7 @@ import {
   buildClinicalSceneMonitor,
   deriveClinicalPracticeContext
 } from "./clinical-practice-algorithm-engine.js";
+import { applyClinicalPracticeRightsGate } from "./clinical-practice-rights-gate.js";
 
 /**
  * Join the read-only clinical-practice layer to the read-only NPC renderer.
@@ -18,7 +19,8 @@ export function buildClinicalAwareNPCResponse(relationalState, {
   syntheticFamilyEnvelope = null,
   clinicalSnapshot = {}
 } = {}) {
-  const clinicalPractice = deriveClinicalPracticeContext(clinicalSnapshot);
+  const rawClinicalPractice = deriveClinicalPracticeContext(clinicalSnapshot);
+  const clinicalPractice = applyClinicalPracticeRightsGate(rawClinicalPractice, clinicalSnapshot);
   const npcTurn = buildDynamicNPCResponse(relationalState, {
     npcActorId,
     targetActorId,
@@ -34,6 +36,7 @@ export function buildClinicalAwareNPCResponse(relationalState, {
       monitor: buildClinicalSceneMonitor(clinicalPractice),
       npcSafeFacts: { ...clinicalPractice.npcSafeFacts },
       alerts: [...clinicalPractice.alerts],
+      rightsGate: { ...clinicalPractice.rightsGate },
       sourceIds: clinicalPractice.sources.map((item) => item.id)
     },
     generationInstruction: [
@@ -41,6 +44,7 @@ export function buildClinicalAwareNPCResponse(relationalState, {
       "Do not invent an arrest, ROSC, sepsis diagnosis, tracheostomy emergency, prognosis or treatment response that is not present in the authored clinical snapshot.",
       "Family NPCs may ask what is known, what remains uncertain, what staff are monitoring and what happens next.",
       "Clinician NPCs may describe current pathway status in plain language, but advanced actions remain clinician-led and local procedure/guideline controls execution.",
+      "Respect the clinicalPractice.rightsGate output; never infer a treatment limitation from disability, family preference, AAC use or relational state.",
       "Dialogue cannot change clinical or relational state. Moderator/controller events remain authoritative."
     ].join(" "),
     rightsConstraints: {
