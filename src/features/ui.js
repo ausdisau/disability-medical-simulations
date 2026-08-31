@@ -1,6 +1,12 @@
 import { scenarios, stationDefinitions } from "../scenarios.js";
 import { isThirdPartyApiKeyConfigured } from "../config.js";
 import {
+  completePersistenceSession,
+  saveSnapshot,
+  startPersistenceSession,
+  syncEvents
+} from "../persistence.js";
+import {
   advanceStation,
   commitChoice,
   createRuntime,
@@ -23,6 +29,25 @@ function list(target, items) {
 
 function currentScenario() {
   return scenarios[scenarioIndex];
+}
+
+function accessibilityPreferences() {
+  return {
+    lowSensory: Boolean(byId("low-sensory")?.checked),
+    reducedMotion: Boolean(byId("reduced-motion")?.checked)
+  };
+}
+
+function persistCurrentEvents() {
+  void syncEvents(state.events).catch((error) => {
+    console.warn("Simulation event persistence unavailable", error);
+  });
+}
+
+function persistCurrentSnapshot() {
+  void saveSnapshot(state).catch((error) => {
+    console.warn("Simulation snapshot persistence unavailable", error);
+  });
 }
 
 function renderLog() {
@@ -48,6 +73,7 @@ function renderStations() {
     button.addEventListener("click", () => {
       state = advanceStation(state, button.dataset.stationId);
       render();
+      persistCurrentSnapshot();
     });
   });
 }
@@ -89,15 +115,27 @@ function render() {
   renderChoices();
   renderStations();
   renderLog();
+  persistCurrentEvents();
+}
+
+async function beginPersistenceForCurrentScenario() {
+  try {
+    await startPersistenceSession(currentScenario().id, accessibilityPreferences());
+    persistCurrentEvents();
+  } catch (error) {
+    console.warn("Simulation persistence is running in local-only mode", error);
+  }
 }
 
 export function initApp() {
   function loadScenario(index) {
+    void completePersistenceSession().catch(() => {});
     scenarioIndex = Number(index);
     state = createRuntime(currentScenario().id);
     byId("feedback").textContent = "Choose an action. The simulation rewards sequence, reassessment and direct communication—not speed alone.";
     byId("aac-live").textContent = "";
     render();
+    void beginPersistenceForCurrentScenario();
   }
 
   byId("scenario-select").innerHTML = scenarios.map((scenario, index) => `<option value="${index}">${scenario.title}</option>`).join("");
@@ -106,21 +144,26 @@ export function initApp() {
     state = pauseForCommunication(state);
     byId("aac-live").textContent = "Simulation clock paused while communication is composed or scanned.";
     render();
+    persistCurrentSnapshot();
   });
   byId("restore-aac").addEventListener("click", () => {
     state = restoreCommunication(state);
     byId("aac-live").textContent = "AAC access restored and confirmed.";
     render();
+    persistCurrentSnapshot();
   });
   byId("commit-decision").addEventListener("click", () => {
     const result = commitChoice(state, currentScenario());
     state = result.state;
     byId("feedback").textContent = result.feedback;
     render();
+    persistCurrentSnapshot();
+    if (state.completed) void completePersistenceSession().catch(() => {});
   });
   byId("reassess").addEventListener("click", () => {
     state = reassess(state);
     render();
+    persistCurrentSnapshot();
   });
   byId("reset-scenario").addEventListener("click", () => loadScenario(scenarioIndex));
   byId("low-sensory").addEventListener("change", (event) => document.body.classList.toggle("low-sensory", event.target.checked));
@@ -135,10 +178,11 @@ export function initApp() {
   }, 1000);
 
   render();
+  void beginPersistenceForCurrentScenario();
 
   // Non-sensitive runtime status for developer UX: do not expose the secret itself.
-  const apiStatusEl = byId('api-config-status');
+  const apiStatusEl = byId("api-config-status");
   if (apiStatusEl) {
-    apiStatusEl.textContent = isThirdPartyApiKeyConfigured() ? 'Third-party APIs: configured' : 'Third-party APIs: missing — see README.md';
+    apiStatusEl.textContent = isThirdPartyApiKeyConfigured() ? "Third-party APIs: configured" : "Third-party APIs: missing — see README.md";
   }
 }
