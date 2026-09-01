@@ -1,5 +1,7 @@
 import { APP_VERSION, EXPORT_FORMAT_VERSION } from "./version.js";
 import { auditPersonhood } from "./guardian.js";
+import { PICU_IAS_STATIONS, PICU_TRAINER_SOURCE } from "./picuTrainer.js";
+import { buildVirgilProposal } from "./virgil.js";
 
 function cloneJson(value) {
   return JSON.parse(JSON.stringify(value));
@@ -51,11 +53,20 @@ export function buildSimulationExport({ scenario, state, accessibility = {}, exp
       selectedChoiceId: state.selectedChoiceId,
       lastDecisionId: state.lastDecisionId,
       completed: state.completed,
+      clinical: cloneJson(state.clinical),
       communication: cloneJson(state.communication),
       agency: cloneJson(state.agency),
       system: cloneJson(state.system),
+      evidence: cloneJson(state.evidence),
       stations: cloneJson(state.stations)
     },
+    instrumentalActionStations: {
+      count: PICU_IAS_STATIONS.length,
+      source: cloneJson(PICU_TRAINER_SOURCE),
+      definitions: cloneJson(PICU_IAS_STATIONS),
+      state: cloneJson(state.stations)
+    },
+    virgil: cloneJson(buildVirgilProposal(state, scenario)),
     commandLog: cloneJson(state.commandLog),
     timeline: cloneJson(state.events),
     personhoodGuardian: cloneJson(auditPersonhood(state, scenario)),
@@ -65,6 +76,7 @@ export function buildSimulationExport({ scenario, state, accessibility = {}, exp
       applicationVersion: APP_VERSION,
       rulePackVersion: state.rulePackVersion,
       exportSchema: EXPORT_FORMAT_VERSION,
+      picuTrainerSource: cloneJson(PICU_TRAINER_SOURCE),
       authorityHierarchy: [
         "protected_patient_facts_and_authored_choices",
         "deterministic_structured_state_and_command_log",
