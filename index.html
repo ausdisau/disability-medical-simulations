@@ -44,7 +44,7 @@
     <section class="status-grid" aria-label="Current simulation status">
       <article class="status-card"><span>Patient</span><strong id="patient-name"></strong><small id="patient-profile"></small></article>
       <article class="status-card"><span>Communication</span><strong id="communication-method"></strong><small id="communication-detail"></small></article>
-      <article class="status-card"><span>Simulation clock</span><strong id="clock">00:00</strong><small id="clock-note">Running</small></article>
+      <article class="status-card"><span>Clinical clock</span><strong id="clock">00:00</strong><small>Evaluation <span id="evaluation-clock">00:00</span> · <span id="clock-note">Both clocks running</span></small></article>
       <article class="status-card"><span>Scenario state</span><strong id="scenario-state">Assessment</strong><small>Synthetic educational simulation</small></article>
     </section>
 
@@ -83,8 +83,8 @@
             <p id="aac-description"></p>
           </div>
           <div class="button-row">
-            <button id="pause-aac" type="button">Pause for communication</button>
-            <button id="restore-aac" type="button" class="secondary">Restore AAC</button>
+            <button id="pause-aac" type="button">AAC composing / scanning</button>
+            <button id="restore-aac" type="button" class="secondary">AAC response complete</button>
           </div>
           <p id="aac-live" class="live-region" aria-live="polite"></p>
         </section>
