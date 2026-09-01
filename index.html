@@ -1,130 +1,15 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Accessible disability medical simulation for communication, respiratory assessment and evidence-gated clinical reasoning.">
-  <title>Project Hope Emulator</title>
-  <link rel="stylesheet" href="./styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Project Hope Emulator — accessible, fictional disability medical simulation with memory-only runtime and user-controlled JSON export." />
+  <meta name="theme-color" content="#07111f" />
+  <title>Project Hope Emulator — v1 Alpha RC</title>
 </head>
 <body>
-  <a class="skip-link" href="#main">Skip to simulation</a>
-
-  <header class="site-header">
-    <div>
-      <p class="eyebrow">Project Hope Emulator</p>
-      <h1>Disability Medical Simulations</h1>
-      <p>Person-first respiratory simulation with AAC, baseline-aware assessment and evidence-gated stations.</p>
-    </div>
-
-    <div class="header-controls" aria-label="Simulation preferences">
-      <label>
-        Scenario
-        <select id="scenario-select"></select>
-      </label>
-      <label class="check-row"><input id="low-sensory" type="checkbox"> Low-sensory mode</label>
-      <label class="check-row"><input id="reduced-motion" type="checkbox"> Reduced motion</label>
-    </div>
-  </header>
-
-  <main id="main">
-    <section class="session-policy" aria-labelledby="session-policy-title">
-      <div>
-        <p class="eyebrow">Data lifecycle</p>
-        <h2 id="session-policy-title">Memory-only simulation</h2>
-        <p>No database, autosave or session history. The running case exists in memory only. Keep a copy only by choosing <strong>Export JSON</strong>.</p>
-      </div>
-      <div class="button-row" aria-label="Simulation data controls">
-        <button id="export-json" type="button">Export JSON</button>
-        <button id="discard-session" type="button" class="secondary">Discard session</button>
-      </div>
-      <p id="session-live" class="live-region" role="status" aria-live="polite"></p>
-    </section>
-
-    <section class="status-grid" aria-label="Current simulation status">
-      <article class="status-card"><span>Patient</span><strong id="patient-name"></strong><small id="patient-profile"></small></article>
-      <article class="status-card"><span>Communication</span><strong id="communication-method"></strong><small id="communication-detail"></small></article>
-      <article class="status-card"><span>Clinical clock</span><strong id="clock">00:00</strong><small>Evaluation <span id="evaluation-clock">00:00</span> · <span id="clock-note">Both clocks running</span></small></article>
-      <article class="status-card"><span>Scenario state</span><strong id="scenario-state">Assessment</strong><small>Synthetic educational simulation</small></article>
-    </section>
-
-    <div class="workspace">
-      <aside class="panel sidebar" aria-label="Person-first clinical frame">
-        <h2>Usual baseline</h2>
-        <ul id="baseline-list"></ul>
-        <h2>New or changed</h2>
-        <ul id="change-list"></ul>
-        <h2>Do not assume</h2>
-        <ul id="assumption-list"></ul>
-        <div class="safety-boundary">
-          <strong>Safety boundary</strong>
-          <p>No medication doses, ventilator settings or procedural technique. Follow local protocol and the person's current plan.</p>
-        </div>
-      </aside>
-
-      <div class="main-column">
-        <section class="panel scene-panel" aria-labelledby="scene-title">
-          <div>
-            <p class="eyebrow" id="scene-setting"></p>
-            <h2 id="scene-title"></h2>
-            <blockquote id="patient-voice"></blockquote>
-            <p id="opening-text"></p>
-          </div>
-          <figure>
-            <img id="scene-image" src="./assets/icu-scene.svg" alt="Stylised ICU scene showing a patient using an AAC display while clinicians assess the airway and family remain nearby.">
-            <figcaption>Illustrated training scene. Media is context, not proof of clinical indication.</figcaption>
-          </figure>
-        </section>
-
-        <section class="panel aac-panel" aria-labelledby="aac-title">
-          <div>
-            <p class="eyebrow">Communication access</p>
-            <h2 id="aac-title">AAC dock</h2>
-            <p id="aac-description"></p>
-          </div>
-          <div class="button-row">
-            <button id="pause-aac" type="button">AAC composing / scanning</button>
-            <button id="restore-aac" type="button" class="secondary">AAC response complete</button>
-          </div>
-          <p id="aac-live" class="live-region" aria-live="polite"></p>
-        </section>
-
-        <section class="panel decision-panel" aria-labelledby="decision-title">
-          <p class="eyebrow">Decision gate</p>
-          <h2 id="decision-title"></h2>
-          <div id="choice-list" class="choice-list"></div>
-          <button id="commit-decision" type="button">Commit decision</button>
-          <div id="feedback" class="feedback" role="status" aria-live="polite">Choose an action. The simulation rewards sequence, reassessment and direct communication—not speed alone.</div>
-        </section>
-
-        <section class="panel" aria-labelledby="stations-title">
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow">Evidence-gated equipment</p>
-              <h2 id="stations-title">Instrumental action stations</h2>
-            </div>
-            <button id="reassess" type="button" class="secondary">Reassess patient</button>
-          </div>
-          <p>Each station progresses through <strong>available → selected → checked → assigned → committed</strong>. Selection never authorises use.</p>
-          <div id="station-grid" class="station-grid"></div>
-        </section>
-      </div>
-
-      <aside class="panel rightbar" aria-label="Event log and debrief">
-        <h2>Event log</h2>
-        <ol id="event-log" class="event-log"></ol>
-        <h2>Accessible debrief</h2>
-        <ul id="debrief-list"></ul>
-        <button id="reset-scenario" type="button" class="secondary">Reset scenario</button>
-      </aside>
-    </div>
-  </main>
-
-  <footer>
-    <p>Fictional, synthetic educational cases. Communication access is a clinical safety control. Completion does not certify clinical competence.</p>
-    <small>Platform retention: none · User-controlled output: JSON only</small>
-  </footer>
-
-  <script type="module" src="./src/app.js"></script>
+  <a class="skip-link" href="#simulation-main">Skip to simulation</a>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>

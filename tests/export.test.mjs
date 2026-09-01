@@ -1,41 +1,37 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { scenarios } from "../src/scenarios.js";
 import { buildSimulationExport } from "../src/export.js";
+import { createRuntime, startSimulation, tick } from "../src/runtime.js";
 
-test("JSON export declares memory-only platform retention and preserves timeline order", () => {
-  const scenario = {
-    id: "synthetic-case",
-    title: "Synthetic Case",
-    patient: { name: "Maya", communication: "AAC" }
-  };
-  const state = {
-    scenarioId: "synthetic-case",
-    seconds: 12,
-    paused: false,
-    pauseReason: null,
-    selectedChoiceId: null,
-    completed: false,
-    stations: { A: "checked" },
-    events: [
-      { id: "2-B", type: "B", message: "Second", detail: {}, seconds: 12 },
-      { id: "1-A", type: "A", message: "First", detail: {}, seconds: 4 }
-    ]
-  };
-
-  const exported = buildSimulationExport({
+test("v1 alpha JSON export is fictional, stateless and provenance-labelled", () => {
+  const scenario = scenarios[0];
+  let state = startSimulation(createRuntime(scenario));
+  state = tick(state, 2);
+  const payload = buildSimulationExport({
     scenario,
     state,
-    accessibility: { lowSensory: true },
+    accessibility: { reducedMotion: true },
     exportedAt: "2026-09-01T00:00:00.000Z"
   });
 
-  assert.equal(exported.dataOrigin, "fictional_synthetic");
-  assert.equal(exported.fictionalPatient, true);
-  assert.equal(exported.containsRealPatientData, false);
-  assert.equal(exported.storagePolicy.runtime, "memory_only");
-  assert.equal(exported.storagePolicy.platformRetention, "none");
-  assert.equal(exported.storagePolicy.export, "user_initiated_json_only");
-  assert.equal(exported.currentState.events, undefined);
-  assert.deepEqual(exported.timeline.map((event) => event.id), ["1-A", "2-B"]);
-  assert.equal(exported.accessibility.lowSensory, true);
+  assert.equal(payload.format, "project-hope-simulation");
+  assert.equal(payload.dataOrigin, "fictional_synthetic");
+  assert.equal(payload.fictionalPatient, true);
+  assert.equal(payload.containsRealPatientData, false);
+  assert.equal(payload.storagePolicy.runtime, "memory_only");
+  assert.equal(payload.storagePolicy.platformRetention, "none");
+  assert.equal(payload.storagePolicy.serverDatabase, false);
+  assert.equal(payload.storagePolicy.browserPersistence, false);
+  assert.equal(payload.runtime.clinicalSeconds, 2);
+  assert.equal(payload.runtime.evaluationSeconds, 2);
+  assert.equal(payload.provenance.application, "Project Hope Emulator");
+  assert.ok(Array.isArray(payload.commandLog));
+  assert.ok(payload.personhoodGuardian);
+});
+
+test("export refuses a scenario that is not explicitly fictional synthetic", () => {
+  const scenario = { ...scenarios[0], data_origin: "unknown" };
+  const state = createRuntime(scenarios[0]);
+  assert.throws(() => buildSimulationExport({ scenario, state }), /fictional synthetic/i);
 });

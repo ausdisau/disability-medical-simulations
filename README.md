@@ -1,101 +1,112 @@
-# Disability Medical Simulations
+# Project Hope Emulator — v1.0.0-alpha.1 RC
 
-Accessible, person-first respiratory simulation for disability medical education.
+Project Hope is a fictional, synthetic disability-medical simulation platform focused on clinical reasoning, communication access, patient agency, system readiness and recoverable error.
 
-## Included cases
+## Alpha RC architecture
 
-- **I Need Suction** — adult ICU communication and airway-safety scenario.
-- **The Alarm Is Not the Story** — fictional paediatric complex-airway scenario.
+- React 18 + Vite presentation shell.
+- Deterministic framework-independent runtime in `src/runtime.js`.
+- Four-domain model: clinical context, communication access, agency and system readiness.
+- Dual clocks: clinical time continues while fictional patient AAC composition/scanning pauses learner-evaluation time; facilitator pauses freeze both.
+- Personhood Guardian audit in `src/guardian.js` using status words rather than worth/personhood scores.
+- Evidence-gated stations: `available → relevant → assigned → committed → applied`.
+- Ordered in-memory command log with deterministic replay against the same scenario/rule-pack version.
+- Memory-only session state; no server simulation database, autosave, localStorage or IndexedDB session retention.
+- User-initiated JSON is the only durable simulation output.
 
-## Core principles
+## Data lifecycle
 
-- Personal baseline, acute change, communication access and system readiness share one state model.
-- AAC and communication access remain explicit simulation state.
-- Patient AAC composition/scanning pauses **evaluation time** while **clinical time continues**; a facilitator accessibility/technical pause may freeze both clocks.
-- Equipment is evidence-gated: `available → selected → checked → assigned → committed`.
-- Incorrect choices create recoverable learning branches rather than punitive failure.
-- The project is educational and does not provide medication doses, ventilator settings or procedural instructions.
-- The patient remains the primary speaker unless a lawful alternative decision pathway is explicitly established.
+The simulation is intentionally stateless across sessions.
 
-## Stateless data contract
-
-Project Hope is a **memory-only simulation platform**.
-
-- no simulation database
-- no server-side session persistence
-- no autosave
-- no resumable account history
-- no browser `localStorage` or IndexedDB session retention
-- no analytics payloads containing simulation content
-
-The running simulation exists only in application memory. Reloading, resetting or discarding the session destroys the current runtime state.
-
-The only supported durable output is a **user-initiated JSON export**. The platform does not retain a copy of exported JSON.
-
-JSON exports declare:
-
-```json
-{
-  "format": "project-hope-simulation",
-  "dataOrigin": "fictional_synthetic",
-  "fictionalPatient": true,
-  "containsRealPatientData": false,
-  "storagePolicy": {
-    "runtime": "memory_only",
-    "platformRetention": "none",
-    "export": "user_initiated_json_only"
-  }
-}
+```text
+Scenario definition
+      ↓
+In-memory runtime
+      ↓
+Clinical + access + agency + system state
+      ↓
+[ Export JSON ]  or  [ Discard ]
 ```
 
-Do not use Project Hope to store identifiable patient records, consent records, device streams or clinical documentation.
+Project Hope does not retain a copy of exported JSON. Remote AI/evidence providers, if introduced later, require separate provider-side processing and retention review.
+
+## Safety and authority hierarchy
+
+1. Protected patient facts and authored choices.
+2. Deterministic structured state and ordered command log.
+3. Clinically and lived-experience-reviewed rule pack.
+4. Bounded intelligence proposals.
+5. Narrative, visual and interface presentation.
+
+The UI or a generative model must not manufacture patient speech, consent, refusal, capacity findings, physiology or clinical authority.
+
+Core invariants include:
+
+- no response = `UNKNOWN`;
+- communication failure ≠ incapacity;
+- supporter presence ≠ substitute authority;
+- equipment availability ≠ indication;
+- patient report is clinical data;
+- disability ≠ poor prognosis or low quality of life;
+- successful intervention ≠ case resolved.
+
+This prototype does not provide medication doses, ventilator settings or procedural technique and is not a substitute for current local protocols, clinical judgment or qualified supervision.
+
+## Included fictional cases
+
+- **I Need Suction** — adult ICU communication and airway-safety scenario with Maya Chen.
+- **The Alarm Is Not the Story** — paediatric complex-airway scenario with Rohan Malik. The opening state intentionally keeps the meaning of Rohan's observed movement and communication `UNKNOWN`; the runtime does not fabricate a patient message.
 
 ## Run locally
 
-No database or server runtime is required.
+```bash
+npm install
+npm run dev
+```
+
+Production build:
+
+```bash
+npm run build
+npm run preview
+```
+
+## Verify
 
 ```bash
 npm test
-python3 -m http.server 4173
+npm run build
 ```
 
-Then open `http://localhost:4173`.
+The alpha RC checks cover:
 
-## Tests
+- dual-clock accessibility timing;
+- facilitator pause semantics;
+- no fabricated patient response after AAC interruption;
+- evidence-gated station lifecycle;
+- cause-led branching without false case closure;
+- deterministic command-log replay;
+- Personhood Guardian repair behavior;
+- fictional/stateless JSON export boundaries.
 
-```bash
-npm test
-```
+GitHub Actions runs tests and the Vite production build on pull requests and release/refactor branches.
 
-The runtime tests cover dual-clock communication timing, communication restoration, evidence-gated station transitions, safe and unsafe decisions, accessible missing-choice feedback and stateless JSON export structure.
+## Accessibility
+
+The interface includes semantic regions, visible focus, reduced-motion, low-sensory and large-text modes. Meaning is not encoded by color alone. Communication controls and patient-authored information remain visually distinct from supporter input and model inference.
+
+Large-text mode reflows the dashboard rather than shrinking type. The patient/primary scene remains the dominant visual anchor.
+
+## Visual Truth
+
+The v1 alpha React shell is compatible with the planned Visual Truth development workflow. Visual Truth must remain development-only and must not be statically imported into production paths. Approved visual edits should be translated into durable React/CSS source and checked at desktop, iPad and phone breakpoints before release.
 
 ## Vercel
 
-Import `ausdisau/disability-medical-simulations` as a static Vercel project.
+The app is a standard Vite project. Deploy feature/release branches as Vercel Preview deployments before merge or production promotion.
 
-- Framework preset: **Other**
-- Build command: leave empty
-- Output directory: `.`
-- Install command: optional (`npm install` is only needed for test/CI workflows)
-- Database: **none**
-- Simulation persistence environment variables: **none**
-
-`vercel.json` supplies security headers and clean URL settings. Feature branches should be deployed as Preview deployments before promotion to production.
-
-## External AI / evidence adapters
-
-Any future hosted AI or evidence provider must be treated separately from Project Hope's storage policy because a remote provider may process or retain request data under its own terms.
-
-Default requirements for future adapters:
-
-- synthetic or de-identified simulation content only during R&D
-- server-side secrets only; never ship provider keys to the browser
-- explicit provider-retention review before enabling an adapter
-- external model output is advisory and cannot write canonical physiology, consent/capacity, patient-authored communication or actuator state
-- failure degrades to `UNKNOWN`, local simulation state or human review rather than invented certainty
-
-Local/open models are preferred where they meet the research need and validation requirements.
+The repository contains no Project Hope simulation database configuration in this release candidate.
 
 ## Review status
 
-Prototype content requires formal clinical, lived-experience and accessibility review before use as accredited training. Completion demonstrates awareness and communication learning only; it does not certify clinical competence.
+`v1.0.0-alpha.1` is a release candidate for research and usability testing. It requires formal clinical, lived-experience, accessibility and security review before any accredited training use. Completion does not certify clinical competence.

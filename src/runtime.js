@@ -1,74 +1,171 @@
 import { stationDefinitions } from "./scenarios.js";
+import { RULE_PACK_VERSION } from "./version.js";
 
-const stationOrder = ["available", "selected", "checked", "assigned", "committed"];
+export const STATION_STATES = ["available", "relevant", "assigned", "committed", "applied"];
 
-export function createRuntime(scenarioId) {
+function scenarioIdOf(scenarioOrId) {
+  return typeof scenarioOrId === "string" ? scenarioOrId : scenarioOrId?.id;
+}
+
+function scenarioVersionOf(scenarioOrId) {
+  return typeof scenarioOrId === "object" && scenarioOrId?.version ? scenarioOrId.version : "unresolved";
+}
+
+function addCommand(state, type, payload = {}) {
+  const command = {
+    sequence: state.commandLog.length + 1,
+    type,
+    payload
+  };
+  return { ...state, commandLog: [...state.commandLog, command] };
+}
+
+export function appendEvent(state, type, message, detail = {}) {
+  const event = {
+    id: `${state.events.length + 1}-${type}`,
+    sequence: state.events.length + 1,
+    type,
+    message,
+    detail,
+    clinicalSeconds: state.clinicalSeconds,
+    evaluationSeconds: state.evaluationSeconds
+  };
+  return { ...state, events: [...state.events, event] };
+}
+
+export function createRuntime(scenarioOrId, options = {}) {
+  const scenarioId = scenarioIdOf(scenarioOrId);
+  if (!scenarioId) throw new Error("scenario id is required");
+
+  const startPaused = options.startPaused !== false;
   return {
     scenarioId,
-    seconds: 0,
+    scenarioVersion: scenarioVersionOf(scenarioOrId),
+    rulePackVersion: RULE_PACK_VERSION,
+    seed: Number.isInteger(options.seed) ? options.seed : 17,
+    runState: startPaused ? "PAUSED" : "RUNNING",
+    clinicalSeconds: 0,
     evaluationSeconds: 0,
-    paused: false,
-    pauseReason: null,
+    paused: startPaused,
+    pauseReason: startPaused ? "initial" : null,
     evaluationPaused: false,
     evaluationPauseReason: null,
+    phase: "opening",
     selectedChoiceId: null,
+    lastDecisionId: null,
     completed: false,
+    communication: {
+      status: "available",
+      composing: false,
+      reliability: "scenario_defined",
+      response: "unknown",
+      lastReliableInstruction: null,
+      accessFailureCause: null
+    },
+    agency: {
+      capacity: "presumed",
+      decisionAuthority: "patient",
+      consent: "not_inferred",
+      supporterRole: "support_only"
+    },
+    system: {
+      storage: "memory_only",
+      platformRetention: "none",
+      externalAuthority: "none"
+    },
+    commandLog: [],
     events: [],
     stations: Object.fromEntries(stationDefinitions.map((station) => [station.id, "available"]))
   };
 }
 
 export function formatTime(seconds) {
-  const minutes = Math.floor(seconds / 60).toString().padStart(2, "0");
-  const remainder = (seconds % 60).toString().padStart(2, "0");
+  const safe = Math.max(0, Number(seconds) || 0);
+  const minutes = Math.floor(safe / 60).toString().padStart(2, "0");
+  const remainder = Math.floor(safe % 60).toString().padStart(2, "0");
   return `${minutes}:${remainder}`;
 }
 
-export function appendEvent(state, type, message, detail = {}) {
-  return {
-    ...state,
-    events: [
-      { id: `${state.events.length + 1}-${type}`, type, message, detail, seconds: state.seconds },
-      ...state.events
-    ]
+export function startSimulation(state) {
+  if (!state.paused && state.runState === "RUNNING") return state;
+  let next = addCommand(state, "START");
+  next = {
+    ...next,
+    runState: "RUNNING",
+    paused: false,
+    pauseReason: null,
+    evaluationPaused: next.communication.composing,
+    evaluationPauseReason: next.communication.composing ? "communication" : null
   };
+  return appendEvent(next, "SIMULATION_STARTED", "Simulation started. Clinical and evaluation clocks are active unless communication access pauses evaluation time.");
 }
 
-export function tick(state) {
-  if (state.paused) return state;
-  return {
-    ...state,
-    seconds: state.seconds + 1,
-    evaluationSeconds: state.evaluationPaused ? state.evaluationSeconds : state.evaluationSeconds + 1
+export function facilitatorPause(state, reason = "accessibility_or_facilitation") {
+  if (state.paused && state.pauseReason === reason) return state;
+  let next = addCommand(state, "FACILITATOR_PAUSE", { reason });
+  next = { ...next, runState: "PAUSED", paused: true, pauseReason: reason };
+  return appendEvent(next, "FACILITATOR_PAUSED", "Facilitator pause: clinical and evaluation clocks are frozen.", { reason });
+}
+
+export function resumeSimulation(state) {
+  let next = addCommand(state, "RESUME");
+  next = {
+    ...next,
+    runState: "RUNNING",
+    paused: false,
+    pauseReason: null,
+    evaluationPaused: next.communication.composing,
+    evaluationPauseReason: next.communication.composing ? "communication" : null
   };
+  return appendEvent(next, "SIMULATION_RESUMED", "Simulation resumed.");
+}
+
+export function tick(state, seconds = 1) {
+  const amount = Math.max(0, Math.floor(Number(seconds) || 0));
+  if (state.paused || amount === 0) return state;
+  let next = addCommand(state, "ADVANCE_TIME", { seconds: amount });
+  next = {
+    ...next,
+    clinicalSeconds: next.clinicalSeconds + amount,
+    evaluationSeconds: next.evaluationPaused ? next.evaluationSeconds : next.evaluationSeconds + amount
+  };
+  return next;
 }
 
 export function pauseForCommunication(state) {
-  return appendEvent(
-    {
-      ...state,
-      evaluationPaused: true,
-      evaluationPauseReason: "communication"
+  let next = addCommand(state, "AAC_COMPOSING");
+  next = {
+    ...next,
+    communication: {
+      ...next.communication,
+      composing: true
     },
-    "AAC_EVALUATION_PAUSED",
-    "Evaluation clock paused for communication access while clinical time continues."
-  );
+    evaluationPaused: true,
+    evaluationPauseReason: "communication"
+  };
+  return appendEvent(next, "AAC_COMPOSING", "Evaluation clock paused for AAC composition/scanning while clinical time continues.");
 }
 
 export function restoreCommunication(state) {
-  return appendEvent(
-    {
-      ...state,
-      evaluationPaused: false,
-      evaluationPauseReason: null
+  let next = addCommand(state, "AAC_RESTORED");
+  next = {
+    ...next,
+    communication: {
+      ...next.communication,
+      status: "available",
+      composing: false,
+      reliability: "scenario_defined",
+      accessFailureCause: null
     },
-    "AAC_RESTORED",
-    "Communication access restored and confirmed; evaluation clock resumed."
-  );
+    evaluationPaused: false,
+    evaluationPauseReason: null
+  };
+  return appendEvent(next, "AAC_RESTORED", "Communication access restored. No patient answer has been inferred from the interruption.");
 }
 
 export function selectChoice(state, choiceId) {
-  return { ...state, selectedChoiceId: choiceId };
+  const next = addCommand(state, "SELECT_CHOICE", { choiceId });
+  return { ...next, selectedChoiceId: choiceId };
 }
 
 export function commitChoice(state, scenario) {
@@ -81,44 +178,106 @@ export function commitChoice(state, scenario) {
     };
   }
 
-  const nextState = appendEvent(
-    { ...state, completed: choice.safe || state.completed },
-    "DECISION_COMMITTED",
-    choice.label,
-    { choiceId: choice.id, safe: choice.safe }
-  );
+  let next = addCommand(state, "COMMIT_CHOICE", { choiceId: choice.id });
+  next = {
+    ...next,
+    lastDecisionId: choice.id,
+    phase: choice.nextPhase || next.phase,
+    completed: choice.terminal === true ? true : next.completed
+  };
 
-  return { state: nextState, feedback: choice.feedback, safe: choice.safe };
+  if (choice.effect?.communication === "interrupted") {
+    next = {
+      ...next,
+      communication: {
+        ...next.communication,
+        status: "interrupted",
+        composing: false,
+        reliability: "unknown",
+        response: "unknown",
+        accessFailureCause: "learner_action"
+      },
+      evaluationPaused: false,
+      evaluationPauseReason: null
+    };
+  }
+
+  next = appendEvent(next, "DECISION_COMMITTED", choice.label, {
+    choiceId: choice.id,
+    safe: choice.safe === true,
+    nextPhase: choice.nextPhase || null
+  });
+
+  return { state: next, feedback: choice.feedback, safe: choice.safe === true };
 }
 
 export function advanceStation(state, stationId) {
   const current = state.stations[stationId];
-  const index = stationOrder.indexOf(current);
-  if (index < 0 || index === stationOrder.length - 1) return state;
+  const index = STATION_STATES.indexOf(current);
+  if (index < 0 || index === STATION_STATES.length - 1) return state;
 
-  const nextStatus = stationOrder[index + 1];
-  return appendEvent(
-    {
-      ...state,
-      stations: { ...state.stations, [stationId]: nextStatus }
-    },
-    "STATION_ADVANCED",
-    `Station ${stationId} moved to ${nextStatus}.`,
-    { stationId, previousStatus: current, nextStatus }
-  );
+  const nextStatus = STATION_STATES[index + 1];
+  let next = addCommand(state, "ADVANCE_STATION", { stationId, previousStatus: current, nextStatus });
+  next = {
+    ...next,
+    stations: { ...next.stations, [stationId]: nextStatus }
+  };
+  return appendEvent(next, "STATION_ADVANCED", `Station ${stationId} moved to ${nextStatus}.`, {
+    stationId,
+    previousStatus: current,
+    nextStatus
+  });
 }
 
 export function reassess(state) {
-  return appendEvent(
-    state,
-    "PATIENT_REASSESSED",
-    "Patient, baseline, communication, circuit, monitoring and current plan reassessed."
-  );
+  let next = addCommand(state, "REASSESS");
+  return appendEvent(next, "PATIENT_REASSESSED", "Patient, baseline, communication access, current plan, monitoring and system readiness reassessed.");
 }
 
 export function stationNextLabel(status) {
-  const index = stationOrder.indexOf(status);
-  if (index < 0 || index === stationOrder.length - 1) return "Committed";
-  const next = stationOrder[index + 1];
-  return next.charAt(0).toUpperCase() + next.slice(1);
+  const index = STATION_STATES.indexOf(status);
+  if (index < 0 || index === STATION_STATES.length - 1) return "Applied";
+  const next = STATION_STATES[index + 1];
+  return next.replaceAll("_", " ").replace(/^./, (char) => char.toUpperCase());
+}
+
+export function replayCommands(scenario, commands, options = {}) {
+  let state = createRuntime(scenario, { ...options, startPaused: true });
+  for (const command of commands) {
+    switch (command.type) {
+      case "START":
+        state = startSimulation({ ...state, commandLog: state.commandLog });
+        break;
+      case "FACILITATOR_PAUSE":
+        state = facilitatorPause(state, command.payload?.reason);
+        break;
+      case "RESUME":
+        state = resumeSimulation(state);
+        break;
+      case "ADVANCE_TIME":
+        state = tick(state, command.payload?.seconds || 0);
+        break;
+      case "AAC_COMPOSING":
+        state = pauseForCommunication(state);
+        break;
+      case "AAC_RESTORED":
+        state = restoreCommunication(state);
+        break;
+      case "SELECT_CHOICE":
+        state = selectChoice(state, command.payload?.choiceId);
+        break;
+      case "COMMIT_CHOICE":
+        state = commitChoice(state, scenario).state;
+        break;
+      case "ADVANCE_STATION":
+        state = advanceStation(state, command.payload?.stationId);
+        break;
+      case "REASSESS":
+        state = reassess(state);
+        break;
+      default:
+        throw new Error(`unsupported replay command: ${command.type}`);
+    }
+  }
+  return state;
 }
