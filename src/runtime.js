@@ -6,8 +6,11 @@ export function createRuntime(scenarioId) {
   return {
     scenarioId,
     seconds: 0,
+    evaluationSeconds: 0,
     paused: false,
     pauseReason: null,
+    evaluationPaused: false,
+    evaluationPauseReason: null,
     selectedChoiceId: null,
     completed: false,
     events: [],
@@ -33,22 +36,34 @@ export function appendEvent(state, type, message, detail = {}) {
 
 export function tick(state) {
   if (state.paused) return state;
-  return { ...state, seconds: state.seconds + 1 };
+  return {
+    ...state,
+    seconds: state.seconds + 1,
+    evaluationSeconds: state.evaluationPaused ? state.evaluationSeconds : state.evaluationSeconds + 1
+  };
 }
 
 export function pauseForCommunication(state) {
   return appendEvent(
-    { ...state, paused: true, pauseReason: "communication" },
-    "AAC_PAUSED",
-    "Simulation paused for communication access."
+    {
+      ...state,
+      evaluationPaused: true,
+      evaluationPauseReason: "communication"
+    },
+    "AAC_EVALUATION_PAUSED",
+    "Evaluation clock paused for communication access while clinical time continues."
   );
 }
 
 export function restoreCommunication(state) {
   return appendEvent(
-    { ...state, paused: false, pauseReason: null },
+    {
+      ...state,
+      evaluationPaused: false,
+      evaluationPauseReason: null
+    },
     "AAC_RESTORED",
-    "Communication access restored and confirmed."
+    "Communication access restored and confirmed; evaluation clock resumed."
   );
 }
 
