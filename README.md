@@ -11,6 +11,7 @@ Accessible, person-first respiratory simulation for disability medical education
 
 - Personal baseline, acute change, communication access and system readiness share one state model.
 - AAC and communication access remain explicit simulation state.
+- Patient AAC composition/scanning pauses **evaluation time** while **clinical time continues**; a facilitator accessibility/technical pause may freeze both clocks.
 - Equipment is evidence-gated: `available → selected → checked → assigned → committed`.
 - Incorrect choices create recoverable learning branches rather than punitive failure.
 - The project is educational and does not provide medication doses, ventilator settings or procedural instructions.
@@ -66,7 +67,7 @@ Then open `http://localhost:4173`.
 npm test
 ```
 
-The runtime tests cover clock pausing, communication restoration, evidence-gated station transitions, safe and unsafe decisions, accessible missing-choice feedback and stateless JSON export structure.
+The runtime tests cover dual-clock communication timing, communication restoration, evidence-gated station transitions, safe and unsafe decisions, accessible missing-choice feedback and stateless JSON export structure.
 
 ## Vercel
 
