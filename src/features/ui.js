@@ -81,7 +81,12 @@ function render() {
   byId("communication-method").textContent = scenario.patient.communication;
   byId("communication-detail").textContent = scenario.patient.communicationDetail;
   byId("clock").textContent = formatTime(state.seconds);
-  byId("clock-note").textContent = state.pauseReason === "communication" ? "Paused for communication" : state.paused ? "Paused" : "Running";
+  byId("evaluation-clock").textContent = formatTime(state.evaluationSeconds);
+  byId("clock-note").textContent = state.paused
+    ? "All simulation time paused"
+    : state.evaluationPaused
+      ? "Evaluation paused for communication; clinical time continues"
+      : "Both clocks running";
   byId("scenario-state").textContent = state.completed ? "Cause-led branch opened" : "Assessment";
   byId("scene-setting").textContent = `${scenario.setting} · ${scenario.jurisdiction}`;
   byId("scene-title").textContent = scenario.title;
@@ -112,12 +117,12 @@ export function initApp() {
   byId("scenario-select").addEventListener("change", (event) => loadScenario(event.target.value));
   byId("pause-aac").addEventListener("click", () => {
     state = pauseForCommunication(state);
-    byId("aac-live").textContent = "Simulation clock paused while communication is composed or scanned.";
+    byId("aac-live").textContent = "Evaluation time paused for AAC composition or scanning. Clinical time continues.";
     render();
   });
   byId("restore-aac").addEventListener("click", () => {
     state = restoreCommunication(state);
-    byId("aac-live").textContent = "AAC access restored and confirmed.";
+    byId("aac-live").textContent = "AAC access restored and confirmed. Evaluation time resumed.";
     render();
   });
   byId("commit-decision").addEventListener("click", () => {
@@ -153,6 +158,7 @@ export function initApp() {
     if (next !== state) {
       state = next;
       byId("clock").textContent = formatTime(state.seconds);
+      byId("evaluation-clock").textContent = formatTime(state.evaluationSeconds);
     }
   }, 1000);
 
