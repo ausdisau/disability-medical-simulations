@@ -11,6 +11,10 @@ function scenarioVersionOf(scenarioOrId) {
   return typeof scenarioOrId === "object" && scenarioOrId?.version ? scenarioOrId.version : "unresolved";
 }
 
+function stationById(stationId) {
+  return stationDefinitions.find((item) => item.id === stationId) || null;
+}
+
 function addCommand(state, type, payload = {}) {
   const command = {
     sequence: state.commandLog.length + 1,
@@ -31,6 +35,10 @@ export function appendEvent(state, type, message, detail = {}) {
     evaluationSeconds: state.evaluationSeconds
   };
   return { ...state, events: [...state.events, event] };
+}
+
+function initialStationState(station) {
+  return station.initialStatus || "available";
 }
 
 export function createRuntime(scenarioOrId, options = {}) {
@@ -54,6 +62,11 @@ export function createRuntime(scenarioOrId, options = {}) {
     selectedChoiceId: null,
     lastDecisionId: null,
     completed: false,
+    clinical: {
+      baselineComparator: "active",
+      acuteChangeStatus: "scenario_defined",
+      reassessmentCount: 0
+    },
     communication: {
       status: "available",
       composing: false,
@@ -73,9 +86,14 @@ export function createRuntime(scenarioOrId, options = {}) {
       platformRetention: "none",
       externalAuthority: "none"
     },
+    evidence: {
+      currentPlanReviewed: false,
+      breathingReviewApplied: false,
+      reassessmentCount: 0
+    },
     commandLog: [],
     events: [],
-    stations: Object.fromEntries(stationDefinitions.map((station) => [station.id, "available"]))
+    stations: Object.fromEntries(stationDefinitions.map((station) => [station.id, initialStationState(station)]))
   };
 }
 
@@ -211,17 +229,81 @@ export function commitChoice(state, scenario) {
   return { state: next, feedback: choice.feedback, safe: choice.safe === true };
 }
 
+export function stationGateStatus(state, stationOrId) {
+  const station = typeof stationOrId === "string" ? stationById(stationOrId) : stationOrId;
+  if (!station) return { allowed: false, reason: "Station definition not found." };
+  const gate = station.gate;
+  if (!gate) return { allowed: true, reason: null };
+
+  if (gate.requiresReassessment && state.evidence.reassessmentCount < 1) {
+    return { allowed: false, reason: "A patient-centred reassessment is required before this evidence gate can open." };
+  }
+
+  if (Array.isArray(gate.requiresAppliedStations)) {
+    const missing = gate.requiresAppliedStations.filter((id) => state.stations[id] !== "applied");
+    if (missing.length > 0) {
+      return { allowed: false, reason: `Required station evidence not yet applied: ${missing.join(", ")}.` };
+    }
+  }
+
+  if (Array.isArray(gate.requiresAnyAppliedStations)) {
+    const satisfied = gate.requiresAnyAppliedStations.some((id) => state.stations[id] === "applied");
+    if (!satisfied) {
+      return { allowed: false, reason: `Apply at least one supporting station first: ${gate.requiresAnyAppliedStations.join(" or ")}.` };
+    }
+  }
+
+  return { allowed: true, reason: null };
+}
+
+function applyStationEvidence(state, stationId, nextStatus) {
+  if (nextStatus !== "applied") return state;
+
+  const evidence = { ...state.evidence };
+  if (stationId === "04") evidence.currentPlanReviewed = true;
+  if (stationId === "09" || stationId === "17") evidence.breathingReviewApplied = true;
+
+  return { ...state, evidence };
+}
+
 export function advanceStation(state, stationId) {
+  const station = stationById(stationId);
+  if (!station) return state;
+
   const current = state.stations[stationId];
+  let next = addCommand(state, "ADVANCE_STATION", { stationId, previousStatus: current });
+
+  if (current === "locked_by_evidence") {
+    const gate = stationGateStatus(next, station);
+    if (!gate.allowed) {
+      return appendEvent(next, "STATION_BLOCKED", `Station ${stationId} remains locked by evidence.`, {
+        stationId,
+        previousStatus: current,
+        gateReason: gate.reason
+      });
+    }
+
+    next = {
+      ...next,
+      stations: { ...next.stations, [stationId]: "relevant" }
+    };
+    return appendEvent(next, "STATION_GATE_OPENED", `Station ${stationId} evidence gate opened; state is now relevant.`, {
+      stationId,
+      previousStatus: current,
+      nextStatus: "relevant"
+    });
+  }
+
   const index = STATION_STATES.indexOf(current);
-  if (index < 0 || index === STATION_STATES.length - 1) return state;
+  if (index < 0 || index === STATION_STATES.length - 1) return next;
 
   const nextStatus = STATION_STATES[index + 1];
-  let next = addCommand(state, "ADVANCE_STATION", { stationId, previousStatus: current, nextStatus });
   next = {
     ...next,
     stations: { ...next.stations, [stationId]: nextStatus }
   };
+  next = applyStationEvidence(next, stationId, nextStatus);
+
   return appendEvent(next, "STATION_ADVANCED", `Station ${stationId} moved to ${nextStatus}.`, {
     stationId,
     previousStatus: current,
@@ -231,10 +313,22 @@ export function advanceStation(state, stationId) {
 
 export function reassess(state) {
   let next = addCommand(state, "REASSESS");
+  next = {
+    ...next,
+    clinical: {
+      ...next.clinical,
+      reassessmentCount: next.clinical.reassessmentCount + 1
+    },
+    evidence: {
+      ...next.evidence,
+      reassessmentCount: next.evidence.reassessmentCount + 1
+    }
+  };
   return appendEvent(next, "PATIENT_REASSESSED", "Patient, baseline, communication access, current plan, monitoring and system readiness reassessed.");
 }
 
 export function stationNextLabel(status) {
+  if (status === "locked_by_evidence") return "Check evidence gate";
   const index = STATION_STATES.indexOf(status);
   if (index < 0 || index === STATION_STATES.length - 1) return "Applied";
   const next = STATION_STATES[index + 1];
