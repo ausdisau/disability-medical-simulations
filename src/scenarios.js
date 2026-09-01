@@ -1,3 +1,5 @@
+import { PICU_IAS_STATIONS } from "./picuTrainer.js";
+
 export const scenarios = [
   {
     id: "maya-airway-access",
@@ -171,11 +173,4 @@ export const scenarios = [
   }
 ];
 
-export const stationDefinitions = [
-  { id: "04", label: "Current airway plan", kind: "airway", purpose: "Defines reviewed routes, cautions, responders and rescue boundaries." },
-  { id: "08", label: "Power continuity", kind: "breathing", purpose: "Checks battery, mains and backup power status." },
-  { id: "09", label: "Circuit and connectors", kind: "breathing", purpose: "Checks connection, load, position and visible integrity." },
-  { id: "17", label: "Patient and chest movement", kind: "breathing", purpose: "Compares current movement and effort with personal baseline." },
-  { id: "19", label: "Monitoring and signal quality", kind: "circulation", purpose: "Separates reliable trend from artefact and number-only reasoning." },
-  { id: "20", label: "AAC and supported decision-making", kind: "access", purpose: "Preserves direct communication, response time and access." }
-];
+export const stationDefinitions = PICU_IAS_STATIONS;
