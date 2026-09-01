@@ -2,7 +2,7 @@ name: Alpha RC checks
 
 on:
   push:
-    branches: [main, "release/**", "refactor/**"]
+    branches: [main, "integrate/**", "dev/**", "staging/**", "release/**", "refactor/**"]
   pull_request:
 
 permissions:
