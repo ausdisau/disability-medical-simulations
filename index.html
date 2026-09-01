@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Accessible disability medical simulation for communication, respiratory assessment and evidence-gated clinical reasoning.">
-  <title>Disability Medical Simulations</title>
+  <title>Project Hope Emulator</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -12,7 +12,7 @@
 
   <header class="site-header">
     <div>
-      <p class="eyebrow">Australian disability medical learning</p>
+      <p class="eyebrow">Project Hope Emulator</p>
       <h1>Disability Medical Simulations</h1>
       <p>Person-first respiratory simulation with AAC, baseline-aware assessment and evidence-gated stations.</p>
     </div>
@@ -28,11 +28,24 @@
   </header>
 
   <main id="main">
+    <section class="session-policy" aria-labelledby="session-policy-title">
+      <div>
+        <p class="eyebrow">Data lifecycle</p>
+        <h2 id="session-policy-title">Memory-only simulation</h2>
+        <p>No database, autosave or session history. The running case exists in memory only. Keep a copy only by choosing <strong>Export JSON</strong>.</p>
+      </div>
+      <div class="button-row" aria-label="Simulation data controls">
+        <button id="export-json" type="button">Export JSON</button>
+        <button id="discard-session" type="button" class="secondary">Discard session</button>
+      </div>
+      <p id="session-live" class="live-region" role="status" aria-live="polite"></p>
+    </section>
+
     <section class="status-grid" aria-label="Current simulation status">
       <article class="status-card"><span>Patient</span><strong id="patient-name"></strong><small id="patient-profile"></small></article>
       <article class="status-card"><span>Communication</span><strong id="communication-method"></strong><small id="communication-detail"></small></article>
       <article class="status-card"><span>Simulation clock</span><strong id="clock">00:00</strong><small id="clock-note">Running</small></article>
-      <article class="status-card"><span>Scenario state</span><strong id="scenario-state">Assessment</strong><small>Educational simulation only</small></article>
+      <article class="status-card"><span>Scenario state</span><strong id="scenario-state">Assessment</strong><small>Synthetic educational simulation</small></article>
     </section>
 
     <div class="workspace">
@@ -108,8 +121,8 @@
   </main>
 
   <footer>
-    <p>Fictional educational cases. Communication access is a clinical safety control. Completion does not certify clinical competence.</p>
-    <small id="api-config-status" aria-hidden="true"></small>
+    <p>Fictional, synthetic educational cases. Communication access is a clinical safety control. Completion does not certify clinical competence.</p>
+    <small>Platform retention: none · User-controlled output: JSON only</small>
   </footer>
 
   <script type="module" src="./src/app.js"></script>
