@@ -1,11 +1,5 @@
 import { scenarios, stationDefinitions } from "../scenarios.js";
-import { isThirdPartyApiKeyConfigured } from "../config.js";
-import {
-  completePersistenceSession,
-  saveSnapshot,
-  startPersistenceSession,
-  syncEvents
-} from "../persistence.js";
+import { downloadSimulationExport } from "../export.js";
 import {
   advanceStation,
   commitChoice,
@@ -38,18 +32,6 @@ function accessibilityPreferences() {
   };
 }
 
-function persistCurrentEvents() {
-  void syncEvents(state.events).catch((error) => {
-    console.warn("Simulation event persistence unavailable", error);
-  });
-}
-
-function persistCurrentSnapshot() {
-  void saveSnapshot(state).catch((error) => {
-    console.warn("Simulation snapshot persistence unavailable", error);
-  });
-}
-
 function renderLog() {
   const items = state.events.map((event) => `<li><strong>${formatTime(event.seconds)}</strong> ${event.message}</li>`);
   byId("event-log").innerHTML = items.join("") || "<li>No events yet.</li>";
@@ -73,7 +55,6 @@ function renderStations() {
     button.addEventListener("click", () => {
       state = advanceStation(state, button.dataset.stationId);
       render();
-      persistCurrentSnapshot();
     });
   });
 }
@@ -115,27 +96,16 @@ function render() {
   renderChoices();
   renderStations();
   renderLog();
-  persistCurrentEvents();
-}
-
-async function beginPersistenceForCurrentScenario() {
-  try {
-    await startPersistenceSession(currentScenario().id, accessibilityPreferences());
-    persistCurrentEvents();
-  } catch (error) {
-    console.warn("Simulation persistence is running in local-only mode", error);
-  }
 }
 
 export function initApp() {
   function loadScenario(index) {
-    void completePersistenceSession().catch(() => {});
     scenarioIndex = Number(index);
     state = createRuntime(currentScenario().id);
     byId("feedback").textContent = "Choose an action. The simulation rewards sequence, reassessment and direct communication—not speed alone.";
     byId("aac-live").textContent = "";
+    byId("session-live").textContent = "New memory-only simulation started. Nothing has been saved.";
     render();
-    void beginPersistenceForCurrentScenario();
   }
 
   byId("scenario-select").innerHTML = scenarios.map((scenario, index) => `<option value="${index}">${scenario.title}</option>`).join("");
@@ -144,26 +114,35 @@ export function initApp() {
     state = pauseForCommunication(state);
     byId("aac-live").textContent = "Simulation clock paused while communication is composed or scanned.";
     render();
-    persistCurrentSnapshot();
   });
   byId("restore-aac").addEventListener("click", () => {
     state = restoreCommunication(state);
     byId("aac-live").textContent = "AAC access restored and confirmed.";
     render();
-    persistCurrentSnapshot();
   });
   byId("commit-decision").addEventListener("click", () => {
     const result = commitChoice(state, currentScenario());
     state = result.state;
     byId("feedback").textContent = result.feedback;
     render();
-    persistCurrentSnapshot();
-    if (state.completed) void completePersistenceSession().catch(() => {});
   });
   byId("reassess").addEventListener("click", () => {
     state = reassess(state);
     render();
-    persistCurrentSnapshot();
+  });
+  byId("export-json").addEventListener("click", () => {
+    downloadSimulationExport({
+      scenario: currentScenario(),
+      state,
+      accessibility: accessibilityPreferences()
+    });
+    byId("session-live").textContent = "JSON exported to your device. The platform did not save a copy.";
+  });
+  byId("discard-session").addEventListener("click", () => {
+    const confirmed = window.confirm("Discard this simulation? The current in-memory state will be permanently removed. Export JSON first if you want to keep it.");
+    if (!confirmed) return;
+    loadScenario(scenarioIndex);
+    byId("session-live").textContent = "Previous in-memory simulation discarded. A fresh session is ready.";
   });
   byId("reset-scenario").addEventListener("click", () => loadScenario(scenarioIndex));
   byId("low-sensory").addEventListener("change", (event) => document.body.classList.toggle("low-sensory", event.target.checked));
@@ -178,11 +157,5 @@ export function initApp() {
   }, 1000);
 
   render();
-  void beginPersistenceForCurrentScenario();
-
-  // Non-sensitive runtime status for developer UX: do not expose the secret itself.
-  const apiStatusEl = byId("api-config-status");
-  if (apiStatusEl) {
-    apiStatusEl.textContent = isThirdPartyApiKeyConfigured() ? "Third-party APIs: configured" : "Third-party APIs: missing — see README.md";
-  }
+  byId("session-live").textContent = "Memory-only session active. Nothing is retained unless you explicitly export JSON.";
 }
