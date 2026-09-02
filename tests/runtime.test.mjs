@@ -18,16 +18,22 @@ test("runtime starts with all stations available", () => {
   assert.ok(Object.values(state.stations).every((status) => status === "available"));
 });
 
-test("AAC pause freezes simulation time", () => {
-  const paused = pauseForCommunication(createRuntime("adult-suction"));
-  assert.equal(paused.paused, true);
-  assert.equal(tick(paused).seconds, 0);
+test("AAC composition pauses evaluation time while clinical/world time continues", () => {
+  const composing = pauseForCommunication(createRuntime("adult-suction"));
+  assert.equal(composing.pauseReason, "communication");
+  const next = tick(composing);
+  assert.equal(next.seconds, 1);
+  assert.equal(next.clinicalSeconds, 1);
+  assert.equal(next.evaluationSeconds, 0);
 });
 
-test("restoring communication resumes time", () => {
-  const resumed = restoreCommunication(pauseForCommunication(createRuntime("adult-suction")));
-  assert.equal(resumed.paused, false);
-  assert.equal(tick(resumed).seconds, 1);
+test("restoring communication resumes evaluation time", () => {
+  const composing = tick(pauseForCommunication(createRuntime("adult-suction")));
+  const resumed = restoreCommunication(composing);
+  const next = tick(resumed);
+  assert.equal(next.seconds, 2);
+  assert.equal(next.clinicalSeconds, 2);
+  assert.equal(next.evaluationSeconds, 1);
 });
 
 test("station state advances one evidence gate at a time", () => {
