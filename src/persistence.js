@@ -46,7 +46,10 @@ export async function syncEvents(events) {
       actor: event.detail?.actor ?? null,
       payload: {
         message: event.message,
-        detail: event.detail ?? {}
+        detail: event.detail ?? {},
+        worldTime: event.worldTime ?? event.seconds,
+        eventHash: event.eventHash ?? null,
+        previousEventHash: event.previousEventHash ?? null
       }
     }))
     .filter((event) => event.sequenceNo !== null);
@@ -65,11 +68,24 @@ export async function saveSnapshot(state) {
     worldState: {
       scenarioId: state.scenarioId,
       seconds: state.seconds,
+      clinicalSeconds: state.clinicalSeconds ?? state.seconds,
+      evaluationSeconds: state.evaluationSeconds ?? state.seconds,
       paused: state.paused,
       pauseReason: state.pauseReason,
+      communicationComposing: Boolean(state.communicationComposing),
       selectedChoiceId: state.selectedChoiceId,
       completed: state.completed,
-      stations: state.stations
+      stations: state.stations,
+      virgal: state.world ? {
+        version: state.world.version,
+        branchId: state.world.branchId,
+        parentBranchId: state.world.parentBranchId,
+        worldTime: state.world.worldTime,
+        focusRef: state.world.focusRef,
+        headEventHash: state.world.headEventHash,
+        scheduler: state.world.scheduler,
+        causalGraph: state.world.causalGraph
+      } : null
     }
   });
 }
