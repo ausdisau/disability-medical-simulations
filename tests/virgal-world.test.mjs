@@ -122,3 +122,13 @@ test("forked branches preserve parent history and replay to the same head hash",
   const replayed = replayBranch(parent);
   assert.equal(replayed.headEventHash, parent.headEventHash);
 });
+
+test("replay detects tampered event content even when stored chain pointers are unchanged", () => {
+  let world = createWorldEngine({ scenarioId: "eli-open-world", seed: "seed-a" });
+  world = commitEvent(world, { type: "VISIT_START", domain: "SOCIAL", actorRefs: ["eli", "leo"], payload: { private: true } });
+  const branch = createBranch(world, { branchId: "canonical" });
+  branch.events[0].payload.private = false;
+  const replayed = replayBranch(branch);
+  assert.equal(replayed.valid, false);
+  assert.equal(replayed.divergenceAt, branch.events[0].eventId);
+});
