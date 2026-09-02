@@ -1,4 +1,5 @@
 import { stationDefinitions } from "./scenarios.js";
+import { commitEvent, createWorldEngine, tickWorld } from "./virgal/world-engine.js";
 
 const stationOrder = ["available", "selected", "checked", "assigned", "committed"];
 
@@ -6,11 +7,15 @@ export function createRuntime(scenarioId) {
   return {
     scenarioId,
     seconds: 0,
+    clinicalSeconds: 0,
+    evaluationSeconds: 0,
     paused: false,
     pauseReason: null,
+    communicationComposing: false,
     selectedChoiceId: null,
     completed: false,
     events: [],
+    world: createWorldEngine({ scenarioId, seed: `${scenarioId}:world` }),
     stations: Object.fromEntries(stationDefinitions.map((station) => [station.id, "available"]))
   };
 }
@@ -22,33 +27,75 @@ export function formatTime(seconds) {
 }
 
 export function appendEvent(state, type, message, detail = {}) {
+  const world = commitEvent(state.world, {
+    type,
+    domain: detail.domain ?? "SYSTEM",
+    actorRefs: detail.actor ? [detail.actor] : [],
+    targetRefs: detail.target ? [detail.target] : [],
+    payload: { message, detail },
+    causalParents: detail.causalParents ?? []
+  });
+  const committed = world.events.at(-1);
   return {
     ...state,
+    world,
     events: [
-      { id: `${state.events.length + 1}-${type}`, type, message, detail, seconds: state.seconds },
+      {
+        id: committed.eventId,
+        type,
+        message,
+        detail,
+        seconds: state.seconds,
+        worldTime: world.worldTime,
+        eventHash: committed.eventHash,
+        previousEventHash: committed.previousEventHash
+      },
       ...state.events
     ]
   };
 }
 
 export function tick(state) {
-  if (state.paused) return state;
-  return { ...state, seconds: state.seconds + 1 };
+  if (state.paused && state.pauseReason !== "communication") return state;
+  const world = tickWorld(state.world, { seconds: 1 });
+  const clinicalSeconds = state.clinicalSeconds + 1;
+  const evaluationSeconds = state.communicationComposing
+    ? state.evaluationSeconds
+    : state.evaluationSeconds + 1;
+  return {
+    ...state,
+    world,
+    seconds: clinicalSeconds,
+    clinicalSeconds,
+    evaluationSeconds
+  };
 }
 
 export function pauseForCommunication(state) {
   return appendEvent(
-    { ...state, paused: true, pauseReason: "communication" },
-    "AAC_PAUSED",
-    "Simulation paused for communication access."
+    {
+      ...state,
+      paused: false,
+      pauseReason: "communication",
+      communicationComposing: true
+    },
+    "AAC_COMPOSING",
+    "Communication composition started; clinical/world time continues while evaluation time pauses.",
+    { domain: "ACCESS" }
   );
 }
 
 export function restoreCommunication(state) {
   return appendEvent(
-    { ...state, paused: false, pauseReason: null },
+    {
+      ...state,
+      paused: false,
+      pauseReason: null,
+      communicationComposing: false
+    },
     "AAC_RESTORED",
-    "Communication access restored and confirmed."
+    "Communication access restored and confirmed.",
+    { domain: "ACCESS" }
   );
 }
 
@@ -70,7 +117,7 @@ export function commitChoice(state, scenario) {
     { ...state, completed: choice.safe || state.completed },
     "DECISION_COMMITTED",
     choice.label,
-    { choiceId: choice.id, safe: choice.safe }
+    { choiceId: choice.id, safe: choice.safe, domain: "AGENCY" }
   );
 
   return { state: nextState, feedback: choice.feedback, safe: choice.safe };
@@ -89,7 +136,7 @@ export function advanceStation(state, stationId) {
     },
     "STATION_ADVANCED",
     `Station ${stationId} moved to ${nextStatus}.`,
-    { stationId, previousStatus: current, nextStatus }
+    { stationId, previousStatus: current, nextStatus, domain: "SYSTEM" }
   );
 }
 
@@ -97,7 +144,8 @@ export function reassess(state) {
   return appendEvent(
     state,
     "PATIENT_REASSESSED",
-    "Patient, baseline, communication, circuit, monitoring and current plan reassessed."
+    "Patient, baseline, communication, circuit, monitoring and current plan reassessed.",
+    { domain: "CLINICAL" }
   );
 }
 
