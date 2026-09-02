@@ -271,7 +271,12 @@ export function replayBranch(branch) {
     if (event.previousEventHash !== previous) {
       return { valid: false, divergenceAt: event.eventId, headEventHash: previous };
     }
-    previous = event.eventHash;
+    const { eventHash, ...eventWithoutHash } = event;
+    const recomputedHash = sha256Hex(stableStringify(eventWithoutHash));
+    if (recomputedHash !== eventHash) {
+      return { valid: false, divergenceAt: event.eventId, headEventHash: previous };
+    }
+    previous = eventHash;
   }
   return { valid: true, headEventHash: previous === "0".repeat(64) ? null : previous };
 }
