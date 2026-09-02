@@ -100,7 +100,11 @@ function render() {
   byId("communication-method").textContent = scenario.patient.communication;
   byId("communication-detail").textContent = scenario.patient.communicationDetail;
   byId("clock").textContent = formatTime(state.seconds);
-  byId("clock-note").textContent = state.pauseReason === "communication" ? "Paused for communication" : state.paused ? "Paused" : "Running";
+  byId("clock-note").textContent = state.pauseReason === "communication"
+    ? "AAC composing · clinical/world time continues · evaluation timer paused"
+    : state.paused
+      ? "Paused"
+      : "Running";
   byId("scenario-state").textContent = state.completed ? "Cause-led branch opened" : "Assessment";
   byId("scene-setting").textContent = `${scenario.setting} · ${scenario.jurisdiction}`;
   byId("scene-title").textContent = scenario.title;
@@ -142,7 +146,7 @@ export function initApp() {
   byId("scenario-select").addEventListener("change", (event) => loadScenario(event.target.value));
   byId("pause-aac").addEventListener("click", () => {
     state = pauseForCommunication(state);
-    byId("aac-live").textContent = "Simulation clock paused while communication is composed or scanned.";
+    byId("aac-live").textContent = "AAC composition active. Clinical/world time continues while the learner-evaluation timer pauses.";
     render();
     persistCurrentSnapshot();
   });
