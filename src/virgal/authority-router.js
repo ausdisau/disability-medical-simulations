@@ -14,6 +14,25 @@ function normalizeDomain(domain) {
   return DOMAIN_KEYS[String(domain ?? "").toUpperCase()] ?? String(domain ?? "ordinary_world");
 }
 
+function hasVerifiedExactProtocol(localProtocol, jurisdiction, proposal) {
+  return localProtocol?.available === true &&
+    localProtocol?.current === true &&
+    localProtocol?.authoritative === true &&
+    Boolean(localProtocol?.id) &&
+    Boolean(localProtocol?.version) &&
+    localProtocol?.jurisdiction === jurisdiction &&
+    proposal?.proceduralTrainingScope === true;
+}
+
+function hasVerifiedOperationalProtocol(localProtocol, jurisdiction) {
+  return localProtocol?.available === true &&
+    localProtocol?.current === true &&
+    localProtocol?.authoritative === true &&
+    Boolean(localProtocol?.id) &&
+    Boolean(localProtocol?.version) &&
+    localProtocol?.jurisdiction === jurisdiction;
+}
+
 export function routeProposedAction({
   config,
   proposal,
@@ -66,16 +85,24 @@ export function routeProposedAction({
   }
 
   if (domain === "high_risk_procedure" || proposal?.exactProcedure === true) {
-    const validLocal = localProtocol?.available === true && localProtocol?.current === true && Boolean(localProtocol?.id);
-    if (!validLocal) {
-      return { ...result, decision: "HOLD_FOR_PROTOCOL", reasonCodes: ["G-PROC-01"], accessibleReason: "Exact high-risk procedural content requires a current authoritative local protocol." };
+    if (!hasVerifiedExactProtocol(localProtocol, jurisdiction, proposal)) {
+      return {
+        ...result,
+        decision: "HOLD_FOR_PROTOCOL",
+        reasonCodes: ["G-PROC-01"],
+        accessibleReason: "Exact high-risk procedural content requires a current authoritative local protocol with identifier, version, matching jurisdiction, and explicit procedural-training scope."
+      };
     }
   }
 
   if (jurisdiction === "VIC" && proposal?.exactOperationalLogic === true && ["RAPID_RESPONSE", "CLINICAL_REVIEW", "CODE_BLUE"].includes(proposal?.type)) {
-    const validLocal = localProtocol?.available === true && localProtocol?.current === true && Boolean(localProtocol?.id);
-    if (!validLocal) {
-      return { ...result, decision: "EXTERNAL_VERIFICATION_REQUIRED", reasonCodes: ["VIC-DTR-01"], accessibleReason: "Use the current local Victorian health-service recognition and response procedure for exact operational logic." };
+    if (!hasVerifiedOperationalProtocol(localProtocol, jurisdiction)) {
+      return {
+        ...result,
+        decision: "EXTERNAL_VERIFICATION_REQUIRED",
+        reasonCodes: ["VIC-DTR-01"],
+        accessibleReason: "Use the current local Victorian health-service recognition and response procedure for exact operational logic."
+      };
     }
   }
 
