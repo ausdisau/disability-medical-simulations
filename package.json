@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tests/*.test.mjs"
+    "test": "node --test tests/*.test.mjs",
+    "test:guardian": "node --test tests/guardian-config.test.mjs tests/guardian-routing.test.mjs tests/virgal-event-contract.test.mjs tests/virgal-replay.test.mjs tests/public-evidence.test.mjs tests/disability-safety.test.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2"

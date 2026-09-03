@@ -1,4 +1,5 @@
 import { stationDefinitions } from "./scenarios.js";
+import { createGuardianRuntimeContext } from "./virgal/guardian-config.js";
 import { commitEvent, createWorldEngine, tickWorld } from "./virgal/world-engine.js";
 
 const stationOrder = ["available", "selected", "checked", "assigned", "committed"];
@@ -17,6 +18,29 @@ export function createRuntime(scenarioId) {
     events: [],
     world: createWorldEngine({ scenarioId, seed: `${scenarioId}:world` }),
     stations: Object.fromEntries(stationDefinitions.map((station) => [station.id, "available"]))
+  };
+}
+
+export function createGuardedRuntime(scenarioId, {
+  guardianConfig,
+  jurisdiction = "NATIONAL_FALLBACK",
+  scenarioVersion = "1.0.0",
+  seed = `${scenarioId}:world`
+} = {}) {
+  const base = createRuntime(scenarioId);
+  return {
+    ...base,
+    jurisdiction,
+    scenarioVersion,
+    capacityStatus: "presumed",
+    substituteAuthority: null,
+    guardian: createGuardianRuntimeContext(guardianConfig),
+    world: createWorldEngine({
+      scenarioId,
+      seed,
+      branchId: "canonical",
+      scenarioVersion
+    })
   };
 }
 
