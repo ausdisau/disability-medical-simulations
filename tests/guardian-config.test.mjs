@@ -29,6 +29,27 @@ test("canonical guardian config validates", () => {
   assert.deepEqual(validateGuardianConfig(canonical), { valid: true, errors: [] });
 });
 
+test("malformed guardian config fails closed even when CFG-001 through CFG-008 are unchanged", () => {
+  const malformed = clone(canonical);
+  delete malformed.jurisdiction;
+  const result = validateGuardianConfig(malformed);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.includes("CONFIG-STRUCTURE"));
+
+  const context = createGuardianRuntimeContext(malformed);
+  assert.equal(context.status, "FAIL_CLOSED");
+  assert.equal(context.protectedDomainWritesAllowed, false);
+});
+
+test("wrong config profile or version fails closed", () => {
+  const malformed = clone(canonical);
+  malformed.config_version = "0.9.0";
+  malformed.profile = "UNSAFE_PROFILE";
+  const result = validateGuardianConfig(malformed);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.includes("CONFIG-IDENTITY"));
+});
+
 test("CFG-001 authority mode must be HYBRID", () => {
   expectRejected((c) => { c.authority_model.mode = "SERVER_ONLY"; }, "CFG-001");
 });
