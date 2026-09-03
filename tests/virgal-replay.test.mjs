@@ -4,6 +4,7 @@ import {
   chooseDeterministicAction,
   deriveNamedStreamId,
   hashCanonicalState,
+  sha256Hex,
   verifyRecordedStochasticTrace
 } from "../src/virgal/determinism.js";
 import { commitEvent, createWorldEngine, forkBranch } from "../src/virgal/world-engine.js";
@@ -13,6 +14,13 @@ const candidates = [
   { id: "call", utility: 0.6, eligible: true },
   { id: "answer-for-patient", utility: 1.0, eligible: false }
 ];
+
+test("SHA-256 implementation matches the standard abc vector", () => {
+  assert.equal(
+    sha256Hex("abc"),
+    "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  );
+});
 
 test("REPLAY-001 identical inputs yield identical stochastic trace and state hash", () => {
   const input = {
