@@ -95,13 +95,16 @@ const PRIORITY = {
   BACKGROUND: 6
 };
 
-export function createWorldEngine({ scenarioId, seed = "default", branchId = "canonical" }) {
+export function createWorldEngine({ scenarioId, seed = "default", branchId = "canonical", scenarioVersion = "1.0.0" }) {
   return {
     scenarioId,
+    scenarioVersion,
     seed,
     branchId,
     parentBranchId: null,
     worldTime: 0,
+    revision: 0,
+    idempotencyKeys: {},
     focusRef: null,
     events: [],
     headEventHash: null,
