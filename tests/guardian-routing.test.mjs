@@ -49,3 +49,36 @@ test("GATE-003 foreign regulatory evidence cannot unlock exact medication logic"
   assert.equal(result.decision, "HOLD_FOR_PROTOCOL");
   assert.ok(result.reasonCodes.includes("G-PROC-01"));
 });
+
+test("exact high-risk action remains held when protocol jurisdiction mismatches", () => {
+  const result = routeProposedAction({
+    config,
+    jurisdiction: "NSW",
+    proposal: { type: "MEDICATION_DOSE", domain: "high_risk_procedure", sourceAuthority: "CLINICAL_CONTROLLER", exactProcedure: true, proceduralTrainingScope: true },
+    localProtocol: { available: true, current: true, authoritative: true, id: "VIC-MED-001", version: "3", jurisdiction: "VIC" }
+  });
+  assert.equal(result.decision, "HOLD_FOR_PROTOCOL");
+  assert.ok(result.reasonCodes.includes("G-PROC-01"));
+});
+
+test("exact high-risk action remains held without explicit procedural-training scope", () => {
+  const result = routeProposedAction({
+    config,
+    jurisdiction: "NSW",
+    proposal: { type: "MEDICATION_DOSE", domain: "high_risk_procedure", sourceAuthority: "CLINICAL_CONTROLLER", exactProcedure: true },
+    localProtocol: { available: true, current: true, authoritative: true, id: "NSW-MED-001", version: "3", jurisdiction: "NSW" }
+  });
+  assert.equal(result.decision, "HOLD_FOR_PROTOCOL");
+});
+
+test("verified matching protocol opens exactness gate but does not bypass clinical owner", () => {
+  const result = routeProposedAction({
+    config,
+    jurisdiction: "NSW",
+    proposal: { type: "MEDICATION_DOSE", domain: "high_risk_procedure", sourceAuthority: "CLINICAL_CONTROLLER", exactProcedure: true, proceduralTrainingScope: true },
+    localProtocol: { available: true, current: true, authoritative: true, id: "NSW-MED-001", version: "3", jurisdiction: "NSW" }
+  });
+  assert.equal(result.decision, "ROUTE_TO_DOMAIN_OWNER");
+  assert.equal(result.owner, "CLINICAL_CONTROLLER");
+  assert.equal(result.canCommit, false);
+});
