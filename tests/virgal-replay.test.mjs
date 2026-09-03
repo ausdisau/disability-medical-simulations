@@ -7,7 +7,7 @@ import {
   sha256Hex,
   verifyRecordedStochasticTrace
 } from "../src/virgal/determinism.js";
-import { commitEvent, createWorldEngine, forkBranch } from "../src/virgal/world-engine.js";
+import { commitEvent, createWorldEngine, forkBranch, setFocus } from "../src/virgal/world-engine.js";
 
 const candidates = [
   { id: "rest", utility: 0.7, eligible: true },
@@ -43,6 +43,12 @@ test("REPLAY-001 identical inputs yield identical stochastic trace and state has
   assert.equal(hashCanonicalState(world1), hashCanonicalState(world2));
 });
 
+test("render-only camera focus does not change canonical state hash", () => {
+  const world = createWorldEngine({ scenarioId: "alex", seed: "4819", scenarioVersion: "1.0.0" });
+  const focused = setFocus(world, "HOME_KITCHEN");
+  assert.equal(hashCanonicalState(world), hashCanonicalState(focused));
+});
+
 test("REPLAY-002 recorded trace validates without resampling", () => {
   const selected = chooseDeterministicAction({
     rootSeed: "4819",
@@ -64,4 +70,11 @@ test("REPLAY-003 branch fork keeps pre-fork state but changes named stream", () 
   const parentStream = deriveNamedStreamId({ rootSeed: world.seed, scenarioVersion: world.scenarioVersion, branchId: world.branchId, actorId: "family-01", randomnessPurpose: "ordinary-goal-tiebreak" });
   const childStream = deriveNamedStreamId({ rootSeed: child.seed, scenarioVersion: child.scenarioVersion, branchId: child.branchId, actorId: "family-01", randomnessPurpose: "ordinary-goal-tiebreak" });
   assert.notEqual(parentStream, childStream);
+});
+
+test("variant branch requires a new branch id and seed", () => {
+  const world = createWorldEngine({ scenarioId: "alex", seed: "4819", branchId: "canonical", scenarioVersion: "1.0.0" });
+  assert.throws(() => forkBranch(world, { branchId: "canonical", seed: "9001" }), /branch/i);
+  assert.throws(() => forkBranch(world, { branchId: "variant-a", seed: "4819" }), /seed/i);
+  assert.throws(() => forkBranch(world, { branchId: "variant-a" }), /seed/i);
 });
