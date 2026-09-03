@@ -4,7 +4,9 @@ import {
   createWorldEngine,
   commitEvent,
   rebuildCharacterWorld,
-  forkBranch
+  forkBranch,
+  setFocus,
+  scheduleEvent
 } from "../src/virgal/world-engine.js";
 import {
   createCharacterWorld,
@@ -74,6 +76,17 @@ test("NPC-origin event cannot overwrite protected Patient Principal claim", () =
   assert.equal(getCharacterClaim(world.characterWorld, "eli", "goal-1")?.proposition, "I WANT MY LIFE BACK");
 });
 
+test("NPC-origin event cannot create a new protected Patient Principal claim", () => {
+  let world = worldWithCharacters();
+  world = commitEvent(world, {
+    type: "CLAIM_ASSERTED",
+    domain: "INFORMATION",
+    actorRefs: ["leo"],
+    payload: { claim: { id: "invented-preference", proposition: "Eli wants X", status: "BELIEVED", protected: true }, recipients: ["eli"] }
+  });
+  assert.equal(getCharacterClaim(world.characterWorld, "eli", "invented-preference"), null);
+});
+
 test("information delivery requires possession and privacy authority before commitment", () => {
   let world = worldWithCharacters();
   world = commitEvent(world, {
@@ -133,6 +146,21 @@ test("relationships are directional and repairs retain causal evidence without c
   assert.equal(getRelationship(world.characterWorld, "eli", "rachel").authorityDomain, undefined);
 });
 
+test("relationship changes cannot smuggle authority, consent, or capacity into relationship state", () => {
+  let world = worldWithCharacters();
+  world = commitEvent(world, buildRelationshipChangeProposal({
+    fromId: "rachel",
+    toId: "eli",
+    changes: { trust: "STRONG", authorityDomain: "CLINICAL", consent: true, capacity: "INCAPABLE" },
+    evidenceEventRefs: ["family-present"]
+  }));
+  const edge = getRelationship(world.characterWorld, "rachel", "eli");
+  assert.equal(edge.trust, "STRONG");
+  assert.equal(edge.authorityDomain, undefined);
+  assert.equal(edge.consent, undefined);
+  assert.equal(edge.capacity, undefined);
+});
+
 test("spatial affordances require access and do not convert readiness into indication", () => {
   let world = worldWithCharacters();
   world = commitEvent(world, { type: "WORLD_NODE_REGISTERED", domain: "WORLD", payload: { node: { id: "school", accessibilityTags: ["WHEELCHAIR"] } } });
@@ -154,6 +182,22 @@ test("off-screen fidelity promotes consequential nodes without inventing events"
   assert.equal(map["morgan-home"], "F1_ACTIVE_BACKGROUND");
   assert.equal(map["mainstream-school"], "F2_COARSE_BACKGROUND");
   assert.equal(JSON.stringify(fixture.eventRefs ?? []), beforeEvents);
+});
+
+test("world engine focus and scheduled locations maintain fidelity projection without advancing time", () => {
+  const fixture = createEliCharacterWorldFixture();
+  let world = createWorldEngine({ scenarioId: "eli-open-world", seed: "seed-a", characterWorld: fixture });
+  world = scheduleEvent(world, {
+    taskId: "school-session",
+    dueTime: 10,
+    locationRef: "mainstream-school",
+    priority: "ORDINARY",
+    event: { type: "SCHOOL_SESSION", domain: "SOCIAL", locationRef: "mainstream-school", payload: {} }
+  });
+  world = setFocus(world, "hospital-school");
+  assert.equal(world.worldTime, 0);
+  assert.equal(world.fidelity["hospital-school"], "F0_FOREGROUND");
+  assert.equal(world.fidelity["mainstream-school"], "F2_COARSE_BACKGROUND");
 });
 
 test("character-world state rebuilds deterministically from committed events", () => {
