@@ -47,7 +47,7 @@ The subsystem MUST NOT create or alter:
 
 ## 3. Authority order
 
-The social-cultural subsystem sits below deterministic and rights authority:
+The social-cultural subsystem is proposal-only and remains below deterministic and rights authority. Its generated output must pass both the Social Fidelity Guard and the Personhood Guardian before it can reach VIRGIL or a renderer.
 
 ```text
 Protected patient facts / authored decisions
@@ -58,20 +58,20 @@ Clinical-practice / evidence rules
         ↓
 Rights Gate
         ↓
-Personhood Guardian
-        ↓
 Social & Cultural Personhood Router
         ├── Lane A: Context Interpretation
         └── Lane B: Behaviour Generation
         ↓
-Fidelity / Degradation Guard
+Social Fidelity / Stereotype Guard
+        ↓
+Personhood Guardian
         ↓
 VIRGIL advisory context
         ↓
 NPC / narrative / visual renderer
 ```
 
-The Social & Cultural Personhood Router is never an authority source for canonical state.
+The Social & Cultural Personhood Router is never an authority source for canonical state. The Personhood Guardian retains final personhood precedence over all social/cultural rendering proposals.
 
 ## 4. User-selectable operating modes
 
@@ -216,7 +216,7 @@ Any violation is a render blocker.
 
 Compares proposed regenerated presentation against protected anchors and canonical state.
 
-It assigns a fidelity level and either allows, marks or blocks rendering.
+It assigns a fidelity level and either allows, marks or blocks rendering. Even an allowed proposal remains subject to the Personhood Guardian before display.
 
 ## 6. Regenerative mode
 
@@ -231,7 +231,7 @@ Current scene
 + last 3–5 NPC turns
 ```
 
-The runtime should store the selected maximum as a bounded integer, with a product default in the 3–5 range.
+The product default is `recent_window` with `maxNpcTurns: 5`. Storynodes may explicitly reduce or broaden that scope within their authored policy.
 
 ### 6.2 Storynode-specific scope
 
@@ -281,6 +281,8 @@ Social / cultural regeneration proposal
         ↓
 Fidelity + stereotype + authority checks
         ↓
+Personhood Guardian
+        ↓
 ALLOW / MARK INTERPRETIVE / BLOCK
 ```
 
@@ -316,7 +318,7 @@ Changes presentation only:
 
 No new facts or meanings.
 
-May render automatically once user has enabled regenerative mode.
+F1 may be presented as a high-confidence regeneration candidate. In v1 Alpha, the user still accepts or rejects the candidate; automatic acceptance is not part of this design.
 
 ### F2 — Interpretive
 
@@ -326,13 +328,13 @@ Requirements:
 
 - visible `INTERPRETIVE` marker;
 - provenance showing which contextual inputs were used;
-- user may inspect or reject the regeneration.
+- explicit user acceptance before display replaces the current presentation.
 
 ### F3 — Degraded
 
 The proposal adds, contradicts, erases or alters protected information.
 
-F3 MUST be blocked.
+F3 MUST be blocked and cannot be accepted by the user.
 
 Automatic F3 triggers include any change or unsupported invention involving:
 
@@ -379,7 +381,7 @@ socialCultural: {
   mode: "context_only" | "dual_lane",
   regenerationEnabled: boolean,
   regenerationWindow: {
-    scope: "current_turn" | "recent_window" | "whole_storynode",
+    scope: "none" | "current_turn" | "recent_window" | "whole_storynode",
     maxNpcTurns: 5
   },
   currentStoryNodeId: null,
@@ -420,7 +422,7 @@ Generative wording itself may be versioned separately from canonical replay if t
 
 ## 12. Relationship to Personhood Guardian
 
-The Personhood Guardian remains the higher-level invariant checker.
+The Personhood Guardian is the final personhood gate for any social/cultural rendering.
 
 The Social & Cultural subsystem provides additional checks for:
 
@@ -438,7 +440,7 @@ If the Personhood Guardian and Social Fidelity Guard disagree, the stricter outc
 
 VIRGIL may:
 
-- consume context findings;
+- consume approved context findings;
 - surface social/cultural unknowns;
 - request a broader storynode regeneration;
 - recommend asking the patient or supporter for clarification;
@@ -528,8 +530,8 @@ On model failure, missing context, policy ambiguity or guard uncertainty:
 - storynode policy clamps regeneration scope.
 - model requests cannot self-expand scope.
 - protected anchors are enforced.
-- F1 is allowed.
-- F2 is marked interpretive.
+- F1 is presented as high-fidelity and remains user-accept/reject in v1 Alpha.
+- F2 is marked interpretive and requires user acceptance.
 - all F3 triggers are blocked.
 - missing cultural context falls back to `CULTURAL_CONTEXT_UNKNOWN`.
 - AAC composition prevents disruptive regeneration UI transitions.
@@ -585,7 +587,7 @@ The feature is acceptable for Alpha review when:
 3. regeneration defaults to current scene + a bounded recent NPC window;
 4. authored storynodes can grant narrower or broader bounded regeneration scope;
 5. models may request but never self-authorise broader scope;
-6. all regeneration passes protected-anchor, stereotype and authority checks;
+6. all regeneration passes protected-anchor, stereotype, authority and Personhood Guardian checks;
 7. F3 content is reliably blocked;
 8. patient-authored communication cannot be regenerated;
 9. communication access and AAC timing remain intact;
