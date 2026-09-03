@@ -259,11 +259,17 @@ export function createBranch(world, { branchId }) {
 }
 
 export function forkBranch(branch, { branchId, seed }) {
+  if (!branchId || branchId === branch.branchId) {
+    throw new Error("Variant branch requires a new branch id.");
+  }
+  if (!seed || seed === branch.seed) {
+    throw new Error("Variant branch requires a new seed.");
+  }
   return {
     ...deepClone(branch),
     branchId,
     parentBranchId: branch.branchId,
-    seed: seed ?? branch.seed,
+    seed,
     headEventHash: branch.events.at(-1)?.eventHash ?? null
   };
 }
