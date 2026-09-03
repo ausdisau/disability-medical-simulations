@@ -84,7 +84,8 @@ export async function saveSnapshot(state) {
         focusRef: state.world.focusRef,
         headEventHash: state.world.headEventHash,
         scheduler: state.world.scheduler,
-        causalGraph: state.world.causalGraph
+        causalGraph: state.world.causalGraph,
+        characterWorld: state.world.characterWorld
       } : null
     }
   });
