@@ -1,3 +1,6 @@
+import { createCharacterWorld } from "./character-world/state.js";
+import { applyCommittedCharacterEvent } from "./character-world/reducer.js";
+
 function stableStringify(value) {
   if (value === null || typeof value !== "object") return JSON.stringify(value);
   if (Array.isArray(value)) return `[${value.map(stableStringify).join(",")}]`;
@@ -95,7 +98,7 @@ const PRIORITY = {
   BACKGROUND: 6
 };
 
-export function createWorldEngine({ scenarioId, seed = "default", branchId = "canonical" }) {
+export function createWorldEngine({ scenarioId, seed = "default", branchId = "canonical", characterWorld = null }) {
   return {
     scenarioId,
     seed,
@@ -109,7 +112,8 @@ export function createWorldEngine({ scenarioId, seed = "default", branchId = "ca
     scheduler: [],
     fidelity: {},
     authority: { emergencyLease: null },
-    version: "0.3.0"
+    characterWorld: characterWorld ? deepClone(characterWorld) : createCharacterWorld(),
+    version: "0.4.0"
   };
 }
 
@@ -133,17 +137,23 @@ export function commitEvent(world, proposal) {
     branchId: world.branchId
   };
   const eventHash = sha256Hex(stableStringify(event));
+  const committedEvent = { ...event, eventHash };
   const causalParents = [...event.causalParents];
 
   return {
     ...world,
-    events: [...world.events, { ...event, eventHash }],
+    events: [...world.events, committedEvent],
     headEventHash: eventHash,
     causalGraph: {
       ...world.causalGraph,
       parents: { ...world.causalGraph.parents, [eventId]: causalParents }
-    }
+    },
+    characterWorld: applyCommittedCharacterEvent(world.characterWorld, committedEvent)
   };
+}
+
+export function rebuildCharacterWorld(events, initialState = createCharacterWorld()) {
+  return (events ?? []).reduce((state, event) => applyCommittedCharacterEvent(state, event), deepClone(initialState));
 }
 
 export function setFocus(world, focusRef) {
