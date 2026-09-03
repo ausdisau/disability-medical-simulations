@@ -1,5 +1,6 @@
 import { createCharacterWorld } from "./character-world/state.js";
 import { applyCommittedCharacterEvent } from "./character-world/reducer.js";
+import { deriveFidelityMap } from "./character-world/fidelity.js";
 
 function stableStringify(value) {
   if (value === null || typeof value !== "object") return JSON.stringify(value);
@@ -98,8 +99,23 @@ const PRIORITY = {
   BACKGROUND: 6
 };
 
-export function createWorldEngine({ scenarioId, seed = "default", branchId = "canonical", characterWorld = null }) {
+function scheduledNodeRefs(scheduler = []) {
+  return [...new Set(scheduler.map((task) => task.locationRef ?? task.event?.locationRef).filter(Boolean))];
+}
+
+function refreshFidelity(world, focusRef = world.focusRef) {
   return {
+    ...world,
+    focusRef,
+    fidelity: deriveFidelityMap(world.characterWorld, {
+      focusRef,
+      scheduledRefs: scheduledNodeRefs(world.scheduler)
+    })
+  };
+}
+
+export function createWorldEngine({ scenarioId, seed = "default", branchId = "canonical", characterWorld = null }) {
+  const world = {
     scenarioId,
     seed,
     branchId,
@@ -115,6 +131,7 @@ export function createWorldEngine({ scenarioId, seed = "default", branchId = "ca
     characterWorld: characterWorld ? deepClone(characterWorld) : createCharacterWorld(),
     version: "0.4.0"
   };
+  return refreshFidelity(world, null);
 }
 
 export function commitEvent(world, proposal) {
@@ -139,8 +156,7 @@ export function commitEvent(world, proposal) {
   const eventHash = sha256Hex(stableStringify(event));
   const committedEvent = { ...event, eventHash };
   const causalParents = [...event.causalParents];
-
-  return {
+  const next = {
     ...world,
     events: [...world.events, committedEvent],
     headEventHash: eventHash,
@@ -150,6 +166,7 @@ export function commitEvent(world, proposal) {
     },
     characterWorld: applyCommittedCharacterEvent(world.characterWorld, committedEvent)
   };
+  return refreshFidelity(next);
 }
 
 export function rebuildCharacterWorld(events, initialState = createCharacterWorld()) {
@@ -157,12 +174,12 @@ export function rebuildCharacterWorld(events, initialState = createCharacterWorl
 }
 
 export function setFocus(world, focusRef) {
-  return { ...world, focusRef };
+  return refreshFidelity(world, focusRef);
 }
 
 export function scheduleEvent(world, task) {
   if (!task?.taskId || !Number.isFinite(task?.dueTime) || !task?.event?.type) return world;
-  return { ...world, scheduler: [...world.scheduler, deepClone(task)] };
+  return refreshFidelity({ ...world, scheduler: [...world.scheduler, deepClone(task)] });
 }
 
 export function tickWorld(world, { seconds = 1 } = {}) {
@@ -177,7 +194,7 @@ export function tickWorld(world, { seconds = 1 } = {}) {
 
   let next = { ...world, worldTime: nextTime, scheduler: world.scheduler.filter((task) => task.dueTime > nextTime) };
   for (const task of due) next = commitEvent(next, task.event);
-  return next;
+  return refreshFidelity(next);
 }
 
 function seedToUint32(seed) {
