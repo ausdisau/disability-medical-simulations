@@ -1,4 +1,5 @@
 import { cloneCharacterWorld } from "./state.js";
+import { sanitizeRelationshipChanges } from "./relationships.js";
 
 function ensureCharacterState(next, characterId) {
   if (!next.claims[characterId]) next.claims[characterId] = {};
@@ -6,6 +7,7 @@ function ensureCharacterState(next, characterId) {
 }
 
 function mayWriteClaim(next, recipientId, claim, actorId) {
+  if (recipientId === next.patientPrincipalId && claim?.protected && actorId !== next.patientPrincipalId) return false;
   const existing = next.claims?.[recipientId]?.[claim.id];
   if (!existing?.protected) return true;
   if (recipientId !== next.patientPrincipalId) return true;
@@ -65,7 +67,13 @@ export function applyCommittedCharacterEvent(characterWorld, event) {
       const edge = event.payload?.edge;
       if (!edge?.fromId || !edge?.toId) return next;
       const key = `${edge.fromId}->${edge.toId}`;
-      next.relationships[key] = { ...(next.relationships[key] ?? {}), ...structuredClone(edge) };
+      const safeEdge = {
+        fromId: edge.fromId,
+        toId: edge.toId,
+        ...sanitizeRelationshipChanges(edge),
+        evidenceEventRefs: [...(edge.evidenceEventRefs ?? [])]
+      };
+      next.relationships[key] = { ...(next.relationships[key] ?? {}), ...structuredClone(safeEdge) };
       return next;
     }
     case "WORLD_NODE_REGISTERED": {
