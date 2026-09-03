@@ -149,8 +149,14 @@ export function chooseDeterministicAction({
   };
 }
 
+function canonicalWorldProjection(world) {
+  if (world === null || typeof world !== "object") return world;
+  const { focusRef, ...canonical } = world;
+  return canonical;
+}
+
 export function hashCanonicalState(world) {
-  return sha256Hex(stableStringify(world));
+  return sha256Hex(stableStringify(canonicalWorldProjection(world)));
 }
 
 export function verifyRecordedStochasticTrace(trace, expected) {
