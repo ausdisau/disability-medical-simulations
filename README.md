@@ -57,6 +57,25 @@ ENABLE_SIM_PERSISTENCE=true
 
 `DATABASE_URL` must never be prefixed with `VITE_` or otherwise exposed to browser JavaScript.
 
+## GPT-6 Astra proposal runtime
+
+Project Hope may use GPT-6 Astra as a server-side scene/reasoning proposal layer when `ENABLE_AI_SIMULATION=true` and `OPENAI_API_KEY` are configured on the server.
+
+The model is deliberately non-sovereign. VIRGAL remains the canonical source of truth. The model receives a `StorylineEnvelope` derived from committed world state and returns candidate proposals bound to the current `headEventHash`. If the world advances before a proposal is applied, the proposal is stale and must be regenerated.
+
+Changing `PROJECT_HOPE_MODEL` does not migrate or rewrite storyline history. Continuity comes from persisted VIRGAL snapshots plus committed events, not from provider conversation state. Rolling back from GPT-6 Astra therefore means changing the model environment value and redeploying; no canonical event or snapshot rollback is required.
+
+Server variables:
+
+```text
+ENABLE_AI_SIMULATION=true
+OPENAI_API_KEY=<server-only secret>
+PROJECT_HOPE_MODEL=gpt-6-astra
+PROJECT_HOPE_REASONING=high
+```
+
+Never expose `OPENAI_API_KEY` in browser JavaScript. Do not use model outputs directly for medication/device settings, physiology, diagnosis, capacity, consent/refusal, substitute authority, or treatment ceilings.
+
 ## Vercel
 
 Import `ausdisau/disability-medical-simulations` as a Vercel project.
