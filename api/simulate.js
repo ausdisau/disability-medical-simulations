@@ -1,8 +1,19 @@
 import { getModelConfig } from "../src/virgal/ai/model-config.js";
 import { requestAstraProposal } from "../src/virgal/ai/astra-client.js";
+import { validateModelProposal } from "../src/virgal/ai/proposal-schema.js";
 
 function json(res, status, body) {
   res.status(status).json(body);
+}
+
+export function validateEndpointProposal(rawProposal, storylineEnvelope) {
+  let parsed;
+  try {
+    parsed = JSON.parse(rawProposal);
+  } catch {
+    return { ok: false, error: "invalid_model_json" };
+  }
+  return validateModelProposal(parsed, storylineEnvelope?.headEventHash ?? null);
 }
 
 export default async function handler(req, res) {
@@ -31,9 +42,18 @@ export default async function handler(req, res) {
       instruction,
       config
     });
+    const checked = validateEndpointProposal(rawProposal, storylineEnvelope);
+    if (!checked.ok) {
+      return json(res, 422, {
+        status: "HELD",
+        error: checked.error,
+        model: config.model,
+        basedOnHead: storylineEnvelope.headEventHash
+      });
+    }
     return json(res, 200, {
       status: "PROPOSED",
-      rawProposal,
+      proposal: checked.proposal,
       model: config.model,
       basedOnHead: storylineEnvelope.headEventHash
     });
