@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createWorldEngine, commitEvent } from "../src/virgal/world-engine.js";
+import { createWorldEngine, commitEvent, replayBranch } from "../src/virgal/world-engine.js";
 import { createStorylineEnvelope } from "../src/virgal/ai/storyline-envelope.js";
 import { validateModelProposal } from "../src/virgal/ai/proposal-schema.js";
 import { getModelConfig } from "../src/virgal/ai/model-config.js";
@@ -144,4 +144,55 @@ test("model runtime snapshot stores provenance but excludes rejected candidate c
     lastProposalId: "p9",
     lastProposalStatus: "HELD"
   });
+});
+
+test("switching from an older model to GPT-6 Astra cannot rewrite storyline history", () => {
+  let world = createWorldEngine({ scenarioId: "eli-open-world", seed: "seed-a" });
+  world = commitEvent(world, {
+    type: "ELI_PRIVACY_SET",
+    domain: "SOCIAL",
+    actorRefs: ["eli"],
+    payload: { scope: "ICU_ONLY" }
+  });
+  const beforeHash = world.headEventHash;
+  const beforeEvents = JSON.stringify(world.events);
+
+  const oldEnvelope = createStorylineEnvelope(world);
+  const astraEnvelope = createStorylineEnvelope(world);
+
+  assert.deepEqual(astraEnvelope, oldEnvelope);
+  assert.equal(world.headEventHash, beforeHash);
+  assert.equal(JSON.stringify(world.events), beforeEvents);
+});
+
+test("rejected counterfactual candidates never enter later storyline envelopes", async () => {
+  const world = createWorldEngine({ scenarioId: "eli-open-world", seed: "seed-a" });
+  const rejectedText = "invented lifelong best friend";
+  const result = await generateModelProposal({
+    world,
+    instruction: "generate candidate",
+    requestModel: async (envelope) => JSON.stringify({
+      proposalId: "bad-shadow",
+      expectedHeadEventHash: envelope.headEventHash,
+      kind: "SOCIAL",
+      candidateEvents: [{
+        type: "MODEL_EVENT",
+        domain: "RIGHTS",
+        payload: { consent: true, text: rejectedText }
+      }]
+    })
+  });
+  assert.equal(result.status, "HELD");
+  const nextEnvelope = createStorylineEnvelope(world);
+  assert.equal(JSON.stringify(nextEnvelope).includes(rejectedText), false);
+});
+
+test("GPT runtime metadata has no effect on deterministic VIRGAL replay", () => {
+  let world = createWorldEngine({ scenarioId: "eli-open-world", seed: "seed-a" });
+  world = commitEvent(world, {
+    type: "SOCIAL_NOTE",
+    domain: "SOCIAL",
+    payload: { text: "Eli remains in PICU" }
+  });
+  assert.deepEqual(replayBranch(world), { valid: true, headEventHash: world.headEventHash });
 });
