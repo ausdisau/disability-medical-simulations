@@ -5,6 +5,7 @@ import { createStorylineEnvelope } from "../src/virgal/ai/storyline-envelope.js"
 import { validateModelProposal } from "../src/virgal/ai/proposal-schema.js";
 import { getModelConfig } from "../src/virgal/ai/model-config.js";
 import { requestAstraProposal } from "../src/virgal/ai/astra-client.js";
+import { generateModelProposal } from "../src/virgal/ai/proposal-orchestrator.js";
 
 test("storyline envelope is derived only from committed canonical state", () => {
   let world = createWorldEngine({ scenarioId: "eli-open-world", seed: "seed-a" });
@@ -73,4 +74,36 @@ test("Astra client uses Responses API and returns JSON proposal text", async () 
   });
   assert.equal(calls[0].url, "https://api.openai.com/v1/responses");
   assert.equal(JSON.parse(raw).proposalId, "p3");
+});
+
+test("model generation cannot mutate world state", async () => {
+  const world = createWorldEngine({ scenarioId: "eli-open-world", seed: "seed-a" });
+  const before = JSON.stringify(world);
+  const result = await generateModelProposal({
+    world,
+    instruction: "spawn a plausible school interaction",
+    requestModel: async (envelope) => JSON.stringify({
+      proposalId: "p4",
+      expectedHeadEventHash: envelope.headEventHash,
+      kind: "SOCIAL",
+      candidateEvents: [{ type: "SOCIAL_INTERACTION_PROPOSED", domain: "SOCIAL", payload: { summary: "friend sends message" } }]
+    })
+  });
+  assert.equal(result.status, "PROPOSED");
+  assert.equal(JSON.stringify(world), before);
+  assert.equal(world.events.length, 0);
+});
+
+test("proposal is held when canonical head changes during model call", async () => {
+  let world = createWorldEngine({ scenarioId: "eli-open-world", seed: "seed-a" });
+  const originalHead = world.headEventHash;
+  const advanced = commitEvent(world, { type: "TIME_PASSED", domain: "WORLD", payload: {} });
+  const raw = JSON.stringify({ proposalId: "late", expectedHeadEventHash: originalHead, kind: "SOCIAL", candidateEvents: [] });
+  const result = await generateModelProposal({
+    world: advanced,
+    instruction: "continue",
+    requestModel: async () => raw
+  });
+  assert.equal(result.status, "HELD");
+  assert.equal(result.error, "stale_storyline_head");
 });
