@@ -6,6 +6,7 @@ import { validateModelProposal } from "../src/virgal/ai/proposal-schema.js";
 import { getModelConfig } from "../src/virgal/ai/model-config.js";
 import { requestAstraProposal } from "../src/virgal/ai/astra-client.js";
 import { generateModelProposal } from "../src/virgal/ai/proposal-orchestrator.js";
+import { createModelRuntimeSnapshot } from "../src/persistence.js";
 
 test("storyline envelope is derived only from committed canonical state", () => {
   let world = createWorldEngine({ scenarioId: "eli-open-world", seed: "seed-a" });
@@ -123,4 +124,24 @@ test("AI simulation endpoint is disabled unless explicitly enabled", async () =>
   assert.equal(result.status, 503);
   assert.equal(result.body.error, "ai_simulation_disabled");
   if (old !== undefined) process.env.ENABLE_AI_SIMULATION = old;
+});
+
+test("model runtime snapshot stores provenance but excludes rejected candidate content", () => {
+  const runtime = createModelRuntimeSnapshot({
+    model: "gpt-6-astra",
+    reasoningEffort: "high",
+    promptVersion: "rsee-1",
+    basedOnHead: "abc",
+    lastProposalId: "p9",
+    lastProposalStatus: "HELD",
+    rejectedCandidates: [{ secret: "must-not-persist" }]
+  });
+  assert.deepEqual(runtime, {
+    model: "gpt-6-astra",
+    reasoningEffort: "high",
+    promptVersion: "rsee-1",
+    basedOnHead: "abc",
+    lastProposalId: "p9",
+    lastProposalStatus: "HELD"
+  });
 });
