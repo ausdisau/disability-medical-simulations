@@ -25,6 +25,26 @@ function eventSequence(event) {
   return Number.isInteger(prefix) && prefix > 0 ? prefix : null;
 }
 
+export function createModelRuntimeSnapshot(runtime = null) {
+  if (!runtime) return null;
+  const {
+    model = null,
+    reasoningEffort = null,
+    promptVersion = null,
+    basedOnHead = null,
+    lastProposalId = null,
+    lastProposalStatus = null
+  } = runtime;
+  return {
+    model,
+    reasoningEffort,
+    promptVersion,
+    basedOnHead,
+    lastProposalId,
+    lastProposalStatus
+  };
+}
+
 export async function startPersistenceSession(scenarioId, accessibility = {}) {
   syncedEventIds = new Set();
   const result = await post({ op: "start", scenarioId, accessibility });
@@ -59,7 +79,7 @@ export async function syncEvents(events) {
   pending.forEach((event) => syncedEventIds.add(event.id));
 }
 
-export async function saveSnapshot(state) {
+export async function saveSnapshot(state, modelRuntime = null) {
   if (!sessionId || !enabled) return;
   await post({
     op: "snapshot",
@@ -76,6 +96,7 @@ export async function saveSnapshot(state) {
       selectedChoiceId: state.selectedChoiceId,
       completed: state.completed,
       stations: state.stations,
+      modelRuntime: createModelRuntimeSnapshot(modelRuntime),
       virgal: state.world ? {
         version: state.world.version,
         branchId: state.world.branchId,
