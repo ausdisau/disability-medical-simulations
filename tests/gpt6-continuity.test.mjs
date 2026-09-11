@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { createWorldEngine, commitEvent } from "../src/virgal/world-engine.js";
 import { createStorylineEnvelope } from "../src/virgal/ai/storyline-envelope.js";
 import { validateModelProposal } from "../src/virgal/ai/proposal-schema.js";
+import { getModelConfig } from "../src/virgal/ai/model-config.js";
+import { requestAstraProposal } from "../src/virgal/ai/astra-client.js";
 
 test("storyline envelope is derived only from committed canonical state", () => {
   let world = createWorldEngine({ scenarioId: "eli-open-world", seed: "seed-a" });
@@ -47,4 +49,28 @@ test("model proposal cannot smuggle protected clinical or rights truth", () => {
   }, "head-a");
   assert.equal(result.ok, false);
   assert.equal(result.error, "protected_domain_mutation");
+});
+
+test("GPT-6 Astra is the default reasoning model but can be server-overridden", () => {
+  assert.equal(getModelConfig({ OPENAI_API_KEY: "x" }).model, "gpt-6-astra");
+  assert.equal(getModelConfig({ OPENAI_API_KEY: "x", PROJECT_HOPE_MODEL: "gpt-6-astra-snapshot" }).model, "gpt-6-astra-snapshot");
+});
+
+test("Astra client uses Responses API and returns JSON proposal text", async () => {
+  const calls = [];
+  const fetchImpl = async (url, init) => {
+    calls.push({ url, init });
+    return {
+      ok: true,
+      json: async () => ({ output_text: JSON.stringify({ proposalId: "p3", expectedHeadEventHash: "h", kind: "SOCIAL", candidateEvents: [] }) })
+    };
+  };
+  const raw = await requestAstraProposal({
+    envelope: { headEventHash: "h" },
+    instruction: "continue scene",
+    config: { model: "gpt-6-astra", reasoningEffort: "high", endpoint: "https://api.openai.com/v1/responses", apiKey: "secret" },
+    fetchImpl
+  });
+  assert.equal(calls[0].url, "https://api.openai.com/v1/responses");
+  assert.equal(JSON.parse(raw).proposalId, "p3");
 });
