@@ -107,3 +107,20 @@ test("proposal is held when canonical head changes during model call", async () 
   assert.equal(result.status, "HELD");
   assert.equal(result.error, "stale_storyline_head");
 });
+
+test("AI simulation endpoint is disabled unless explicitly enabled", async () => {
+  const old = process.env.ENABLE_AI_SIMULATION;
+  delete process.env.ENABLE_AI_SIMULATION;
+  const { default: handler } = await import(`../api/simulate.js?case=${Date.now()}`);
+  const req = { method: "POST", body: {} };
+  const result = {};
+  const res = {
+    status(code) { result.status = code; return this; },
+    json(body) { result.body = body; return this; },
+    setHeader() {}
+  };
+  await handler(req, res);
+  assert.equal(result.status, 503);
+  assert.equal(result.body.error, "ai_simulation_disabled");
+  if (old !== undefined) process.env.ENABLE_AI_SIMULATION = old;
+});
