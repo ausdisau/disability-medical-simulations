@@ -7,6 +7,7 @@ import { getModelConfig } from "../src/virgal/ai/model-config.js";
 import { requestAstraProposal } from "../src/virgal/ai/astra-client.js";
 import { generateModelProposal } from "../src/virgal/ai/proposal-orchestrator.js";
 import { createModelRuntimeSnapshot } from "../src/persistence.js";
+import { validateEndpointProposal } from "../api/simulate.js";
 
 test("storyline envelope is derived only from committed canonical state", () => {
   let world = createWorldEngine({ scenarioId: "eli-open-world", seed: "seed-a" });
@@ -124,6 +125,21 @@ test("AI simulation endpoint is disabled unless explicitly enabled", async () =>
   assert.equal(result.status, 503);
   assert.equal(result.body.error, "ai_simulation_disabled");
   if (old !== undefined) process.env.ENABLE_AI_SIMULATION = old;
+});
+
+test("HTTP boundary rejects protected raw model proposals before returning them", () => {
+  const result = validateEndpointProposal(JSON.stringify({
+    proposalId: "unsafe-http",
+    expectedHeadEventHash: "head-a",
+    kind: "SOCIAL",
+    candidateEvents: [{
+      type: "MODEL_EVENT",
+      domain: "RIGHTS",
+      payload: { consent: true }
+    }]
+  }), { headEventHash: "head-a" });
+  assert.equal(result.ok, false);
+  assert.equal(result.error, "protected_domain_mutation");
 });
 
 test("model runtime snapshot stores provenance but excludes rejected candidate content", () => {
