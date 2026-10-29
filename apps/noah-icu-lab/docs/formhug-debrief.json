@@ -1,10 +1,20 @@
 {
   "schema_version": "1.0",
   "name": "Noah ICU Simulation Debrief",
-  "intent": "Unpublished draft only. No respondent entries, notifications, scoring or treatment advice.",
-  "created_form": null,
-  "status": "blocked_reauthentication_required",
-  "blocker": "FormHug returned: This app connection requires reauthentication. Reconnect the app and try again. No create_form mutation has been submitted.",
+  "intent": "Closed form for owner review only. No respondent entries, notifications, clinical scoring or treatment advice.",
+  "created_form": {
+    "name": "Noah ICU Simulation Debrief",
+    "owned": true,
+    "field_count": 12,
+    "entries_count": 0,
+    "locale": "en",
+    "timezone": "Australia/Sydney",
+    "manually_closed": true,
+    "show_form_before_open": false,
+    "verified_on": "2026-10-29"
+  },
+  "status": "created_closed_for_review",
+  "blocker": null,
   "locale": "en",
   "timezone": "Australia/Sydney",
   "layout": "classic",
@@ -185,8 +195,8 @@
     }
   ],
   "requested_availability": {
-    "unpublished": true,
-    "manually_closed": true
+    "manually_closed": true,
+    "show_form_before_open": false
   },
-  "api_schema_validated": false
+  "api_schema_validated": true
 }

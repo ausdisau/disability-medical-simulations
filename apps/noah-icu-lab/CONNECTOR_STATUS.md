@@ -12,7 +12,9 @@ Personal Health records were not accessed. This is professional software work us
 
 ## FormHug
 
-A structured fictional simulation debrief definition is prepared separately. The mandatory FormHug guide call returned: "This app connection requires reauthentication. Reconnect the app and try again." No live form was created and no shareable form URL is claimed. See `docs/formhug-debrief.md` and its JSON schema. No patient identifiers are requested, no test respondent entries are created, and there is no automatic session upload.
+The earlier reauthentication block cleared on the current authenticated read and write checks. `Noah ICU Simulation Debrief` was created and verified with 12 fields, creator ownership, zero entries, English (`en`) and timezone `Australia/Sydney`. It remains closed for owner review: `manually_closed: true` and `show_form_before_open: false`.
+
+This records successful access on the check date, not a guarantee of persistent authentication. The public package contains the validated field definition and generic metadata in `docs/formhug-debrief.json`, with details in `docs/formhug-debrief.md`; it omits form tokens, account identifiers and owner/edit URLs. No patient identifiers are requested, no test respondent entries were created, and the simulator has no automatic FormHug submission or session upload.
 
 ## GitHub
 

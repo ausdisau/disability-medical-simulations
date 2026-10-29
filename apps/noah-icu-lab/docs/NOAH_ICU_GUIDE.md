@@ -99,7 +99,9 @@ The handover view compares the current model with its own preconditioned baselin
 
 JSON includes fictional profile, settings, assumptions, engine state, care/emergency state, events, trends, reflection, references and limitations. CSV labels synthetic quantities and includes spontaneous-pulse, pulse-oximeter-availability and compression-flow fields. A numerical CSV saturation during arrest is synthetic model state; the availability field must be used for interpretation.
 
-A complete FormHug-compatible debrief definition is provided for fictional simulation reflection. The FormHug connection requires reauthentication; no live draft or submission has been created in this session. The app does not automatically transmit sessions, patient data or reflection text. See the FormHug integration note for the connection status and reproducible fields. Healthcare Public Data was used to verify literature, not to import a clinical dataset or calibrate this individual model. Personal Health records are outside this fictional professional task.
+A 12-field FormHug form named `Noah ICU Simulation Debrief` was created and verified for fictional simulation reflection. It remains closed for owner review, with zero entries, English (`en`), timezone `Australia/Sydney`, `manually_closed: true` and `show_form_before_open: false`. The earlier reauthentication issue cleared during the current read and write checks; future connection availability is not guaranteed.
+
+The simulator does not automatically submit responses or transmit sessions, patient data or reflection text to FormHug. The public package includes the validated reproducible definition and generic metadata, with no form token, account identifier or owner/edit URL. See `formhug-debrief.md` for the verified status and review boundaries. Healthcare Public Data was used to verify literature, not to import a clinical dataset or calibrate this individual model. Personal Health records are outside this fictional professional task.
 
 ## Evidence and engineering
 

@@ -103,6 +103,6 @@ npm test
 npm run export:web
 ```
 
-The existing root simulations, API and optional Neon persistence remain independent. See the [facilitator guide](apps/noah-icu-lab/docs/NOAH_ICU_GUIDE.md), [model contract](apps/noah-icu-lab/src/features/cardiopulmonary/runtime/MODEL.md), and [public evidence provenance](apps/noah-icu-lab/docs/healthcare-public-data-evidence.md). The [debrief form design](apps/noah-icu-lab/docs/formhug-debrief.json) is prepared locally; FormHug reauthentication is required before any remote draft can be created.
+The existing root simulations, API and optional Neon persistence remain independent. See the [facilitator guide](apps/noah-icu-lab/docs/NOAH_ICU_GUIDE.md), [model contract](apps/noah-icu-lab/src/features/cardiopulmonary/runtime/MODEL.md), and [public evidence provenance](apps/noah-icu-lab/docs/healthcare-public-data-evidence.md). The [debrief form design](apps/noah-icu-lab/docs/formhug-debrief.json) has been created and verified in the connected FormHug account. The form remains manually closed to submissions for owner review; account-specific links are shared separately. The simulator has no automatic FormHug upload.
 
 All case data and numerical settings are synthetic teaching assumptions. The apps do not connect to patients or devices, prescribe treatment, implement a complete ALS algorithm, generate automatic ROSC, predict outcomes, or certify competence.
