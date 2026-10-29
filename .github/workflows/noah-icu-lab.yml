@@ -1,0 +1,50 @@
+name: Noah ICU and Code Blue rooms
+
+on:
+  pull_request:
+    paths:
+      - 'apps/noah-icu-lab/**'
+      - 'apps/noah-code-blue-mobile/**'
+      - '.github/workflows/noah-icu-lab.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'apps/noah-icu-lab/**'
+      - 'apps/noah-code-blue-mobile/**'
+      - '.github/workflows/noah-icu-lab.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/noah-icu-lab
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: apps/noah-icu-lab/package-lock.json
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: npm run build
+  mobile:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/noah-code-blue-mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: apps/noah-code-blue-mobile/package-lock.json
+      - run: npm ci --ignore-scripts
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run export:web
