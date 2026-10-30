@@ -1,5 +1,5 @@
-import React, { type ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
+import React, { type ReactNode, useState } from 'react';
+import { Pressable, StyleSheet, Text, View, type AccessibilityRole, type ViewStyle } from 'react-native';
 
 export const colors = {
   ink: '#102C40', muted: '#486172', navy: '#0B263A', teal: '#086D66', tealLight: '#E2F3ED',
@@ -7,16 +7,18 @@ export const colors = {
   red: '#9D273A', redLight: '#FCE9ED', quiet: '#E9EFF3', blue: '#174B78',
 };
 
-export function ActionButton({ label, onPress, tone = 'secondary', disabled = false, hint, selected, style }: {
+export function ActionButton({ label, onPress, tone = 'secondary', disabled = false, hint, selected, expanded, role = 'button', style }: {
   label: string; onPress: () => void; tone?: 'primary' | 'secondary' | 'danger' | 'quiet';
-  disabled?: boolean; hint?: string; selected?: boolean; style?: ViewStyle;
+  disabled?: boolean; hint?: string; selected?: boolean; expanded?: boolean; role?: AccessibilityRole; style?: ViewStyle;
 }) {
+  const [focused, setFocused] = useState(false);
   const filled = tone === 'primary' || tone === 'danger';
-  return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityHint={hint}
-    accessibilityState={{ disabled, selected }} disabled={disabled} onPress={onPress}
+  return <Pressable accessible focusable={!disabled} accessibilityRole={role} accessibilityLabel={label} accessibilityHint={hint}
+    accessibilityState={{ disabled, selected, expanded }} disabled={disabled} onPress={onPress}
+    onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
     style={({ pressed }) => [s.button, tone === 'primary' && s.primary, tone === 'danger' && s.danger,
-      tone === 'quiet' && s.quiet, selected && s.selected, pressed && !disabled && s.pressed, disabled && s.disabled, style]}>
-    <Text style={[s.buttonText, filled && s.buttonTextFilled, selected && !filled && s.selectedText]}>{label}</Text>
+      tone === 'quiet' && s.quiet, selected && s.selected, pressed && !disabled && s.pressed, disabled && s.disabled, style, focused && s.focused]}>
+    <Text allowFontScaling style={[s.buttonText, filled && !selected && s.buttonTextFilled, selected && s.selectedText]}>{label}</Text>
   </Pressable>;
 }
 
@@ -87,6 +89,7 @@ const s = StyleSheet.create({
   button: { minHeight: 48, minWidth: 48, paddingVertical: 12, paddingHorizontal: 16, borderWidth: 1, borderColor: colors.border, borderRadius: 10, backgroundColor: colors.white, justifyContent: 'center', alignItems: 'center', flexShrink: 1 },
   primary: { backgroundColor: colors.teal, borderColor: colors.teal }, danger: { backgroundColor: colors.red, borderColor: colors.red }, quiet: { backgroundColor: colors.quiet },
   selected: { borderColor: colors.teal, backgroundColor: colors.tealLight, borderWidth: 2 },
+  focused: { borderColor: colors.blue, borderWidth: 3 },
   pressed: { opacity: 0.7 }, disabled: { opacity: 0.42 },
   buttonText: { color: colors.ink, fontSize: 16, fontWeight: '700', textAlign: 'center', flexShrink: 1 }, buttonTextFilled: { color: colors.white }, selectedText: { color: colors.teal },
   check: { flexDirection: 'row', gap: 12, padding: 14, minHeight: 56, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.border, borderRadius: 10, alignItems: 'center' },

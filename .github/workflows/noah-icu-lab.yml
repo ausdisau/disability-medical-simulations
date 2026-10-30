@@ -5,12 +5,14 @@ on:
     paths:
       - 'apps/noah-icu-lab/**'
       - 'apps/noah-code-blue-mobile/**'
+      - 'shared/noah-resuscitation/**'
       - '.github/workflows/noah-icu-lab.yml'
   push:
     branches: [main]
     paths:
       - 'apps/noah-icu-lab/**'
       - 'apps/noah-code-blue-mobile/**'
+      - 'shared/noah-resuscitation/**'
       - '.github/workflows/noah-icu-lab.yml'
 
 permissions:

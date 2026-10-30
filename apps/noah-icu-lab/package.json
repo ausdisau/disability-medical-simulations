@@ -12,9 +12,10 @@
     "typecheck": "tsc --noEmit",
     "build": "npm run typecheck && vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "npm run test:pulmonary && npm run test:bedside",
+    "test": "npm run test:pulmonary && npm run test:bedside && npm run test:curriculum",
     "test:pulmonary": "node --import tsx tests/pulmonary.test.ts",
-    "test:bedside": "node --import tsx tests/bedside.test.ts"
+    "test:bedside": "node --import tsx tests/bedside.test.ts",
+    "test:curriculum": "node --import tsx ../../shared/noah-resuscitation/curriculum.test.ts"
   },
   "dependencies": {
     "react": "19.3.1",

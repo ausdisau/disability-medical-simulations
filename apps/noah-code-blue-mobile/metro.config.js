@@ -1,2 +1,6 @@
 const { getDefaultConfig } = require('expo/metro-config');
-module.exports = getDefaultConfig(__dirname);
+const path = require('node:path');
+const config = getDefaultConfig(__dirname);
+// Pure TypeScript curriculum, shared with the web app. No cross-app React tree.
+config.watchFolders = [path.resolve(__dirname, '../../shared/noah-resuscitation')];
+module.exports = config;

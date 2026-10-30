@@ -47,6 +47,23 @@ Versions were checked on 29 October 2026 against the [official Expo SDK referenc
 
 The web export follows the official [Expo web workflow](https://docs.expo.dev/workflow/web/), including `registerRootComponent` and Metro bundling. The SDK and native dependency pins are intentional; do not upgrade React Native independently of its Expo compatibility matrix.
 
+## Shared resuscitation learning
+
+The app now opens **Learn resuscitation** before simulation. Six unscored modules cover arrest recognition, compressions and circulation, oxygenation versus ventilation, airway routes, communication and teamwork, and reassessment. Every lesson retains the web curriculum's core science, three fictional case adaptations, observation prompt, reasoning choices, explanatory feedback and source reference.
+
+The web and mobile interfaces import one pure TypeScript source: [`../../shared/noah-resuscitation/curriculum.ts`](../../shared/noah-resuscitation/curriculum.ts). Substantive content is unchanged from web commit `f8979504ecef70aa3404ad95ba253fd13a7dc15a`. A shared regression check protects that review baseline; intentional editorial changes must update it after review. Metro watches this shared folder, so run from a full repository checkout, not a copied mobile directory.
+
+- Select Maya (CP), Kai (DMD) or Alex (adult comparator) to read that fictional case's adaptation. It does not reconfigure any room.
+- Use **Choose a module**, **Previous module**, **Next module** or **Return to first module** in any order. Answers are repeatable and only reveal formative explanations. There is no grade, stored score, countdown, completion gate or clinical credential.
+- **Open bedside simulation** or **Practise bag & CPR** opens the selected case's existing room at Bedside or Support, with time paused. **Choose Code Blue room** opens the room lobby.
+- **Learn resuscitation** is available from the lobby and every room. It parks time, preserves queued support, AAC holds, team roles and reflections, and returns to the selected lesson. Returning to simulation never auto-resumes. Late timer callbacks and simulation actions are ignored while learning.
+- The observation prompts include the web manikin's visual behaviour. The companion explicitly identifies its text/model-reading alternative; the anatomical animation has not been ported.
+- Source buttons open public references only after activation. Failed launches show a recoverable message and a selectable URL. Lessons are bundled for offline reading. Learning state lasts for the app session only.
+
+All new controls use native accessible press targets of at least 48 × 48 logical units, labels, hints and selected/disabled/expanded state. Text scaling is uncapped; content wraps in one scrollable column. Keyboard focus has a visible border, module changes move focus to the new lesson, Android/web feedback uses a polite live region, and iOS uses queued announcements. No learning interaction requires swiping, precision dragging, long presses or timed responses. These implementation properties do not establish comprehensive assistive-technology compatibility.
+
+See [learning verification and review](docs/learning-verification.md) for automated coverage and the outstanding device, clinical and lived-experience review.
+
 ## Rooms and working controls
 
 | Room | Fictional adult | Initial configuration | Main rehearsal |
@@ -59,7 +76,7 @@ Alex’s room has no inferred CP, muscular dystrophy or invasive-airway history.
 
 Names, ages and authored model inputs mirror the corresponding web-lab cases and room overrides. The two ICU rooms also use the same 120-second baseline settling plus 0.1-second acute change. The native natural-airway skills room starts fresh, with no imported mandatory-breath history; its early readings therefore differ from the web lab’s preconditioned skills-room state. [Mobile/web consistency notes](docs/mobile-web-consistency.md) list the matching inputs and this explicit initialization distinction.
 
-From the lobby, open one room. Only that active room can advance. The other two retain their states without consuming model time. Returning to the lobby or selecting another room parks the previous room. Opening a room always leaves its clock paused.
+From learning, choose a practice destination or open the room lobby. Only that active room can advance. The other two retain their states without consuming model time. Returning to the lobby or selecting another room parks the previous room. Opening a room always leaves its clock paused.
 
 The sections provide:
 

@@ -10,7 +10,7 @@ This application is self-contained under `apps/noah-icu-lab`. It can be added to
 
 The scaffold contains the cardiopulmonary and room-coordination features, numerical and bedside-workflow tests, a minimal React/Vite web entry point and evidence documentation. It does not include desktop packaging, the legacy simulation source, source attachments, personal records, hosting identity, credentials or an external feedback-service owner link. No service account or API key is required.
 
-The sibling [Noah Code Blue mobile companion](../noah-code-blue-mobile/README.md) is a separate React Native / Expo application. It shares the three room identities and copied physiology engine, with its own local sessions and mobile controls. The two clients do not synchronise live room state. Its README documents native build requirements, initialization differences and device-validation limits.
+The sibling [Noah Code Blue mobile companion](../noah-code-blue-mobile/README.md) is a separate React Native / Expo application. It shares the three room identities and copied physiology engine, with its own local sessions and mobile controls. Both clients now import the same six-module unscored curriculum from `shared/noah-resuscitation/curriculum.ts`; run builds from a full repository checkout. The two clients do not synchronise live room state. Its README documents native build requirements, initialization differences and device-validation limits.
 
 ## Run and build
 

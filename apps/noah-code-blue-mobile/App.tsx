@@ -1,15 +1,16 @@
-import React, { type ReactNode, useCallback, useEffect, useState } from 'react';
+import React, { type ReactNode, useCallback, useEffect, useReducer } from 'react';
 import { AppState, FlatList, Linking, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { ActionButton, Card, CheckControl, colors, Metric, NumericControl, Paragraph, shared } from './src/components/Controls';
 import {
-  createRoomsState, definitionFor, dispatchRooms, elapsedLabel, roleLabels, roomDefinitions, sourceDescription,
+  createRoomsState, definitionFor, elapsedLabel, roleLabels, roomDefinitions, sourceDescription,
   type RoomDefinition, type RoomsAction, type RoomState, type TeamRole,
 } from './src/session/rooms';
 
-type Tab = 'Bedside' | 'Support' | 'Team & AAC' | 'Debrief';
+import { ResuscitationAcademy } from './src/learning/ResuscitationAcademy';
+import { createCompanionState, dispatchCompanion, type SimulationTab } from './src/session/companion';
 type Send = (action: RoomsAction) => void;
-const tabs: Tab[] = ['Bedside', 'Support', 'Team & AAC', 'Debrief'];
+const tabs: SimulationTab[] = ['Bedside', 'Support', 'Team & AAC', 'Debrief'];
 const guidelineUrl = 'https://www.anzcor.org/home/adult-advanced-life-support/guideline-11-6-equipment-and-techniques-in-adult-advanced-life-support';
 
 function EducationBanner() {
@@ -26,10 +27,11 @@ function RoomCard({ definition, room, enter }: { definition: RoomDefinition; roo
   </Card>;
 }
 
-function Lobby({ rooms, send }: { rooms: ReturnType<typeof createRoomsState>['rooms']; send: Send }) {
+function Lobby({ rooms, send, openLearning }: { rooms: ReturnType<typeof createRoomsState>['rooms']; send: Send; openLearning: () => void }) {
   return <FlatList data={roomDefinitions} keyExtractor={item => item.id} contentContainerStyle={s.content}
     ListHeaderComponent={<View style={s.lobbyIntro}><Text style={s.eyebrow}>NOAH / MOBILE COMPANION</Text>
       <Text accessibilityRole="header" style={s.heroTitle}>Code Blue{ '\n' }rooms</Text>
+      <ActionButton label="Learn resuscitation" onPress={openLearning} hint="Return to the unscored lessons. All rooms stay paused." />
       <Text style={s.heroText}>One bedside. A coordinated team. A reviewable training clock.</Text>
       <View style={s.darkNote}><Text style={s.darkNoteText}>Only the room you open can run. Switching rooms or leaving the app pauses time. Each person’s communication and baseline stay visible.</Text></View>
     </View>}
@@ -195,9 +197,7 @@ function Debrief({ room, send, header }: { room: RoomState; send: Send; header: 
     ListFooterComponent={<Text style={s.footerText}>The event log retains up to 150 entries. Reset affects this room only. Close or reload the application to clear all session state.</Text>} />;
 }
 
-function RoomView({ room, send }: { room: RoomState; send: Send }) {
-  const [tab, setTab] = useState<Tab>('Bedside');
-  useEffect(() => { setTab('Bedside'); }, [room.id]);
+function RoomView({ room, send, tab, setTab, openLearning }: { room: RoomState; send: Send; tab: SimulationTab; setTab: (tab: SimulationTab) => void; openLearning: () => void }) {
   const def = definitionFor(room.id);
   // The full toolbar scrolls with content so large accessibility fonts cannot
   // consume a fixed header and leave the native content viewport inaccessible.
@@ -206,8 +206,9 @@ function RoomView({ room, send }: { room: RoomState; send: Send }) {
       <ActionButton label="Rooms" tone="quiet" onPress={() => send({ type: 'lobby' })} hint="Return to the lobby and park this room with the clock paused." />
       <View style={s.roomHeaderCopy}><Text style={s.roomEyebrow}>{room.id.toUpperCase()} · FICTIONAL ADULT</Text><Text accessibilityRole="header" style={s.roomTitle}>{def.name}, {def.age}</Text></View>
     </View>
+    <View style={s.learningEntry}><ActionButton label="Learn resuscitation" onPress={openLearning} hint="Pause and park this room, preserving its state and AAC hold, then open the unscored lessons for this case." /></View>
     <ClockBar room={room} send={send} />
-    <View style={s.tabs}>{tabs.map(item => <ActionButton key={item} label={item} selected={tab === item} tone="quiet" onPress={() => { if (item !== tab) { send({ type: 'pause' }); setTab(item); } }} style={s.tabButton} hint="Switch section and pause the training clock for review." />)}</View>
+    <View style={s.tabs}>{tabs.map(item => <ActionButton key={item} label={item} selected={tab === item} tone="quiet" onPress={() => { if (item !== tab) setTab(item); }} style={s.tabButton} hint="Switch section and pause the training clock for review." />)}</View>
     <View style={s.liveMessage} accessibilityLiveRegion="polite"><Text style={s.liveMessageText}>{room.lastMessage}</Text></View>
   </View>;
   return <View style={s.roomShell}>
@@ -219,9 +220,10 @@ function RoomView({ room, send }: { room: RoomState; send: Send }) {
 }
 
 export default function App() {
-  const [state, setState] = useState(createRoomsState);
-  const send = useCallback<Send>(action => setState(previous => dispatchRooms(previous, action)), []);
-  const room = state.activeRoomId ? state.rooms[state.activeRoomId] : null;
+  const [state, dispatch] = useReducer(dispatchCompanion, undefined, createCompanionState);
+  const send = useCallback<Send>(action => dispatch({ type: 'simulation', action }), []);
+  const openLearning = () => dispatch({ type: 'open-learning' });
+  const room = state.screen === 'simulation' && state.rooms.activeRoomId ? state.rooms.rooms[state.rooms.activeRoomId] : null;
   useEffect(() => {
     const subscription = AppState.addEventListener('change', next => { if (next !== 'active') send({ type: 'background', reason: next }); });
     return () => subscription.remove();
@@ -235,7 +237,10 @@ export default function App() {
   return <SafeAreaProvider><SafeAreaView style={s.safeArea} edges={['top', 'left', 'right', 'bottom']}>
     <StatusBar barStyle="dark-content" />
     <EducationBanner />
-    <View style={s.appWidth}>{room ? <RoomView room={room} send={send} /> : <Lobby rooms={state.rooms} send={send} />}</View>
+    <View style={s.appWidth}>{state.screen === 'learning'
+      ? <ResuscitationAcademy learning={state.learning} send={dispatch} />
+      : room ? <RoomView room={room} send={send} tab={state.tab} setTab={tab => dispatch({ type: 'tab', tab })} openLearning={openLearning} />
+      : <Lobby rooms={state.rooms.rooms} send={send} openLearning={openLearning} />}</View>
   </SafeAreaView></SafeAreaProvider>;
 }
 
@@ -248,6 +253,7 @@ const s = StyleSheet.create({
   cardHeadline: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, alignItems: 'center' }, personName: { fontSize: 20, fontWeight: '700', color: colors.ink },
   badge: { color: colors.teal, fontSize: 10, lineHeight: 16, fontWeight: '800', backgroundColor: colors.tealLight, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 }, badgeArrest: { color: colors.red, backgroundColor: colors.redLight },
   roomMeta: { gap: 5 }, metaText: { color: colors.muted, fontSize: 13, lineHeight: 20 }, separator: { height: 14 }, footer: { paddingVertical: 20 }, footerText: { color: colors.muted, fontSize: 13, lineHeight: 20, marginTop: 14 },
+  learningEntry: { padding: 14 },
   roomShell: { flex: 1 }, headerStack: { gap: 0, marginHorizontal: -16, marginTop: -16, marginBottom: 8 }, roomHeader: { padding: 14, flexDirection: 'row', gap: 14, alignItems: 'center', borderBottomColor: colors.border, borderBottomWidth: 1 }, roomHeaderCopy: { flex: 1, gap: 4 }, roomEyebrow: { fontSize: 10, color: colors.muted, letterSpacing: 1, fontWeight: '800' }, roomTitle: { fontSize: 22, lineHeight: 28, color: colors.navy, fontWeight: '700' },
   clockBar: { paddingHorizontal: 14, paddingVertical: 10, gap: 8, backgroundColor: colors.white, borderBottomWidth: 1, borderBottomColor: colors.border }, clockHeading: { flexDirection: 'row', alignItems: 'center', gap: 12, flexWrap: 'wrap' }, clockValue: { fontSize: 24, fontVariant: ['tabular-nums'], color: colors.ink, fontWeight: '700' }, clockState: { fontSize: 11, color: colors.teal, fontWeight: '800', letterSpacing: 1 }, helper: { fontSize: 13, lineHeight: 20, color: colors.muted },
   tabs: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, paddingHorizontal: 14, paddingVertical: 10 }, tabButton: { flexGrow: 1, paddingHorizontal: 8 },

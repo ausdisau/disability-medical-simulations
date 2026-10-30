@@ -44,4 +44,6 @@ Maya uses an eye-gaze AAC device. A low-volume alarm appears and her chest movem
 - DMD respiratory consensus: https://pmc.ncbi.nlm.nih.gov/articles/PMC11041593/
 - NSQHS communicating for safety: https://www.safetyandquality.gov.au/standards/nsqhs-standards/communicating-safety-standard
 
-**Next:** bring the same teaching view into the React Native companion; add independent clinical-review sign-off and separate accessibility usability evaluation.
+**Mobile parity:** the React Native companion now presents all six interactive, unscored lessons from the same `shared/noah-resuscitation/curriculum.ts` source, with native case selection, feedback, references and paused transitions into its existing rooms. The web anatomical animation remains web-only.
+
+**Next:** independent clinical-review sign-off, paid lived-experience co-design and separate assistive-technology usability evaluation. Engineering tests are not clinical validation or accredited assessment.
