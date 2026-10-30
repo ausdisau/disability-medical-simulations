@@ -1,0 +1,202 @@
+{
+  "schema_version": "1.0",
+  "name": "Noah ICU Simulation Debrief",
+  "intent": "Closed form for owner review only. No respondent entries, notifications, clinical scoring or treatment advice.",
+  "created_form": {
+    "name": "Noah ICU Simulation Debrief",
+    "owned": true,
+    "field_count": 12,
+    "entries_count": 0,
+    "locale": "en",
+    "timezone": "Australia/Sydney",
+    "manually_closed": true,
+    "show_form_before_open": false,
+    "verified_on": "2026-10-29"
+  },
+  "status": "created_closed_for_review",
+  "blocker": null,
+  "locale": "en",
+  "timezone": "Australia/Sydney",
+  "layout": "classic",
+  "description": "Reflect on a fictional adult ICU training session. Use synthetic observations only. Do not enter real patient information, names, contact details, record numbers or confidential clinical notes. Responses are optional except room and profile. This debrief does not assess competence or provide treatment advice.",
+  "fields": [
+    {
+      "key": "session_pseudonym",
+      "type": "short_text",
+      "label": "Session pseudonym (optional)",
+      "required": false,
+      "notes": "Use a made-up session code. Do not enter a real name, patient identifier, email address or medical-record number."
+    },
+    {
+      "key": "room",
+      "type": "dropdown",
+      "label": "Which simulation room did you use?",
+      "required": true,
+      "choices": [
+        {
+          "label": "ICU 01 — CP airway review"
+        },
+        {
+          "label": "ICU 02 — DMD ETT arrest"
+        },
+        {
+          "label": "Skills 03 — generic adult BVM arrest"
+        },
+        {
+          "label": "Other or observing"
+        }
+      ]
+    },
+    {
+      "key": "profile",
+      "type": "dropdown",
+      "label": "Which fictional adult profile did you explore?",
+      "required": true,
+      "choices": [
+        {
+          "label": "Maya — adult with cerebral palsy"
+        },
+        {
+          "label": "Kai — adult with Duchenne muscular dystrophy"
+        },
+        {
+          "label": "Generic adult skills profile"
+        },
+        {
+          "label": "More than one profile / observing"
+        }
+      ]
+    },
+    {
+      "key": "scenario",
+      "type": "checkbox",
+      "label": "Which scenario elements did you explore?",
+      "required": false,
+      "choices": [
+        {
+          "label": "Ventilation and oxygenation review"
+        },
+        {
+          "label": "Secretions, resistance or airway assessment"
+        },
+        {
+          "label": "Circuit leak or disconnection"
+        },
+        {
+          "label": "Manual bag ventilation"
+        },
+        {
+          "label": "Arrest recognition and chest compressions"
+        },
+        {
+          "label": "AAC access or bedside handover"
+        }
+      ]
+    },
+    {
+      "key": "support_configuration",
+      "type": "checkbox",
+      "label": "Which ventilation sources and interfaces did you use?",
+      "required": false,
+      "choices": [
+        {
+          "label": "Pressure-control ventilation through ETT"
+        },
+        {
+          "label": "Volume-control ventilation through ETT"
+        },
+        {
+          "label": "Pressure-control ventilation through tracheostomy"
+        },
+        {
+          "label": "Volume-control ventilation through tracheostomy"
+        },
+        {
+          "label": "Manual bag to ETT"
+        },
+        {
+          "label": "Manual bag to tracheostomy"
+        },
+        {
+          "label": "Bag–valve–mask over mouth and nose"
+        },
+        {
+          "label": "Observing / not sure"
+        }
+      ]
+    },
+    {
+      "key": "ventilation_oxygenation",
+      "type": "long_text",
+      "label": "What changed in ventilation and oxygenation?",
+      "required": false,
+      "notes": "Describe the synthetic observations you used, such as delivered breath volume, expiratory flow, CO₂ and oxygen saturation. What remained uncertain?"
+    },
+    {
+      "key": "resuscitation",
+      "type": "long_text",
+      "label": "If you explored bag ventilation or CPR, what did you notice?",
+      "required": false,
+      "notes": "Reflect on arrest recognition, the selected interface, pauses or interruptions, breath delivery and reassessment. Distinguish compression-generated flow from spontaneous circulation. Leave blank if this was outside your session."
+    },
+    {
+      "key": "aac_agency",
+      "type": "long_text",
+      "label": "How were communication access and the person’s agency supported?",
+      "required": false,
+      "notes": "Consider direct address, AAC access, response time, baseline knowledge, choices and the parallel emergency response. No response should not be interpreted as consent or incapacity."
+    },
+    {
+      "key": "teamwork_reassessment",
+      "type": "long_text",
+      "label": "How did the team coordinate and reassess?",
+      "required": false,
+      "notes": "What was assigned, checked and handed over? What changed after intervention? Describe any missing evidence or equipment assumptions."
+    },
+    {
+      "key": "learning_point",
+      "type": "long_text",
+      "label": "What is one learning point or question to take forward?",
+      "required": false,
+      "notes": "This is a reflection, not a clinical score, treatment recommendation or competence assessment."
+    },
+    {
+      "key": "accessibility_feedback",
+      "type": "long_text",
+      "label": "What made the simulation easier or harder to access?",
+      "required": false,
+      "notes": "Comment on keyboard or switch access, text size, contrast, captions, pacing, motion, language or other barriers. Personal disability or health disclosure is not required."
+    },
+    {
+      "key": "learning_role",
+      "type": "dropdown",
+      "label": "Which perspective did you use? (optional)",
+      "required": false,
+      "choices": [
+        {
+          "label": "Patient role"
+        },
+        {
+          "label": "Family or support-person role"
+        },
+        {
+          "label": "Nursing role"
+        },
+        {
+          "label": "Medical or allied-health role"
+        },
+        {
+          "label": "Facilitator"
+        },
+        {
+          "label": "Observer / another perspective"
+        }
+      ]
+    }
+  ],
+  "requested_availability": {
+    "manually_closed": true,
+    "show_form_before_open": false
+  },
+  "api_schema_validated": true
+}

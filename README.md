@@ -82,3 +82,27 @@ Prototype content requires formal clinical, lived-experience and accessibility r
 A safe example environment file is provided as `.env.dev.example`. Do **not** commit real secrets into the repository.
 
 If a secret is accidentally committed, rotate or revoke it with the provider immediately and purge it from repository history before sharing the repository.
+## Noah ICU · Code Blue rooms and heart–lung lab
+
+The additive [Noah ICU web app](apps/noah-icu-lab/README.md) includes three adult rooms: a CP tracheostomy/secretions case, a DMD arrest drill with an existing ETT, and a generic adult bag–valve–mask arrest exercise. It combines two-lung mechanics, simplified heart–lung interaction, pressure/volume control, manual bag ventilation, explicit compression controls, team roles, and per-room handover exports. Room changes park the preceding simulation. Fictional profiles keep personal baseline and communication access separate from diagnosis.
+
+```bash
+cd apps/noah-icu-lab
+npm ci
+npm test
+npm run build
+```
+
+The [React Native / Expo companion](apps/noah-code-blue-mobile/README.md) uses native controls and the same numerical engine for room selection, manual ventilation, compressions, team coordination and AAC pauses. It includes Android/iOS source and a working web export; device builds and clinical validation remain future review work.
+
+```bash
+cd apps/noah-code-blue-mobile
+npm ci
+npm run typecheck
+npm test
+npm run export:web
+```
+
+The existing root simulations, API and optional Neon persistence remain independent. See the [facilitator guide](apps/noah-icu-lab/docs/NOAH_ICU_GUIDE.md), [model contract](apps/noah-icu-lab/src/features/cardiopulmonary/runtime/MODEL.md), and [public evidence provenance](apps/noah-icu-lab/docs/healthcare-public-data-evidence.md). The [debrief form design](apps/noah-icu-lab/docs/formhug-debrief.json) has been created and verified in the connected FormHug account. The form remains manually closed to submissions for owner review; account-specific links are shared separately. The simulator has no automatic FormHug upload.
+
+All case data and numerical settings are synthetic teaching assumptions. The apps do not connect to patients or devices, prescribe treatment, implement a complete ALS algorithm, generate automatic ROSC, predict outcomes, or certify competence.
