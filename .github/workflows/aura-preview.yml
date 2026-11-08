@@ -1,0 +1,32 @@
+name: AURA synthetic preview
+on:
+  pull_request:
+    paths:
+      - 'apps/anzcor-react-web/**'
+      - '.github/workflows/aura-preview.yml'
+  push:
+    branches:
+      - 'feature/aura-intervention-level-20261109'
+    paths:
+      - 'apps/anzcor-react-web/**'
+      - '.github/workflows/aura-preview.yml'
+permissions:
+  contents: read
+jobs:
+  engine-and-browser-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: apps/anzcor-react-web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install preview dependencies (lockfile pending review)
+        run: npm install --no-audit --no-fund
+      - name: Deterministic simulation tests
+        run: npm test
+      - name: React/Vite build
+        run: npm run build
