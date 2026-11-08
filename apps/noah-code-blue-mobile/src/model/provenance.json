@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "source_project": "Noah ICU Heart & Lung Lab",
+  "source_path": "apps/noah-icu-lab/src/features/cardiopulmonary/runtime/pulmonary.ts",
+  "engine_version": "noah-physiology-0.3",
+  "copied_on": "2026-10-29",
+  "sha256": "6f01caa03af7fdca1a52d37345bfac59ec7bfc9414a779aa391cec3f6e03d167",
+  "modifications": "None. Byte-identical copy; only the copied test harness import path changes.",
+  "sync_rule": "Update this copy and its source checksum together after reviewing upstream changes; rerun engine and mobile-session tests."
+}

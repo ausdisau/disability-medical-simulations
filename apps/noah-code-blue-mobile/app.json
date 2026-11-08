@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Noah Code Blue Rooms",
+    "slug": "noah-code-blue-rooms",
+    "version": "0.1.0",
+    "orientation": "default",
+    "userInterfaceStyle": "light",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "au.org.australiandisability.noahcodeblue"
+    },
+    "android": {
+      "package": "au.org.australiandisability.noahcodeblue"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "name": "Noah Code Blue Rooms"
+    },
+    "experiments": {
+      "baseUrl": "/mobile"
+    },
+    "extra": {
+      "educationalOnly": true
+    }
+  }
+}
