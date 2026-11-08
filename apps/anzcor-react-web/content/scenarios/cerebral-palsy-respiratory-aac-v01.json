@@ -1,0 +1,160 @@
+{
+  "schemaVersion": "1.0.0",
+  "scenarioId": "aura-cp-communication-respiratory-synthetic-v01",
+  "title": "Alex Morgan: Respiratory Change and Communication Access",
+  "fictional": true,
+  "data_origin": "fictional_synthetic",
+  "jurisdiction": "NSW",
+  "setting": "Adult emergency department / short-stay ward",
+  "caseLinkage": "SEPARATE_FROM_ROHAN",
+  "patient": {
+    "name": "Alex Morgan (fictional composite)",
+    "age": 27,
+    "disability": "Cerebral palsy",
+    "baseline": {
+      "usualMobility": "Uses power wheelchair in community; transfer method must be confirmed",
+      "speech": "Dysarthric speech; typically understood with extra time",
+      "aac": "Patient-controlled AAC backup; exact setup to be confirmed",
+      "usualBreathing": "No baseline respiratory observations supplied; ask before inferring deterioration",
+      "usualCognition": "No impairment established",
+      "swallow": "Individual swallowing plan unknown",
+      "supports": "May invite trusted support person for baseline knowledge; no substitute authority assumed"
+    },
+    "goals": [
+      "Communicate directly with the treating team",
+      "Understand cause and options before treatment where feasible",
+      "Maintain comfort and dignity"
+    ]
+  },
+  "presentation": {
+    "reason": "Worsening cough and perceived breathing difficulty after a recent respiratory illness",
+    "initialKnown": [
+      "Alex reports a new change in breathing",
+      "Speech is difficult to understand under fatigue",
+      "The clinical team has not yet compared current findings with respiratory baseline"
+    ],
+    "unknown": [
+      "Oxygenation reliability",
+      "Swallow function",
+      "Cause of respiratory change",
+      "Current respiratory support",
+      "Allergies, medicines, weight"
+    ]
+  },
+  "learningObjectives": [
+    "Distinguish baseline speech/movement from acute deterioration",
+    "Demonstrate accessible direct questioning and confirmation",
+    "Escalate respiratory concerns based on observed signs, not diagnosis alone",
+    "Integrate trusted supporter information without transferring patient authority",
+    "Reassess intervention response and document uncertainty"
+  ],
+  "beats": [
+    {
+      "id": "arrival",
+      "phase": "ED",
+      "visible": "Alex arrives feeling short of breath, communicating by speech with pauses.",
+      "options": [
+        "Clarify Alex's preferred communication access",
+        "Begin clinician-led assessment and ask for baseline",
+        "Ask permission before involving any supporter"
+      ],
+      "cues": [
+        "Respiratory work of breathing requires assessment"
+      ],
+      "gate": "assessment_and_access_in_parallel"
+    },
+    {
+      "id": "access",
+      "phase": "ED",
+      "visible": "Alex attempts to use AAC but positioning and response time are not yet optimised.",
+      "options": [
+        "Restore device position and extra time",
+        "Confirm intended message rather than assuming meaning",
+        "Continue urgent clinical assessment"
+      ],
+      "gate": "no_silence_to_consent"
+    },
+    {
+      "id": "assessment",
+      "phase": "ED",
+      "visible": "Qualified clinician recognises that the report of new breathing change needs a focused assessment.",
+      "options": [
+        "Compare breathing against baseline",
+        "Assess airway, breathing and circulation",
+        "Escalate serious clinical concern under local CERS"
+      ],
+      "gate": "local_protocol"
+    },
+    {
+      "id": "differential",
+      "phase": "ED",
+      "visible": "Potential contributors remain unknown; aspiration, infection, posture and airway clearance are questions, not diagnoses.",
+      "options": [
+        "Investigate clinically indicated causes",
+        "Document what is unknown",
+        "Request specialist input when indicated"
+      ],
+      "gate": "no_diagnosis_from_disability"
+    },
+    {
+      "id": "shared_decision",
+      "phase": "ED",
+      "visible": "Alex asks what the team is looking for and what happens next.",
+      "options": [
+        "Explain options and the uncertainty",
+        "Confirm communication access",
+        "Offer supporter participation only if authorised"
+      ],
+      "gate": "patient_agency"
+    },
+    {
+      "id": "reassessment",
+      "phase": "ED",
+      "visible": "Any intervention requires repeat observation before concluding improvement or deterioration.",
+      "options": [
+        "Check clinical response",
+        "Correct inaccessible workflow",
+        "Reassess escalation needs"
+      ],
+      "gate": "action_effect_reassessment"
+    },
+    {
+      "id": "handover",
+      "phase": "WARD",
+      "visible": "The receiving team needs baseline, access plan and pending investigations.",
+      "options": [
+        "Handover change-from-baseline and unresolved items",
+        "Preserve AAC equipment",
+        "Name clinical owner and backup"
+      ],
+      "gate": "continuity"
+    },
+    {
+      "id": "debrief",
+      "phase": "DEBRIEF",
+      "visible": "Reflect on clinical prioritisation, communication, autonomy and systems barriers.",
+      "options": [
+        "Discuss safe alternative pathways",
+        "Identify accessibility repair",
+        "Separate evidence-supported risks from assumptions"
+      ],
+      "gate": "education_only"
+    }
+  ],
+  "medicationAuthority": "HOLD_MEDICATION_BRANCH; no dosing or administration model",
+  "clinicalReviewStatus": "PENDING",
+  "livedExperienceReviewStatus": "PENDING",
+  "sourceIds": [
+    "pmid-41649064",
+    "pmid-32803795",
+    "pmid-42026895",
+    "jstor-j.ctv15d8195"
+  ],
+  "debrief": [
+    "Was dysarthria mistaken for incapacity or distress?",
+    "What changed compared with Alex's baseline?",
+    "Which observations supported or ruled against respiratory concerns?",
+    "Did the patient remain the primary decision maker?",
+    "What would make the hospital access plan reliable across transfers?"
+  ]
+}
