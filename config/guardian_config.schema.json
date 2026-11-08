@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projecthope.local/schema/guardian_config.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["config_version", "profile", "authority_model", "domain_authority", "virgal_policy", "procedural_exactness", "public_data_policy", "jurisdiction", "stochastic_policy", "event_commit", "replay", "accessibility", "freshness"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "config_version": { "const": "1.0.0" },
+    "profile": { "const": "VIRGAL_HYBRID_AUTHORITY_C" },
+    "authority_model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "solo_session_authority", "shared_session_authority", "client_role", "optimistic_world_commit", "offline_solo_sessions"],
+      "properties": {
+        "mode": { "const": "HYBRID" },
+        "solo_session_authority": { "const": "LOCAL_DETERMINISTIC_ENGINE" },
+        "shared_session_authority": { "const": "SERVER_DETERMINISTIC_ENGINE" },
+        "client_role": { "const": "PROJECTION_AND_INTENT_ONLY" },
+        "optimistic_world_commit": { "const": false },
+        "offline_solo_sessions": { "const": true }
+      }
+    },
+    "domain_authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ordinary_world", "relationship", "personhood", "communication_access", "clinical", "high_risk_procedure", "public_healthcare_data"],
+      "properties": {
+        "ordinary_world": { "type": "object", "required": ["mode", "owner", "autocommit"], "properties": { "mode": { "const": "WORLD_FREE" }, "owner": { "const": "VIRGAL" }, "autocommit": { "const": true } }, "additionalProperties": false },
+        "relationship": { "type": "object", "required": ["mode", "owner", "autocommit"], "properties": { "mode": { "const": "RELATIONAL_GUARDED" }, "owner": { "const": "RELATIONSHIP_CONTROLLER" }, "autocommit": { "const": false } }, "additionalProperties": false },
+        "personhood": { "type": "object", "required": ["mode", "owner", "virgal_access"], "properties": { "mode": { "const": "HARD_GUARDED" }, "owner": { "const": "PERSONHOOD_GUARDIAN" }, "virgal_access": { "const": "READ_ONLY" } }, "additionalProperties": false },
+        "communication_access": { "type": "object", "required": ["mode", "owner", "virgal_access"], "properties": { "mode": { "const": "HARD_GUARDED" }, "owner": { "const": "ACCESS_CONTROLLER" }, "virgal_access": { "const": "SCHEDULE_SUPPORT_ONLY" } }, "additionalProperties": false },
+        "clinical": { "type": "object", "required": ["mode", "owner", "virgal_access"], "properties": { "mode": { "const": "CLINICAL_GUARDED" }, "owner": { "const": "CLINICAL_CONTROLLER" }, "virgal_access": { "const": "NO_WRITE" } }, "additionalProperties": false },
+        "high_risk_procedure": { "type": "object", "required": ["mode", "owner", "virgal_access"], "properties": { "mode": { "const": "PROTOCOL_LOCKED" }, "owner": { "const": "CLINICAL_CONTROLLER" }, "virgal_access": { "const": "NO_WRITE" } }, "additionalProperties": false },
+        "public_healthcare_data": { "type": "object", "required": ["mode", "owner", "virgal_access"], "properties": { "mode": { "const": "READ_ONLY" }, "owner": { "const": "EVIDENCE_LAYER" }, "virgal_access": { "const": "CALIBRATION_ONLY" } }, "additionalProperties": false }
+      }
+    },
+    "virgal_policy": { "type": "object" },
+    "procedural_exactness": {
+      "type": "object",
+      "required": ["default_clinical_rendering", "exact_high_risk_requires", "foreign_regulatory_label_satisfies_local_protocol_gate", "missing_protocol_result"],
+      "properties": {
+        "default_clinical_rendering": { "const": "ALLOW_PRINCIPLE_LEVEL" },
+        "exact_high_risk_requires": { "type": "array" },
+        "foreign_regulatory_label_satisfies_local_protocol_gate": { "const": false },
+        "missing_protocol_result": { "const": "HOLD_FOR_PROTOCOL" }
+      },
+      "additionalProperties": false
+    },
+    "public_data_policy": {
+      "type": "object",
+      "required": ["allowed_runtime_uses", "forbidden_runtime_uses", "required_provenance", "foreign_drug_label_default_use"],
+      "properties": {
+        "allowed_runtime_uses": { "type": "array", "items": { "enum": ["context_only", "evidence_only", "service_availability", "synthetic_prior"] } },
+        "forbidden_runtime_uses": { "type": "array", "contains": { "const": "patient_state_write" } },
+        "required_provenance": { "type": "array" },
+        "foreign_drug_label_default_use": { "const": "evidence_only" }
+      },
+      "additionalProperties": false
+    },
+    "jurisdiction": { "type": "object" },
+    "stochastic_policy": {
+      "type": "object",
+      "required": ["enabled", "algorithm", "root_seed_required", "stream_key_components", "trace_required", "resample_during_replay", "forbidden_stochastic_targets"],
+      "properties": {
+        "enabled": { "const": true },
+        "algorithm": { "const": "NAMED_DETERMINISTIC_STREAMS" },
+        "root_seed_required": { "const": true },
+        "stream_key_components": { "type": "array" },
+        "trace_required": { "const": true },
+        "resample_during_replay": { "const": false },
+        "forbidden_stochastic_targets": { "type": "array", "contains": { "const": "clinical_truth" } }
+      },
+      "additionalProperties": false
+    },
+    "event_commit": { "type": "object" },
+    "replay": {
+      "type": "object",
+      "required": ["canonical_state_hash", "same_seed_same_trace_same_state", "record_stochastic_draws", "record_guardian_results", "record_authority_owner", "variant_branch_requires_new_branch_id", "variant_branch_requires_new_seed"],
+      "properties": {
+        "canonical_state_hash": { "const": "SHA-256" },
+        "same_seed_same_trace_same_state": { "const": true },
+        "record_stochastic_draws": { "const": true },
+        "record_guardian_results": { "const": true },
+        "record_authority_owner": { "const": true },
+        "variant_branch_requires_new_branch_id": { "const": true },
+        "variant_branch_requires_new_seed": { "const": true }
+      },
+      "additionalProperties": false
+    },
+    "accessibility": {
+      "type": "object",
+      "required": ["semantic_world_projection_required", "guardian_reason_text_required", "screen_reader_equivalence_required", "keyboard_and_switch_access_required", "aac_composition_supported", "aac_delay_may_not_trigger"],
+      "properties": {
+        "semantic_world_projection_required": { "const": true },
+        "guardian_reason_text_required": { "const": true },
+        "screen_reader_equivalence_required": { "const": true },
+        "keyboard_and_switch_access_required": { "const": true },
+        "aac_composition_supported": { "const": true },
+        "aac_delay_may_not_trigger": {
+          "type": "array",
+          "allOf": [
+            { "contains": { "const": "incapacity" } },
+            { "contains": { "const": "implicit_consent" } },
+            { "contains": { "const": "implicit_refusal" } },
+            { "contains": { "const": "substitute_authority" } },
+            { "contains": { "const": "abandonment_of_decision" } }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "freshness": { "type": "object" }
+  }
+}

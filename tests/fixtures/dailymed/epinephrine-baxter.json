@@ -1,0 +1,14 @@
+{
+  "source": "DailyMed",
+  "record_id": "60efd409-3555-4182-a68d-1cd7bc0d1bfc",
+  "jurisdiction": "US",
+  "population_scope": "human prescription drug label",
+  "version_or_revision": "13",
+  "publication_or_effective_date": "2026-03-16",
+  "published_date": "2026-08-21",
+  "retrieved_at": "2026-09-03T08:16:00Z",
+  "runtime_use": "evidence_only",
+  "labeler": "Baxter Healthcare Corporation",
+  "product": "Epinephrine in Sodium Chloride Injection",
+  "source_type": "foreign_regulatory_label"
+}

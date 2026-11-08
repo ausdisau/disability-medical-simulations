@@ -1,0 +1,84 @@
+{
+  "$schema": "./guardian_config.schema.json",
+  "config_version": "1.0.0",
+  "profile": "VIRGAL_HYBRID_AUTHORITY_C",
+  "authority_model": {
+    "mode": "HYBRID",
+    "solo_session_authority": "LOCAL_DETERMINISTIC_ENGINE",
+    "shared_session_authority": "SERVER_DETERMINISTIC_ENGINE",
+    "client_role": "PROJECTION_AND_INTENT_ONLY",
+    "optimistic_world_commit": false,
+    "offline_solo_sessions": true
+  },
+  "domain_authority": {
+    "ordinary_world": { "mode": "WORLD_FREE", "owner": "VIRGAL", "autocommit": true },
+    "relationship": { "mode": "RELATIONAL_GUARDED", "owner": "RELATIONSHIP_CONTROLLER", "autocommit": false },
+    "personhood": { "mode": "HARD_GUARDED", "owner": "PERSONHOOD_GUARDIAN", "virgal_access": "READ_ONLY" },
+    "communication_access": { "mode": "HARD_GUARDED", "owner": "ACCESS_CONTROLLER", "virgal_access": "SCHEDULE_SUPPORT_ONLY" },
+    "clinical": { "mode": "CLINICAL_GUARDED", "owner": "CLINICAL_CONTROLLER", "virgal_access": "NO_WRITE" },
+    "high_risk_procedure": { "mode": "PROTOCOL_LOCKED", "owner": "CLINICAL_CONTROLLER", "virgal_access": "NO_WRITE" },
+    "public_healthcare_data": { "mode": "READ_ONLY", "owner": "EVIDENCE_LAYER", "virgal_access": "CALIBRATION_ONLY" }
+  },
+  "virgal_policy": {
+    "may_schedule": ["ordinary_world_events", "travel", "household_routines", "work_commitments", "nonclinical_resource_events", "npc_action_opportunities"],
+    "may_propose": ["npc_social_action", "relationship_interaction", "visit_request", "information_request"],
+    "may_not_write": ["physiology", "diagnosis", "medication_order", "medication_administration", "device_prescription", "consent", "refusal", "capacity", "substitute_authority", "treatment_ceiling", "patient_authored_speech", "personhood_fact"]
+  },
+  "procedural_exactness": {
+    "default_clinical_rendering": "ALLOW_PRINCIPLE_LEVEL",
+    "exact_high_risk_requires": ["current_authoritative_local_protocol", "protocol_identifier", "scenario_jurisdiction_match", "explicit_procedural_training_scope"],
+    "foreign_regulatory_label_satisfies_local_protocol_gate": false,
+    "missing_protocol_result": "HOLD_FOR_PROTOCOL"
+  },
+  "public_data_policy": {
+    "allowed_runtime_uses": ["context_only", "evidence_only", "service_availability", "synthetic_prior"],
+    "forbidden_runtime_uses": ["patient_state_write", "diagnosis_write", "consent_write", "capacity_write", "clinical_order_authority", "treatment_outcome_write"],
+    "required_provenance": ["source", "record_id", "jurisdiction", "population_scope", "version_or_revision", "publication_or_effective_date", "retrieved_at", "runtime_use"],
+    "foreign_drug_label_default_use": "evidence_only"
+  },
+  "jurisdiction": {
+    "scenario_jurisdiction_required": true,
+    "NSW": { "rule_bundle": "nsw-policy-snapshot", "local_protocol_precedence": true, "exact_local_procedure_requires_verification": true },
+    "VIC": { "rule_bundle": "vic-policy-snapshot", "local_protocol_precedence": true, "adult_deterioration_exactness": "LOCAL_VERIFICATION_REQUIRED" },
+    "NATIONAL_FALLBACK": { "allowed_scope": "CROSS_JURISDICTION_INVARIANTS_AND_NATIONAL_ALS", "jurisdiction_specific_action": "EXTERNAL_VERIFICATION_REQUIRED" }
+  },
+  "stochastic_policy": {
+    "enabled": true,
+    "algorithm": "NAMED_DETERMINISTIC_STREAMS",
+    "root_seed_required": true,
+    "stream_key_components": ["scenario_version", "branch_id", "actor_id", "randomness_purpose"],
+    "trace_required": true,
+    "resample_during_replay": false,
+    "forbidden_stochastic_targets": ["clinical_truth", "consent", "capacity", "substitute_authority", "personhood", "patient_authored_speech"]
+  },
+  "event_commit": {
+    "required_fields": ["event_id", "scenario_version", "branch_id", "sequence_number", "simulated_time", "domain", "authority_owner", "causal_parents", "guardian_decision", "committed_effects", "provenance"],
+    "idempotency_key_required": true,
+    "expected_world_version_required": true,
+    "causal_parent_required": true,
+    "narrative_may_commit_state": false
+  },
+  "replay": {
+    "canonical_state_hash": "SHA-256",
+    "same_seed_same_trace_same_state": true,
+    "record_stochastic_draws": true,
+    "record_guardian_results": true,
+    "record_authority_owner": true,
+    "variant_branch_requires_new_branch_id": true,
+    "variant_branch_requires_new_seed": true
+  },
+  "accessibility": {
+    "semantic_world_projection_required": true,
+    "guardian_reason_text_required": true,
+    "screen_reader_equivalence_required": true,
+    "keyboard_and_switch_access_required": true,
+    "aac_composition_supported": true,
+    "aac_delay_may_not_trigger": ["incapacity", "implicit_consent", "implicit_refusal", "substitute_authority", "abandonment_of_decision"]
+  },
+  "freshness": {
+    "bundled_snapshot_as_of": "2026-09-01",
+    "review_due_behavior": "PRINCIPLE_LEVEL_OR_VERIFY",
+    "under_review_behavior": "EXTERNAL_VERIFICATION_REQUIRED",
+    "local_protocol_overrides_statewide_operational_snapshot": true
+  }
+}

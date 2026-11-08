@@ -95,13 +95,16 @@ const PRIORITY = {
   BACKGROUND: 6
 };
 
-export function createWorldEngine({ scenarioId, seed = "default", branchId = "canonical" }) {
+export function createWorldEngine({ scenarioId, seed = "default", branchId = "canonical", scenarioVersion = "1.0.0" }) {
   return {
     scenarioId,
+    scenarioVersion,
     seed,
     branchId,
     parentBranchId: null,
     worldTime: 0,
+    revision: 0,
+    idempotencyKeys: {},
     focusRef: null,
     events: [],
     headEventHash: null,
@@ -256,11 +259,17 @@ export function createBranch(world, { branchId }) {
 }
 
 export function forkBranch(branch, { branchId, seed }) {
+  if (!branchId || branchId === branch.branchId) {
+    throw new Error("Variant branch requires a new branch id.");
+  }
+  if (!seed || seed === branch.seed) {
+    throw new Error("Variant branch requires a new seed.");
+  }
   return {
     ...deepClone(branch),
     branchId,
     parentBranchId: branch.branchId,
-    seed: seed ?? branch.seed,
+    seed,
     headEventHash: branch.events.at(-1)?.eventHash ?? null
   };
 }

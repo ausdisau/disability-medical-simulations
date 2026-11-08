@@ -40,6 +40,12 @@ npm test
 
 The runtime tests cover clock pausing, communication restoration, evidence-gated station transitions, safe and unsafe decisions, and accessible missing-choice feedback.
 
+Run the focused VIRGAL guardian suite with:
+
+```bash
+npm run test:guardian
+```
+
 ## Project Hope persistence
 
 RC0.2 adds an **optional, server-side Neon Postgres persistence layer** for anonymous simulation sessions, event history and resumable world-state snapshots. Persistence is deliberately off unless `ENABLE_SIM_PERSISTENCE=true` is configured server-side.
@@ -56,6 +62,23 @@ ENABLE_SIM_PERSISTENCE=true
 ```
 
 `DATABASE_URL` must never be prefixed with `VITE_` or otherwise exposed to browser JavaScript.
+
+## VIRGAL Hybrid Authority C guardrails
+
+The guarded runtime is opt-in through `createGuardedRuntime(...)` and uses `config/guardian_config.json` as the authority-routing contract.
+
+Hard boundaries:
+
+- VIRGAL owns bounded ordinary-world scheduling, not clinical truth.
+- Clinical physiology, medication/procedure state, consent, capacity, substitute authority, treatment ceilings and patient-authored communication remain outside VIRGAL write authority.
+- AAC delay or access failure never creates incapacity, consent, refusal or substitute authority.
+- Foreign regulatory sources such as DailyMed are evidence-only and do not satisfy NSW/Victorian local-protocol gates for exact medication or procedure logic.
+- Public healthcare data cannot write patient state, diagnosis, consent, capacity, clinical orders or treatment outcomes.
+- Replayable stochastic variation is limited to already-permitted world/social behaviour.
+- Identical scenario/seed/trace/log inputs must reproduce the same canonical state hash.
+- The 3D world is never the sole representation; guardian decisions require accessible semantic/text explanations.
+
+The JSON Schema in `config/guardian_config.schema.json` documents the static configuration contract. Runtime enforcement uses the dependency-free semantic validator in `src/virgal/guardian-config.js` so the browser-facing simulation does not depend on Node-only schema tooling.
 
 ## Vercel
 
