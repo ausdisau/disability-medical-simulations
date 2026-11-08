@@ -1,0 +1,56 @@
+# AURA Intervention-Level Preview — Project Hope
+
+**Status:** Draft PR / educational synthetic only. Does not modify the original static simulator or existing Neon persistence.
+
+## Contract
+
+- `AURA = MAIRA + VIRGAL` as a single product name; the engines have separated authority.
+- **VIRGAL** remains the sole owner of synthetic clinical facts, command/event ledger, clock, deterministic replay and outcome commits.
+- **MAIRA** is strictly read-only: synthesises observable facts and asks one JMO supervision question; it cannot mutate clinical state.
+- **Guardian Mediator** scopes evidence, rights, personhood, family, and pharmacology decisions; high-risk procedure/dose/device branches remain held without local source and clinical review.
+- Patient identity and last reliable AAC instruction `WAIT` are immutable. Family member presence does not grant medical authority.
+- Initial Rohan branch: fictional non-canonical 10:16:50 verified asystole, CPR continuing, provisional supraglottic airway, no ROSC. Original canonical history unchanged.
+- No model-authored physiologic evolution. Facilitator can enter a clearly labeled *alternative* ROSC teaching branch only after qualified airway and perfusion reassessments are recorded.
+
+## Files and tests
+
+```
+apps/anzcor-react-web/
+  index.html
+  embed.html
+  host-wrapper.html
+  vite.config.mjs
+  package.json
+  src/
+    main.jsx
+    runtime.mjs
+    style.css
+  tests/
+    runtime.test.mjs
+  docs/
+    AURA-RELEASE-GATES.md
+```
+
+```sh
+cd apps/anzcor-react-web
+npm install
+npm test
+npm run dev
+npm run build
+```
+
+`embed.html` renders the same isolated cockpit. `host-wrapper.html` uses an iframe with no parent-child data messaging or device access.
+
+## Provenance and release safety
+
+- Rohan scenario adapted from the user's *fictional* non-canonical chat branch, not copied from a patient medical record.
+- Clinical principle-level source: ANZCOR Paediatric Advanced Life Support (April 2026); local NSW paediatric protocols not supplied/verified.
+- Interface map: `ANZCOR_React_HTML_Integration_Map.md` (user-supplied); preserve existing root routes, `api/simulation.js`, `db/001_simulation_persistence.sql`, original scenarios.
+- CBCP: `NSW_Disability_Admission_and_Braided_Care_Policy_Framework_v0_1.docx` (Australian Disability Ltd, 20 Oct 2026): *proposed*, **not issued by NSW Health**; paediatric specialist approval required.
+- Important: this preview implements **educational** action gating, not a validated paediatric medication or procedural engine. Its hard-coded facilitator-controlled recovery branch cannot predict survival. Source pack and medication chart integration are excluded.
+
+## Known limits
+
+No medication doses, administration simulation, actual suction/airway maneuvers, invasive FONA, energy parameters, medical device connection, staff privilege management, consent decisions, organ injury prediction, certified competency assessment, authenticated sessions, live database, or production deployment.
+
+The `CHECK → ASSIGN → COMMIT → REASSESS` experience records *synthetic training actions only*; no unverified clinical effect is produced. Clinical and paid disability-led review, browser/screen-reader/switch access testing, and security checks remain release gates.
