@@ -203,6 +203,127 @@ export const EVIDENCE = Object.freeze([
     "supported_finding": "The public publisher description frames visual imagery and non-verbal communication as ways to share experiences of pain.",
     "simulation_implication": "Offer optional picture-based pain communication and acknowledgement of patient-reported experience; validate with users.",
     "limitations": "Book description rather than full-text chapter-level inspection."
+  },
+  {
+    "id": "pmid-36188992",
+    "database": "PubMed",
+    "title": "\"Sympathy\" vs.\"Empathy\": Comparing experiences of I2Audits and disability simulations",
+    "year": 2022,
+    "authors": [
+      "Hicks EC",
+      "Traci MA",
+      "Korb K"
+    ],
+    "pmid": "36188992",
+    "doi": "10.3389/fresc.2022.876099",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/36188992/",
+    "evidence_label": "ABSTRACT_INSPECTED",
+    "genre": "Qualitative thematic study",
+    "domain": "human_system",
+    "supported_finding": "The abstract describes greater stigma and embarrassment in disability simulation experiences versus community co-created inclusive accessibility audits, which centred lived experiences.",
+    "simulation_implication": "Prefer disability-led environmental and clinical accessibility audits over exercises claiming to replicate impairment.",
+    "limitations": "Qualitative rural-community context; findings do not measure clinical competency or universally establish each programme's effects."
+  },
+  {
+    "id": "pmid-35687538",
+    "database": "PubMed",
+    "title": "Meta-analysis of studies on the impact of mobility disability simulation programs on attitudes toward people with disabilities and environmental in/accessibility",
+    "year": 2022,
+    "authors": [
+      "Ma GYK",
+      "Mak WWS"
+    ],
+    "pmid": "35687538",
+    "doi": "10.1371/journal.pone.0269357",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/35687538/",
+    "evidence_label": "ABSTRACT_INSPECTED",
+    "genre": "Meta-analysis of 12 empirical studies",
+    "domain": "human_system",
+    "supported_finding": "The abstract reports a mixed pattern of fear/anxiety increases, small some inclusion improvements and inconclusive immediate behavioural changes after mobility disability simulations.",
+    "simulation_implication": "Assess behaviours that remove barriers, not learner distress or self-reported empathy alone; prohibit surrogate lived-experience claims.",
+    "limitations": "Heterogeneity, small component-study counts and uncertainty in behavioural outcomes; does not directly validate AURA."
+  },
+  {
+    "id": "pmid-35279918",
+    "database": "PubMed",
+    "title": "Effectiveness of an aged simulation training suit to support development of compassion and person-centred care in the aged-care workforce",
+    "year": 2022,
+    "authors": [
+      "Bennett P",
+      "Burns R",
+      "Champion S",
+      "Gordon S"
+    ],
+    "pmid": "35279918",
+    "doi": "10.1111/ajag.13057",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/35279918/",
+    "evidence_label": "ABSTRACT_INSPECTED",
+    "genre": "Pre-post self-report evaluation; 160 respondents",
+    "domain": "education",
+    "supported_finding": "The abstract reports improvements in staff self-rated compassion and person-centred care after aged-suit training, but it did not establish changes in daily practice.",
+    "simulation_implication": "Treat self-rated empathy as a limited educational outcome; design observable access and care behaviours before claiming efficacy.",
+    "limitations": "Aged-care workforce; only a subset evaluated; self-report design; not cerebral palsy and not direct clinical outcome validation."
+  },
+  {
+    "id": "pmid-31891347",
+    "database": "PubMed",
+    "title": "Alternative Educational Approach to Wheelchair Accessibility Awareness",
+    "year": 2019,
+    "authors": [
+      "Pebdani RN",
+      "Bourgeois PJ"
+    ],
+    "pmid": "31891347",
+    "doi": "10.5014/ajot.2019.036111",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/31891347/",
+    "evidence_label": "ABSTRACT_INSPECTED",
+    "genre": "Matched pre-post comparison; 88 undergraduates",
+    "domain": "education",
+    "supported_finding": "A comparison between mobility simulation and accessibility audit reported no significant differences between groups on measured post-intervention outcomes.",
+    "simulation_implication": "Choose environmental accessibility-audit and repair activities rather than assuming an impairment-restriction exercise is necessary.",
+    "limitations": "Single small college context; short follow-up; not a patient outcome study."
+  },
+  {
+    "id": "pmid-36352487",
+    "database": "PubMed",
+    "title": "Codesigning simulations and analyzing the process to ascertain principles of authentic and meaningful research engagement in childhood disability research",
+    "year": 2022,
+    "authors": [
+      "Micsinszki SK",
+      "Tanel NL",
+      "Kowal J",
+      "King G"
+    ],
+    "pmid": "36352487",
+    "doi": "10.1186/s40900-022-00398-y",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/36352487/",
+    "evidence_label": "ABSTRACT_INSPECTED",
+    "genre": "Qualitative co-design study",
+    "domain": "human_system",
+    "supported_finding": "Co-design research identified risks of tokenistic invitations and rubber-stamp roles; authentic contribution requires clear expectations, support and meaningful decision influence.",
+    "simulation_implication": "Give paid disabled reviewers independent authority to raise and resolve representation/access issues, including an explicit reject-and-repair path.",
+    "limitations": "Study concerns research co-design process, not efficacy of medical interventions or AURA-specific workflow."
+  },
+  {
+    "id": "pmid-28957727",
+    "database": "PubMed",
+    "title": "Measuring the impact of a 'point of view' disability simulation on nursing students' empathy using the Comprehensive State Empathy Scale",
+    "year": 2017,
+    "authors": [
+      "Levett-Jones T",
+      "Lapkin S",
+      "Govind N",
+      "Pich J"
+    ],
+    "pmid": "28957727",
+    "doi": "10.1016/j.nedt.2017.09.007",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/28957727/",
+    "evidence_label": "ABSTRACT_INSPECTED",
+    "genre": "Pre-post nursing-student empathy measurement",
+    "domain": "education",
+    "supported_finding": "Reported immediate post-simulation increases in an empathy scale among nursing students; the nurse role showed greater gain than the simulated-patient role.",
+    "simulation_implication": "Use role-based communication and team response as teaching targets, but avoid claiming demonstrated patient outcomes or authentic disability experience.",
+    "limitations": "Immediate self-report empathy scores, convenience sample, acquired brain injury simulation rather than cerebral palsy."
   }
 ]);
 export const EVIDENCE_LABELS = Object.freeze(['FULL_TEXT_INSPECTED','ABSTRACT_INSPECTED','METADATA_ONLY','USER_SUPPLIED','SECONDARY_DESCRIPTION']);

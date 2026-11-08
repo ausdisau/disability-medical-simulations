@@ -36,7 +36,19 @@ export const SOURCE_CROSSWALK=Object.freeze([
  {caseId:'aura-cp-communication-respiratory-synthetic-v01',sourceId:'yt-1B14IeOFZ8c',element:'Co-designed clinical examination communication prompt',scope:DESIGN_ONLY,
   risk:'Metadata-only video and one CP phenotype; no procedural teaching imported.'},
  {caseId:'aura-cp-communication-respiratory-synthetic-v01',sourceId:'yt-72aj-f4Emj8',element:'Optional biomechanics reading and modelling research question',scope:DESIGN_ONLY,
-  risk:'Do not import mechanics, settings or muscle parameters from a description.'}
+  risk:'Do not import mechanics, settings or muscle parameters from a description.'},
+  {caseId:'rohan-malik-pea-asystole-alternate',sourceId:'pmid-36188992',element:'Avoid temporary impairment as a stand-in for Rohan experience',scope:DESIGN_ONLY,
+  risk:'Rural disability simulation evidence concerns attitudes, not paediatric DMD physiology.'},
+ {caseId:'rohan-malik-pea-asystole-alternate',sourceId:'pmid-36352487',element:'Independent paid disability-led scenario review with repair authority',scope:DESIGN_ONLY,
+  risk:'Co-design process study is not a clinical validation of paediatric arrest.'},
+ {caseId:'aura-cp-communication-respiratory-synthetic-v01',sourceId:'pmid-35687538',element:'Use objective access-repair behaviours rather than empathy distress scores',scope:DESIGN_ONLY,
+  risk:'Mobility simulation meta-analysis is not an intervention efficacy claim.'},
+ {caseId:'aura-cp-communication-respiratory-synthetic-v01',sourceId:'pmid-31891347',element:'Community and bedside accessibility audit learning station',scope:DESIGN_ONLY,
+  risk:'College comparison design does not establish outcomes for an acute hospital patient.'},
+ {caseId:'aura-cp-communication-respiratory-synthetic-v01',sourceId:'pmid-35279918',element:'Limit conclusions from learner self-rated compassion',scope:DESIGN_ONLY,
+  risk:'Aged-care suit study does not represent cerebral palsy lived experience.'},
+ {caseId:'aura-cp-communication-respiratory-synthetic-v01',sourceId:'pmid-28957727',element:'Assess paired clinician communication roles and learner reflection',scope:DESIGN_ONLY,
+  risk:'Immediate empathy scale changes are not equivalent to actual patient care improvements.'}
 ]);
 
 export function sourceReference(id){
