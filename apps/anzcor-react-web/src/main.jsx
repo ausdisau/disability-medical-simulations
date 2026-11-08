@@ -3,6 +3,7 @@ import {createRoot} from 'react-dom/client';
 import {ACTIONS, CASE, CBCP, createAURA, dispatchAURA, clockText, gate, stationStatus, MAIRA_readonly, mediation} from './runtime.mjs';
 import './style.css';
 import EvidenceDesk from './EvidenceDesk.jsx';
+import ReviewBoard from './ReviewBoard.jsx';
 
 const badgeFor = s => s==='locked_by_evidence'?'locked':s==='reassessed'?'complete':s==='committed'?'pending':s;
 function App(){
@@ -97,6 +98,7 @@ function App(){
     </main>
     <div className="lower">
       <EvidenceDesk/>
+      <ReviewBoard/>
       <section className="card">
         <div className="section-heading"><h2>Case continuity and teaching paths</h2><span className="tiny">Requires verified prerequisites</span></div>
         <div className="continuity">
