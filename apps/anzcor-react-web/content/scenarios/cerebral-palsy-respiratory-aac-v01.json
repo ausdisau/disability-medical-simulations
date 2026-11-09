@@ -54,7 +54,11 @@
     "Recognise high fever and acute marked lethargy as potentially serious deterioration without assigning them to baseline cerebral palsy",
     "Perform infection-source and possible sepsis assessment in parallel with respiratory stabilisation and accessible communication",
     "Separate a clinical working diagnosis of chest infection from pneumonia confirmation and sepsis-related organ dysfunction",
-    "Explain and recheck fever, alertness, respiration and perfusion without generating unobserved results"
+    "Explain and recheck fever, alertness, respiration and perfusion without generating unobserved results",
+    "Distinguish continuous rhythm telemetry from a diagnostic 12-lead ECG and avoid treating absent signals as asystole",
+    "Distinguish historical spot fever from verified continuous core temperature, with source/method reliability",
+    "Do not equate haemodynamic resuscitation fluids with chilled IV saline used to induce cooling",
+    "Critique external cooling versus fever symptom relief, under the 2026 Surviving Sepsis Campaign recommendations"
   ],
   "beats": [
     {
@@ -122,6 +126,24 @@
         "Urgent assessment and communication access proceed concurrently"
       ],
       "gate": "no_sepsis_without_evidence"
+    },
+    {
+      "id": "icu-monitoring-review",
+      "phase": "ED_ICU_CONSULT",
+      "visible": "The senior team considers ICU monitoring because Alex has a synthetic 39.4°C fever, markedly new lethargy and potentially serious infection. No telemetry ECG signals or validated core-temperature probe readings have yet been acquired. Cooling saline and ice packs are not automatically indicated.",
+      "options": [
+        "Review whether Alex needs continuous rhythm monitoring and a clinically indicated 12-lead ECG",
+        "Confirm whether reliable serial temperature checks suffice or validated continuous core monitoring is appropriate",
+        "Assess haemodynamics and possible sepsis promptly while preserving Alex's communication support",
+        "Keep chilled IV saline and ice packs on explicit clinical-indication holds, not temperature-driven automatic titration"
+      ],
+      "cues": [
+        "A single ED spot temperature is not a continuous core trend",
+        "The 2026 SSC guideline suggests against routine fever reduction to improve sepsis outcomes",
+        "Monitoring equipment availability is not clinical treatment authorisation",
+        "Consultation is not an ICU admission"
+      ],
+      "gate": "clinical_temperature_treatment_is_separate_from_monitoring"
     },
     {
       "id": "infection-source",
@@ -212,9 +234,12 @@
     "Was marked lethargy assessed promptly without equating slower AAC with incapacity?",
     "Did escalation and full observations happen even without a confirmed pneumonia or sepsis diagnosis?",
     "Were antibiotics and invasive interventions held at role and protocol gates while urgent clinical care planning proceeded?",
-    "Did handover include the fictional 39.4°C temperature, unresolved sepsis assessment, new lethargy and communication-access plan?"
+    "Did handover include the fictional 39.4°C temperature, unresolved sepsis assessment, new lethargy and communication-access plan?",
+    "Which monitoring streams were observed, which were merely requested, and which values were never acquired?",
+    "Why would a historical 39.4°C ED temperature and unverified core probe be insufficient for closed-loop cooling titration?",
+    "Does any cooling intervention have a separate patient-centred clinical indication, and was it reviewed?"
   ],
-  "scenarioRevision": "v0.2-febrile-chest-infection-20261109",
+  "scenarioRevision": "v0.3-icu-telemetry-temperature-safety-20261109",
   "clinicalOverlay": {
     "eventId": "ALEX-FEVER-ED-001",
     "syntheticOnly": true,
@@ -432,5 +457,47 @@
       "sourceClass": "guideline_comparator",
       "reviewStatus": "REVIEW_REQUIRED"
     }
-  ]
+  ],
+  "icuTelemetryOverlay": {
+    "syntheticOnly": true,
+    "stage": "ED_TO_ICU_CONSULTATION_PLANNED_NOT_ADMISSION",
+    "initialData": {
+      "temperatureC": 39.4,
+      "temperatureSource": "ED_TRIAGE_SPOT_OBSERVATION_NOT_CORE",
+      "repeatTemperature": "UNKNOWN",
+      "coreProbe": "NOT_CONNECTED",
+      "ECG12": "NOT_ACQUIRED",
+      "rhythmTelemetry": "NO_VALIDATED_SIGNAL",
+      "heartRate": "UNKNOWN",
+      "bloodPressure": "UNKNOWN",
+      "respiratoryRate": "UNKNOWN",
+      "SpO2": "UNVERIFIED",
+      "lactate": "NOT_OBTAINED",
+      "sepsis": "NOT_CONFIRMED"
+    },
+    "monitoring": [
+      "qualified-team assessment of continuous ECG indication and electrode signal reliability",
+      "12-lead diagnostic ECG where clinically indicated, distinct from continuous telemetry",
+      "accurate repeat body temperature; continuous core temperature only if clinically indicated and validated existing device",
+      "repeated A-G assessment, respiratory and haemodynamic observations, fluid balance and alertness",
+      "document changes and report senior clinician review, not automated cooling titration"
+    ],
+    "prohibitedAutomaticEffects": [
+      "no cold saline infusion",
+      "no ice pack placement",
+      "no invasive probe insertion",
+      "no generated waveforms or repeat core temperature values",
+      "no automatic fever target, fluid rate or dose",
+      "no diagnosis of sepsis solely from fever",
+      "no ICU admission assumed"
+    ],
+    "clinicalReviewStatus": "PENDING",
+    "disabilityLedReviewStatus": "PENDING",
+    "sourceIds": [
+      "SCCM-SSC-2026",
+      "NSW-ACI-SEPSIS-2026",
+      "SCCM-IDSA-FEVER-2023"
+    ],
+    "notes": "No evidence supports routine infusion of chilled saline to treat uncomplicated infectious fever. Surface cooling is not a survival-improving default sepsis treatment. Symptom management or a separate indication requires individualized assessment by a qualified clinician."
+  }
 }

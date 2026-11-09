@@ -2,10 +2,11 @@ import React,{useReducer,useState} from 'react';
 import seed from '../content/scenarios/cerebral-palsy-respiratory-aac-v01.json';
 import {createAlexSession,alexDispatch,alexClock,alexGate,alexStationStatus,alexSnapshot} from './alex-infection.mjs';
 import DiagnosticTensionPanel from './DiagnosticTensionPanel.jsx';
+import ICUTelemetryPanel from './ICUTelemetryPanel.jsx';
 import './alex-infection.css';
 
 const niceStatus={AVAILABLE:'Available',SELECTED:'Selected',CHECKED:'Evidence checked',ASSIGNED:'Assigned',DOCUMENTED:'Documented',REASSESSED:'Reassessed',LOCKED_BY_PROTOCOL:'Protocol hold'};
-const beatIds=['febrile-triage','access','assessment','possible-sepsis','infection-source','shared_decision','reassessment','handover'];
+const beatIds=['febrile-triage','access','assessment','possible-sepsis','icu-monitoring-review','infection-source','shared_decision','reassessment','handover'];
 function exportAlex(s){
  const json=JSON.stringify({source:'AURA synthetic educational scenario',scenarioId:seed.scenarioId,revision:seed.scenarioRevision,
   case:seed,session:s,clinicalAuthority:false,realPatientData:false},null,2);
@@ -101,6 +102,7 @@ export default function AlexInfectionPanel(){
    </aside>
   </div>
   <DiagnosticTensionPanel session={s}/>
+  <ICUTelemetryPanel alexSession={s}/>
   <p className="alex-footer">Adult fictional educational training only. Not an authorised prescription, real patient simulation or verified sepsis pathway. Clinical, pharmacology, disability-led and accessibility reviews pending.</p>
  </section>;
 }
