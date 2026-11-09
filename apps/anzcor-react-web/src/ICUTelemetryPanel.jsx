@@ -7,6 +7,10 @@ export default function ICUTelemetryPanel({alexSession}){
  const [s,dispatch]=useReducer(telemetryDispatch,undefined,createTelemetry);
  const selected=ICU_STATIONS.find(x=>x.id===s.selected);
  const supervisor=telemetrySupervisor(s);
+ const originalBP=alexSession?.clinical?.bloodPressure;
+ const crisisBP=typeof originalBP==='string'&&originalBP.includes('FICTIONAL')?originalBP:null;
+ const crisisAlarm=Boolean(alexSession?.system?.telemetry?.includes('ARTEFACT')||alexSession?.system?.telemetry?.includes('UNVERIFIED'));
+
  const send=(type,id)=>dispatch({type,id});
  const gate=selected?telemetryGate(s,selected.id):null;
  const canDocument=selected&&gate.allow&&s.checks[selected.id]?.allow&&s.assignments[selected.id];
@@ -20,16 +24,16 @@ export default function ICUTelemetryPanel({alexSession}){
       <small>Known temperature · initial ED spot observation</small><strong>39.4°C</strong>
       <span>Fictional; not a core sensor or continuous trend</span>
     </div>
-    <div className="icu-vital"><small>Continuous rhythm telemetry</small><strong>Not acquired</strong><span>No connected ECG stream; no rhythm inference</span></div>
+    <div className="icu-vital"><small>Continuous rhythm telemetry</small><strong>{crisisAlarm?"Alarm unverified":"Not acquired"}</strong><span>{crisisAlarm?"Synthetic movement artefact: qualified clinician must verify signal":"No connected ECG stream; no rhythm inference"}</span></div>
     <div className="icu-vital"><small>12-lead diagnostic ECG</small><strong>Not acquired</strong><span>Only recorded and interpreted if indicated</span></div>
     <div className="icu-vital"><small>Core-temperature monitoring</small><strong>Not connected</strong><span>No validated probe or subsequent core values</span></div>
-    <div className="icu-vital"><small>Blood pressure / perfusion</small><strong>Unknown</strong><span>No confirmed shock or circulatory response</span></div>
+    <div className="icu-vital"><small>Blood pressure / perfusion</small><strong>{crisisBP||"Unknown"}</strong><span>{crisisBP?"New authored fictional clinician observation; shock not established":"No confirmed shock or circulatory response"}</span></div>
     <div className="icu-vital"><small>Chilled IV fluid / ice packs</small><strong>Not applied</strong><span>Cooling interventions not authorised</span></div>
    </div>
    <div className="icu-monitors">
      <div className="icu-monitor" role="group" aria-label="Continuous ECG telemetry signal">
        <div className="icu-monitor-top"><strong>Rhythm monitor</strong><span>Lead signal: NOT ACQUIRED</span></div>
-       <div className="icu-black"><span>NO VERIFIED ECG SIGNAL</span><small>No waveform displayed: lack of a feed is not asystole</small></div>
+       <div className="icu-black"><span>{crisisAlarm?"ALARM — SIGNAL UNVERIFIED":"NO VERIFIED ECG SIGNAL"}</span><small>No real waveform displayed; artefact is not a diagnosis of VT or asystole</small></div>
        <p>Three- or five-lead bedside telemetry is not equivalent to a diagnostic 12-lead ECG. Actual rhythm, rate, artefact and QT/ST assessments need validated recordings and qualified interpretation.</p>
      </div>
      <div className="icu-monitor" role="group" aria-label="12 lead ECG grid showing no acquired results">

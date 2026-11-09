@@ -3,6 +3,7 @@ import seed from '../content/scenarios/cerebral-palsy-respiratory-aac-v01.json';
 import {createAlexSession,alexDispatch,alexClock,alexGate,alexStationStatus,alexSnapshot} from './alex-infection.mjs';
 import DiagnosticTensionPanel from './DiagnosticTensionPanel.jsx';
 import ICUTelemetryPanel from './ICUTelemetryPanel.jsx';
+import CascadeCrisisPanel from './CascadeCrisisPanel.jsx';
 import './alex-infection.css';
 
 const niceStatus={AVAILABLE:'Available',SELECTED:'Selected',CHECKED:'Evidence checked',ASSIGNED:'Assigned',DOCUMENTED:'Documented',REASSESSED:'Reassessed',LOCKED_BY_PROTOCOL:'Protocol hold'};
@@ -19,7 +20,7 @@ export default function AlexInfectionPanel(){
  const selected=seed.interventionStations.find(a=>a.id===s.selected);
  const beat=seed.beats.find(b=>b.id===beatId);
  const snapshot=alexSnapshot(s);
- const action=(kind,id,seconds)=>dispatch({kind,id,seconds});
+ const action=(kind,id,seconds,crisisSeed)=>dispatch({kind,id,seconds,crisisSeed});
  const canDocument=selected&&s.running&&s.checked[selected.id]?.allow&&s.assigned[selected.id]&&alexGate(s,seed,selected.id).allow;
  return <section id="alex-infection" aria-labelledby="alex-infection-title" className="card alex-infection">
   <div className="section-heading">
@@ -35,6 +36,7 @@ export default function AlexInfectionPanel(){
     <div><small>Respiratory rate and oxygenation</small><strong>Not verified</strong><small>Do not assume normal or abnormal</small></div>
     <div><small>Communication</small><strong>Slower with fatigue</strong><small>No incapacity inference</small></div>
   </div>
+  <CascadeCrisisPanel session={s} dispatch={dispatch}/>
   <div className="alex-grid">
    <div>
     <div className="alex-scene">
@@ -43,7 +45,7 @@ export default function AlexInfectionPanel(){
       {beatIds.map(id=>{const b=seed.beats.find(x=>x.id===id);return <option key={id} value={id}>{b?.phase} · {id.replaceAll('-',' ')}</option>})}
      </select>
      <p className="alex-narrative">{beat?.visible}</p>
-     <small className="eyebrow">JMO DISCUSSION OPTIONS — DO NOT AUTHOR A TREATMENT</small>
+     <small className="eyebrow">SIMULATED CLINICAL TEAM QUESTIONS — NOT REAL TREATMENT ORDERS</small>
      <ul>{beat?.options.map(o=><li key={o}>{o}</li>)}</ul>
      {beat?.cues&&<p className="alex-note">{beat.cues.join(' ')}</p>}
     </div>

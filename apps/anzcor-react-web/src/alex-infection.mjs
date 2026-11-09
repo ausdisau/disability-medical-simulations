@@ -4,6 +4,7 @@
  * Case seed is passed in from the JSON scenario; no source can author medication,
  * deterioration, diagnosis, consent, or effects without an explicit verified gate.
  */
+import {selectCrisisVariant} from './cascade-engine.mjs';
 export const ALEX_ACTIONS=Object.freeze(['AAC','OBS','CERS','SEPSIS','CHEST','MED','ANTIBIOTICS','AIRWAY']);
 export function alexClock(seconds){
  return [Math.floor(seconds/3600),Math.floor(seconds%3600/60),seconds%60].map(n=>String(n).padStart(2,'0')).join(':');
@@ -13,7 +14,7 @@ export function createAlexSession(seed){
  !seed.clinicalOverlay?.syntheticOnly||seed.caseLinkage!=='SEPARATE_FROM_ROHAN')throw Error('Invalid or non-isolated fictional Alex seed');
  return {
   scenarioId:seed.scenarioId,revision:seed.scenarioRevision,syntheticOnly:true,phase:'ED',running:false,
-  clock:14*3600+10*60,
+  clock:14*3600+10*60,crisis:null,system:{telemetry:'NO_VERIFIED_RHYTHM',escalation:'URGENT_CLINICAL_REVIEW_REQUIRED'},
   clinical:{
    workingDiagnosis:seed.clinicalOverlay.chestInfection.clinicalWorkingDiagnosis,
    workingDiagnosisStatus:seed.clinicalOverlay.chestInfection.status,
@@ -33,7 +34,9 @@ export function createAlexSession(seed){
    microbiology:'NO_RESULT',
    chestImaging:'NO_RESULT',
    antibioticAdministered:false,
-   invasiveProcedurePerformed:false
+   invasiveProcedurePerformed:false,
+   rhythm:'UNKNOWN_NOT_ACQUIRED',rosc:'NOT_APPLICABLE_NO_ARREST_DIAGNOSIS',
+   breathingEffort:'NOT_FORMALLY_ASSESSED',perfusionConcern:'UNRESOLVED'
   },
   access:{response:'SLOW_WITH_MARKED_FATIGUE',communicationSupport:'POSITIONING_NOT_YET_CONFIRMED',
     patientWords:'NO_NEW_VERIFIED_MESSAGE',capacity:'NOT_INFERRED',
@@ -64,12 +67,60 @@ export function alexStationStatus(s,seed,id){
  if(s.selected===id)return 'SELECTED';
  return 'AVAILABLE';
 }
+
+function applyAuthoredCrisisCue(s,cue,index){
+  const crisis=s.crisis;
+  const latestIndex=index+1,terminal=latestIndex>=crisis.total;
+  const date=Math.max(s.clock,crisis.baseClock+cue.second);
+  const history=[...crisis.observations,{
+    id:cue.id,simTime:alexClock(date),domain:cue.domain,
+    status:'KNOWN_AUTHORED_SYNTHETIC',detail:cue.text,
+    known:cue.known,unknown:cue.unknown,source:cue.source,workstream:cue.workstream
+  }];
+  const next={
+    ...s,clock:date,phase:'ED_CASCADE_CRISIS',running:!terminal,
+    clinical:{...s.clinical,...(cue.clinicalPatch||{}),sepsis:s.clinical.sepsis,shock:'NOT_ESTABLISHED',
+      antibioticAdministered:false,invasiveProcedurePerformed:false,
+      rosc:'NOT_APPLICABLE_NO_ARREST_DIAGNOSIS'},
+    access:{...s.access,...(cue.accessPatch||{}),capacity:'NOT_INFERRED',
+      supporterAuthority:'NOT_ASSUMED',patientWords:'NO_NEW_VERIFIED_MESSAGE'},
+    system:{...s.system,...(cue.systemPatch||{}),escalation:'IMMEDIATE_SENIOR_ED_ICU_REVIEW_REQUIRED'},
+    crisis:{...crisis,index:latestIndex,observations:history,status:terminal?'DECISION_HOLD':'ACTIVE'},
+    notice:cue.text+' Evidence source: '+cue.source+'. '+(terminal?
+      'Cascade observations complete; freeze for scenario-director decision.':
+      'Further unpredictable synthetic cue pending; you may pause and reassess.')
+  };
+  return event(next,'CASCADE',cue.id,JSON.stringify({
+    authoredSynthetic:true,text:cue.text,source:cue.source,known:cue.known,unknown:cue.unknown,
+    cause:'NOT_CONFIRMED',treatmentEffect:'NONE_ASSUMED'}));
+}
+
 export function alexDispatch(prior,seed,command){
- const cmd={kind:command.kind,id:command.id??null,seconds:command.seconds??null};
+ const cmd={kind:command.kind,id:command.id??null,seconds:command.seconds??null,
+   crisisSeed:Number.isInteger(command.crisisSeed)?command.crisisSeed:null};
  let s=record(prior,cmd);
  if(cmd.kind==='RESET')return createAlexSession(seed);
  if(cmd.kind==='RUN')return event({...s,running:true,notice:'Educational clock can advance explicitly. Fever, lethargy and other physiology do not change automatically.'},'CLOCK',null,'Simulation resumed');
  if(cmd.kind==='PAUSE')return event({...s,running:false,notice:'Paused for reading, AAC and switch scanning. Clinical facts unchanged.'},'CLOCK',null,'Simulation paused');
+
+ if(cmd.kind==='TRIGGER_CASCADE'){
+  if(s.crisis)return event({...s,notice:'Crisis already triggered. Continue existing events or reset for another variant.'},'GATE',null,'Repeat trigger held');
+  const chosenSeed=cmd.crisisSeed??0;
+  let variant;
+  try{variant=selectCrisisVariant(chosenSeed);}
+  catch(_error){return event({...s,notice:'Invalid crisis seed. No change.'},'GATE',null,'Seed rejected');}
+  s={...s,running:true,crisis:{seed:chosenSeed,version:'0.1.0-synthetic',
+    id:variant.id,name:variant.name,baseClock:s.clock,total:variant.events.length,index:0,
+    status:'ACTIVE',observations:[]}};
+  return applyAuthoredCrisisCue(s,variant.events[0],0);
+ }
+ if(cmd.kind==='NEXT_CASCADE'){
+  if(!s.crisis)return event({...s,notice:'Trigger a crisis first.'},'GATE',null,'No cascade started');
+  if(!s.running)return event({...s,notice:'Cascade paused or at a decision hold; no additional event committed.'},'GATE',null,'Clock frozen');
+  const variant=selectCrisisVariant(s.crisis.seed);
+  if(s.crisis.index>=variant.events.length)return event({...s,notice:'Crisis cue sequence complete; choose an assessment/rescue workstream.'},'GATE',null,'Complete');
+  return applyAuthoredCrisisCue(s,variant.events[s.crisis.index],s.crisis.index);
+ }
  if(cmd.kind==='STEP'){
   if(!s.running)return event({...s,notice:'Clock remains paused; no synthetic time advanced.'},'GATE',null,'Step held');
   const delta=Number.isInteger(cmd.seconds)?Math.min(30,Math.max(1,cmd.seconds)):5;
@@ -113,12 +164,12 @@ export function replayAlex(seed,commands){
 }
 export function alexSnapshot(s){
  return Object.freeze({
-  status:'FICTIONAL_ACUTE_ED',
+  status:s.crisis?'FICTIONAL_ACUTE_CASCADE':'FICTIONAL_ACUTE_ED',
   known:['Temperature '+s.clinical.measuredTemperatureC+'°C (synthetic)',
   'Marked new lethargy relative to baseline','Reported worsening cough and breathing concern',
   'Chest infection is the clinical working diagnosis'],
   unresolved:['Pneumonia not confirmed','Sepsis and shock not established',
-   'Consciousness, SpO₂, RR, BP and other observations not yet verified',
+   s.crisis?'Consciousness, oxygenation, rhythm confirmation and serial perfusion reassessment remain unresolved':'Consciousness, SpO₂, RR, BP and other observations not yet verified',
    'No antibiotic or invasive airway action performed'],
   patientVoice:'No new reliable words; communicate directly and restore access',
   priority:'Urgent A–G and senior review/CERS consideration, parallel with communication access',

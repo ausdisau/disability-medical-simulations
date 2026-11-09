@@ -58,7 +58,10 @@
     "Distinguish continuous rhythm telemetry from a diagnostic 12-lead ECG and avoid treating absent signals as asystole",
     "Distinguish historical spot fever from verified continuous core temperature, with source/method reliability",
     "Do not equate haemodynamic resuscitation fluids with chilled IV saline used to induce cooling",
-    "Critique external cooling versus fever symptom relief, under the 2026 Surviving Sepsis Campaign recommendations"
+    "Critique external cooling versus fever symptom relief, under the 2026 Surviving Sepsis Campaign recommendations",
+    "Coordinate urgent respiratory, circulation, monitor-integrity, sepsis and communication-access assessments during compound deterioration",
+    "Distinguish monitor artefact from established arrhythmia and one low blood pressure reading from verified septic shock",
+    "Preserve reproducible surprise through a recorded crisis seed and authored event provenance rather than unbounded random patient death"
   ],
   "beats": [
     {
@@ -144,6 +147,23 @@
         "Consultation is not an ICU admission"
       ],
       "gate": "clinical_temperature_treatment_is_separate_from_monitoring"
+    },
+    {
+      "id": "cascade-crisis",
+      "phase": "ED_CRISIS",
+      "visible": "The fictional director initiates a seeded, bounded four-event cascade. Coughing and increased work of breathing, an unverified rhythm monitor alarm, a clinician-observed low BP, and AAC displacement emerge as separate source-labelled observations. They do not establish sepsis, arrest, oxygenation failure or incapacity.",
+      "options": [
+        "Activate senior ED/critical-care assessment and possible sepsis response",
+        "Verify airway/breathing/circulation and monitor artefact in parallel",
+        "Restore AAC and clarify Alex's preferences without inventing a reply",
+        "Pause and inspect sources/uncertainty before revealing another event"
+      ],
+      "cues": [
+        "The crisis is complex but deterministic given its seed; no future outcome is pre-decided",
+        "Resuscitation drugs, cooling saline, defibrillation and invasive airway remain protocol-gated",
+        "No lack of AAC response may be interpreted as consent, refusal or incapacity"
+      ],
+      "gate": "seeded_cascade_guarded_controller"
     },
     {
       "id": "infection-source",
@@ -237,9 +257,12 @@
     "Did handover include the fictional 39.4°C temperature, unresolved sepsis assessment, new lethargy and communication-access plan?",
     "Which monitoring streams were observed, which were merely requested, and which values were never acquired?",
     "Why would a historical 39.4°C ED temperature and unverified core probe be insufficient for closed-loop cooling titration?",
-    "Does any cooling intervention have a separate patient-centred clinical indication, and was it reviewed?"
+    "Does any cooling intervention have a separate patient-centred clinical indication, and was it reviewed?",
+    "During the crisis, which observed findings were reliable, which were monitor artefacts, and which diagnoses remained unverified?",
+    "Did you allow access repair and medical rescue to happen in parallel without assuming incapacity?",
+    "What independent observation would confirm or refute each competing cause of the crisis?"
   ],
-  "scenarioRevision": "v0.3-icu-telemetry-temperature-safety-20261109",
+  "scenarioRevision": "v0.4-seeded-multisystem-cascade-20261109",
   "clinicalOverlay": {
     "eventId": "ALEX-FEVER-ED-001",
     "syntheticOnly": true,
@@ -499,5 +522,55 @@
       "SCCM-IDSA-FEVER-2023"
     ],
     "notes": "No evidence supports routine infusion of chilled saline to treat uncomplicated infectious fever. Surface cooling is not a survival-improving default sepsis treatment. Symptom management or a separate indication requires individualized assessment by a qualified clinician."
+  },
+  "cascadeCrisisOverlay": {
+    "caseId": "aura-cp-communication-respiratory-synthetic-v01",
+    "version": "0.1.0-synthetic",
+    "data_origin": "fictional_synthetic",
+    "fictional_patient": true,
+    "sceneKey": "alex-febrile-sepsis-differential",
+    "authorisation": "NON_CLINICIAN_SCENARIO_DIRECTOR_MAY_TRIGGER_FICTIONAL_EVENTS_ONLY",
+    "startingClinicalTime": "14:10:00",
+    "triggerCommand": "TRIGGER_CASCADE",
+    "advanceCommand": "NEXT_CASCADE",
+    "variants": [
+      "airway-perfusion-artifact",
+      "respiratory-sensor-circulation",
+      "aspiration-uncertainty-workflow"
+    ],
+    "canonicalDemonstrationSeed": 0,
+    "boundedSurprise": "Seed chooses one plausible four-cue set. The seed is recorded in the VIRGAL-style Alex event log for deterministic replay.",
+    "authoredCueTimes": [
+      "14:10:18",
+      "14:10:29",
+      "14:10:39",
+      "14:10:50"
+    ],
+    "clinicalDomains": [
+      "breathing effort and cough",
+      "unverified telemetry alarm",
+      "fictional measured low blood pressure",
+      "communication access disrupted"
+    ],
+    "protectedFacts": [
+      "Alex has cerebral palsy; diagnosis does not imply incapacity or treatment limitation",
+      "No patient speech or consent may be fabricated from communication gaps",
+      "Initial spot temperature 39.4°C; later core measurements unknown",
+      "Sepsis, septic shock, respiratory pathogen and cardiac arrest are not automatically established",
+      "Antibiotic/antiviral/cooling/airway therapy remains evidence and protocol-gated",
+      "Rohan Malik's separate paediatric Code Blue state is unchanged"
+    ],
+    "workstreams": [
+      "CERS",
+      "OBS",
+      "SEPSIS",
+      "AAC"
+    ],
+    "responseContract": "Simulated qualified-team assessment and escalation in parallel; selection does not perform medical actions.",
+    "emergencyClockContract": "Trigger is a user-authorised authored event; subsequent cues require explicit NEXT_CASCADE and can be paused. AAC reading time does not penalise learner.",
+    "humanReview": "PENDING_QUALIFIED_CLINICAL_DISABILITY_LED_FACILITATOR_AAC_ACCESSIBILITY",
+    "noRealPatientClaims": true,
+    "noDiagnosisFromSensorAlarm": true,
+    "noAutomaticDeath": true
   }
 }
