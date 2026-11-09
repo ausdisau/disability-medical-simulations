@@ -83,17 +83,17 @@ function App(){
       </section>
       <aside className="side-column">
         <section className="card access"><small className="eyebrow">PROTECTED PATIENT INSTRUCTION</small><div className="aac-word">WAIT</div><p>Latest reliable patient-authored message. No silence-to-consent, no invented final message.</p><div className="mini-line"><span>Family-support nurse</span><strong>ASSIGNED</strong></div><div className="mini-line"><span>Family</span><strong>Samira · Arvind</strong></div></section>
-        <section className="card"><div className="section-heading"><h2>JMO supervision · MAIRA</h2><button className="textbtn" aria-expanded={showSupervisor} onClick={()=>setShowSupervisor(!showSupervisor)}>{showSupervisor?'Hide':'Show'}</button></div>
+        <section className="card"><div className="section-heading"><h2>Fictional JMO coaching · MAIRA</h2><button className="textbtn" aria-expanded={showSupervisor} onClick={()=>setShowSupervisor(!showSupervisor)}>{showSupervisor?'Hide':'Show'}</button></div>
           {showSupervisor&&<><small className="eyebrow">READ-ONLY ADVISORY</small><p><b>Supervisor question:</b> {supervisor.question}</p><p className="muted">{supervisor.suggestion}</p><small className="eyebrow">UNRESOLVED</small><ul>{supervisor.unknown.map(x=><li key={x}>{x}</li>)}</ul></>}
         </section>
         <section className="card"><div className="section-heading"><h2>Guardian Mediator</h2><button className="textbtn" aria-expanded={showGuardians} onClick={()=>setShowGuardians(!showGuardians)}>{showGuardians?'Hide':'Show'}</button></div>
           {showGuardians&&<><div className={'guardian-state '+(guardian.status==='HOLD_BRANCH'?'hold':'')}>{guardian.status}</div><p>{guardian.branchFrozen.length?'Affected branch held: '+guardian.branchFrozen.join(', '):'Educational assessment permitted with rights and protocol safeguards.'}</p><small>Clinical: {guardian.clinical}</small><small>Rights: {guardian.rights}</small><small>Personhood: {guardian.personhood}</small><small>Pharmacology: {guardian.pharmacology}</small></>}
         </section>
-        <section className="card"><div className="section-heading"><h2>Learning controls</h2></div>
+        <section className="card"><div className="section-heading"><h2>Learning controls</h2></div><p className="muted" style={{fontSize:'12px'}}>You direct fictional scenes; you are not the treating clinician. Qualified characters make clinical decisions. Selecting a JMO role is optional educational roleplay, not a credential claim.</p>
           <label className="option"><input type="checkbox" checked={largeText} onChange={e=>setLargeText(e.target.checked)}/> Larger type</label>
           <label className="option"><input type="checkbox" checked={lowSensory} onChange={e=>setLowSensory(e.target.checked)}/> Reduced visual intensity</label>
-          <label htmlFor="role">Role / supervision</label>
-          <select id="role" value={state.role} onChange={e=>send('ROLE',null,e.target.value)}><option value="JMO">JMO · supervised learner</option><option value="FACILITATOR">Facilitator · synthetic outcome authority</option></select>
+          <label htmlFor="role">Simulation perspective — no medical credentials assumed</label>
+          <select id="role" value={state.role} onChange={e=>send('ROLE',null,e.target.value)}><option value="SCENARIO_DIRECTOR">Scenario director · non-clinician (default)</option><option value="JMO">Fictional JMO · supervised clinical roleplay</option><option value="FACILITATOR">Fictional facilitator · alternate teaching branches</option></select>
         </section>
       </aside>
     </main>

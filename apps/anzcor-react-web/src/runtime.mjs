@@ -47,7 +47,7 @@ export function clockText(seconds) {
 export function createAURA(){
   return {
     version:AURA_VERSION,caseId:CASE.id,phase:'ARREST',running:false,
-    clock:10*3600+16*60+50,evaluationSeconds:0,role:'JMO',
+    clock:10*3600+16*60+50,evaluationSeconds:0,role:'SCENARIO_DIRECTOR',
     clinical:{rhythm:'ASYSTOLE',verifiedRhythm:true,spontaneousCirculation:false,rosc:false,
       cpr:'ONGOING',airway:'Provisional supraglottic rescue',chestMovement:'Observed with support',
       exhaledCO2:'Waveform present',oxygenation:'Unverified; pulse oximeter unreliable',

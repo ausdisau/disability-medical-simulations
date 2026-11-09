@@ -15,3 +15,10 @@ test('MAIRA cannot commit or mutate physiology',()=>{const s=createAURA();const 
 test('mediator freezes just the unsupported branch while care continues',()=>{const m=mediation(createAURA(),'drug');assert.deepEqual(m.branchFrozen,['drug']);assert.ok(m.careContinues.includes('Provisional rescue ventilation'))});
 test('replay is deterministic for event ledger',()=>{let s=cmd(createAURA(),'RUN');s=complete(s,'rhythm');const back=replay(s.commands);assert.deepEqual(back.ledger,s.ledger);assert.deepEqual(back.clinical,s.clinical)});
 test('manual time does not invent recovery',()=>{let s=cmd(createAURA(),'RUN');s=dispatchAURA(s,{kind:'STEP',seconds:15});assert.equal(s.clinical.rosc,false);assert.equal(s.person.aac,'WAIT')});
+
+test('default operator is a non-clinician scenario director, not JMO',()=>{
+ const s=createAURA();assert.equal(s.role,'SCENARIO_DIRECTOR');
+ const next=dispatchAURA(s,{kind:'ROLE',role:'JMO'});
+ assert.equal(next.role,'JMO');
+ assert.equal(next.clinical.rosc,false);assert.equal(next.person.aac,'WAIT');
+});

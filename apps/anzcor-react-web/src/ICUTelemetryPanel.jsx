@@ -98,8 +98,8 @@ export default function ICUTelemetryPanel({alexSession}){
    </div>
    <div className="icu-bottom">
     <div className="icu-summary">
-     <h3>JMO supervisor · read-only</h3>
-     <p>{supervisor.question}</p>
+     <h3>Fictional JMO supervisor · read-only teaching</h3>
+     <p>{supervisor.question}</p><p className="muted">This question is directed at the simulated clinical team. Scenario directors do not need medical qualifications to explore the educational decision pathway.</p>
      <p className="muted">Alex's case remains {alexSession?.clinical?.sepsis||'suspected risk / not confirmed'}. A monitor connection or fever reading cannot establish sepsis, shock, a cardiac arrhythmia or capacity.</p>
      <p><b>Guardian decision:</b> Hold automated temperature titration and all cooling intervention commits; continue qualified assessment, urgent sepsis review, clinical comfort planning and communication access.</p>
     </div>

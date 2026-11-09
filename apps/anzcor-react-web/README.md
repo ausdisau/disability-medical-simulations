@@ -59,3 +59,7 @@ The `CHECK → ASSIGN → COMMIT → REASSESS` experience records *synthetic tra
 ## Alex Morgan v0.2 — High fever and differential branch
 
 The separate adult fictional Alex scenario now opens at 39.4°C synthetic fever with marked new lethargy and a chest infection working diagnosis. The React cockpit offers parallel urgent assessment, CERS/senior escalation, AAC repair, infection source evaluation, and facilitator-gated alternatives for viral, bacterial, mixed and aspiration-related causes. **No diagnosis, clinical physiological response, order or treatment is generated** by selecting or revealing educational evidence. See `docs/ALEX-FEBRILE-INFECTION-DIAGNOSTIC-TENSION.md`. Rohan's DMD resuscitation case is unchanged.
+
+## Scenario director perspective and clinician authority
+
+The app's initial role is `SCENARIO_DIRECTOR`, explicitly a **non-clinician** educational role. The person using the application can direct and inspect fictional stories without claiming to be a doctor, nurse or other licensed practitioner. `JMO` is an **optional fictional trainee persona** for supervised clinical teaching; it never implies the operator's real-world qualifications. `FACILITATOR` is an **unauthenticated teaching sandbox toggle** for separate synthetic branches, not professional authorisation. Qualified fictional staff are responsible for clinical steps, and the engine never connects to a real patient, medicine administration or medical device. All local protocol and external clinical/lived-experience reviews remain pending.
