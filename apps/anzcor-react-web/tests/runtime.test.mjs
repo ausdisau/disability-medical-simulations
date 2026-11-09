@@ -1,0 +1,24 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createAURA,dispatchAURA,gate,MAIRA_readonly,mediation,replay} from '../src/runtime.mjs';
+const cmd=(s,kind,id,role)=>dispatchAURA(s,{kind,id,role});
+const complete=(s,id)=>cmd(cmd(cmd(cmd(cmd(s,'SELECT',id),'CHECK',id),'ASSIGN',id),'COMMIT',id),'REASSESS',id);
+test('keeps WAIT and the synthetic alternate case separate',()=>{const s=createAURA();assert.equal(s.person.aac,'WAIT');assert.equal(s.clinical.rhythm,'ASYSTOLE');assert.equal(s.clinical.rosc,false)});
+test('asystole shock is always blocked',()=>assert.equal(gate(createAURA(),'shock').allow,false));
+test('invasive and medication actions are held without protocols',()=>{for(const id of ['drug','fona'])assert.equal(gate(createAURA(),id).allow,false)});
+test('flatline and CO2 cannot declare ROSC or death',()=>{const s=createAURA();assert.equal(gate(s,'declare-rosc').allow,false);assert.equal(gate(s,'declare-death').allow,false)});
+test('selection and check cannot commit clinical effects',()=>{const s=cmd(cmd(createAURA(),'SELECT','airway'),'CHECK','airway');assert.equal(s.completed.length,0);assert.equal(s.clinical.rosc,false)});
+test('qualified assignment and running gate precede commit',()=>{let s=cmd(createAURA(),'COMMIT','airway');assert.equal(s.completed.length,0);s=cmd(s,'RUN');s=complete(s,'airway');assert.ok(s.completed.includes('airway'));assert.ok(s.reassessed.includes('airway'));assert.equal(s.person.aac,'WAIT')});
+test('facilitator cannot author ROSC from flatline alone',()=>{let s=cmd(createAURA(),'FACILITATOR_ROSC',null,'FACILITATOR');assert.equal(s.phase,'ARREST')});
+test('facilitator explicit alternate outcome only after reassessment',()=>{let s=cmd(createAURA(),'RUN');s=complete(s,'airway');s=complete(s,'perfusion');s=cmd(s,'FACILITATOR_ROSC',null,'FACILITATOR');assert.equal(s.phase,'POST_ROSC');assert.equal(s.person.aac,'WAIT')});
+test('MAIRA cannot commit or mutate physiology',()=>{const s=createAURA();const before=JSON.stringify(s);assert.equal(MAIRA_readonly(s).canCommit,false);assert.equal(JSON.stringify(s),before)});
+test('mediator freezes just the unsupported branch while care continues',()=>{const m=mediation(createAURA(),'drug');assert.deepEqual(m.branchFrozen,['drug']);assert.ok(m.careContinues.includes('Provisional rescue ventilation'))});
+test('replay is deterministic for event ledger',()=>{let s=cmd(createAURA(),'RUN');s=complete(s,'rhythm');const back=replay(s.commands);assert.deepEqual(back.ledger,s.ledger);assert.deepEqual(back.clinical,s.clinical)});
+test('manual time does not invent recovery',()=>{let s=cmd(createAURA(),'RUN');s=dispatchAURA(s,{kind:'STEP',seconds:15});assert.equal(s.clinical.rosc,false);assert.equal(s.person.aac,'WAIT')});
+
+test('default operator is a non-clinician scenario director, not JMO',()=>{
+ const s=createAURA();assert.equal(s.role,'SCENARIO_DIRECTOR');
+ const next=dispatchAURA(s,{kind:'ROLE',role:'JMO'});
+ assert.equal(next.role,'JMO');
+ assert.equal(next.clinical.rosc,false);assert.equal(next.person.aac,'WAIT');
+});

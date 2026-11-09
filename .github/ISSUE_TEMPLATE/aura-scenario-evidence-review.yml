@@ -1,0 +1,63 @@
+name: "AURA: evidence-to-scenario review"
+description: "External reviewer record for a fictional AURA learning scenario; do not include patient-identifiable information."
+title: "[AURA review] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Simulation only.** Reviews are not medication orders, clinical credentials, or approval for clinical training. Protect the patient's agency and communications. Do not provide identifiable personal health information or unpublished third-party content.
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Review area
+      options:
+        - Qualified clinical review
+        - Paid disability-led co-design
+        - Facilitator evaluation
+        - Accessibility and AAC validation
+        - Clinical governance, privacy and source provenance
+    validations:
+      required: true
+  - type: input
+    id: scenario
+    attributes:
+      label: Fictional scenario ID and version
+      placeholder: "aura-cp-communication-respiratory-synthetic-v01"
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Public source ID or stable publication link
+      placeholder: "pmid-41649064"
+    validations:
+      required: true
+  - type: textarea
+    id: observation
+    attributes:
+      label: What was directly inspected or tested?
+      description: "Distinguish full text, abstract, video frame, transcript, metadata and direct accessibility testing."
+    validations:
+      required: true
+  - type: textarea
+    id: barrier
+    attributes:
+      label: Safety, autonomy or accessibility problem and smallest repair
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Evidence link, tested commit and role authorization
+      description: "Provide relevant public evidence links. Institutional signoff requires its own verified process."
+    validations:
+      required: false
+  - type: checkboxes
+    id: limits
+    attributes:
+      label: Acknowledgments
+      options:
+        - label: "This report does not authorise clinical procedures, medication, patient data import or production deployment."
+          required: true
+        - label: "I have not included real patient-identifying details or third-party copyrighted text."
+          required: true

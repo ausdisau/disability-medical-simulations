@@ -1,0 +1,40 @@
+name: AURA synthetic preview
+on:
+  pull_request:
+    paths:
+      - 'apps/anzcor-react-web/**'
+      - 'apps/aura-desktop-tauri/**'
+      - 'apps/aura-desktop-electron/**'
+      - '.github/workflows/aura-preview.yml'
+  push:
+    branches:
+      - 'feature/aura-intervention-level-20261109'
+    paths:
+      - 'apps/anzcor-react-web/**'
+      - 'apps/aura-desktop-tauri/**'
+      - 'apps/aura-desktop-electron/**'
+      - '.github/workflows/aura-preview.yml'
+permissions:
+  contents: read
+jobs:
+  engine-and-browser-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/anzcor-react-web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install preview dependencies (lockfile pending review)
+        run: npm install --no-audit --no-fund
+      - name: Deterministic and evidence boundary tests
+        run: npm test
+      - name: React/Vite multi-page build
+        run: npm run build
+      - name: Electron source syntax check
+        run: node --check ../aura-desktop-electron/main.cjs && node --check ../aura-desktop-electron/preload.cjs
+      - name: Tauri config JSON validity (native build requires OS runner)
+        run: node -e "JSON.parse(require('fs').readFileSync('../aura-desktop-tauri/src-tauri/tauri.conf.json','utf8'))"
