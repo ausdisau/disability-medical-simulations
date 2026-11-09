@@ -3,7 +3,7 @@ import {VIDEO_REFERENCES,findVideo} from './video-evidence.mjs';
 
 export const REVIEW_CASES=Object.freeze([
   {id:'rohan-malik-pea-asystole-alternate',title:'Rohan Malik · Paediatric PEA to asystole (non-canonical)',population:'12-year-old with Duchenne muscular dystrophy',setting:'NSW PICU',clinicalSources:'ANZCOR paediatric ALS reference; current local NSW paediatric protocol not supplied',protectedFacts:['Verified asystole','CPR ongoing','ROSC not established','AAC WAIT','Family-support nurse assigned']},
-  {id:'aura-cp-communication-respiratory-synthetic-v01',title:'Alex Morgan · Cerebral palsy respiratory and AAC access',population:'Fictional adult with cerebral palsy',setting:'NSW ED',clinicalSources:'Cerebral palsy respiratory literature; local NSW respiratory escalation protocol not supplied',protectedFacts:['No cognitive incapacity assumption','Baseline-versus-acute-change separation','Patient-controlled AAC','No medicine order or invented vital sign']}
+  {id:'aura-cp-communication-respiratory-synthetic-v01',title:'Alex Morgan · Cerebral palsy respiratory and AAC access',population:'Fictional adult with cerebral palsy',setting:'NSW ED',clinicalSources:'NSW ACI Adult Sepsis ECAT (October 2026) and respiratory evidence at principle level; current local NSW clinical procedures not supplied',protectedFacts:['Synthetic 39.4°C fever and marked new lethargy','Chest infection is a working diagnosis, organism unknown','Pneumonia and sepsis unconfirmed','No cognitive incapacity assumption','Patient-controlled AAC','No invented unmeasured observations or medicine orders']}
 ]);
 
 export const REVIEW_DOMAINS=Object.freeze([

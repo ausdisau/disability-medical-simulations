@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "scenarioId": "aura-cp-communication-respiratory-synthetic-v01",
-  "title": "Alex Morgan: Respiratory Change and Communication Access",
+  "title": "Alex Morgan: High-Fever Chest Infection, Lethargy and Accessible Respiratory Assessment",
   "fictional": true,
   "data_origin": "fictional_synthetic",
   "jurisdiction": "NSW",
@@ -27,18 +27,22 @@
     ]
   },
   "presentation": {
-    "reason": "Worsening cough and perceived breathing difficulty after a recent respiratory illness",
+    "reason": "Chest infection with high fever (fictional triage observation 39.4°C), worsening cough and breathlessness, and marked new lethargy in an adult with cerebral palsy",
     "initialKnown": [
-      "Alex reports a new change in breathing",
-      "Speech is difficult to understand under fatigue",
-      "The clinical team has not yet compared current findings with respiratory baseline"
+      "Fictional measured triage temperature: 39.4°C, high fever requiring clinical assessment",
+      "New marked lethargy: Alex repeatedly closes their eyes between questions and is slower to sustain interaction than usual; consciousness not yet formally assessed",
+      "Alex reports worsening cough and a change in breathing following a respiratory illness",
+      "Fatigue makes speech and AAC input slower; no new patient-authored message is inferred",
+      "No baseline respiratory observations have yet been independently verified"
     ],
     "unknown": [
-      "Oxygenation reliability",
-      "Swallow function",
-      "Cause of respiratory change",
-      "Current respiratory support",
-      "Allergies, medicines, weight"
+      "Full A–G assessment, including respiratory rate, SpO₂ signal reliability, blood pressure, heart rate, alertness, and glucose",
+      "Whether chest infection represents pneumonia, another respiratory infection, or a non-respiratory alternative",
+      "Whether there is sepsis-related organ dysfunction; no sepsis or septic shock diagnosis has been established",
+      "Whether cough reflects aspiration, secretion retention, viral infection or bacterial infection",
+      "Individual swallowing and airway-clearance plan",
+      "Current respiratory support and usual observations",
+      "Allergies, medicines, weight, pregnancy possibility if clinically relevant and personal treatment preferences"
     ]
   },
   "learningObjectives": [
@@ -46,7 +50,11 @@
     "Demonstrate accessible direct questioning and confirmation",
     "Escalate respiratory concerns based on observed signs, not diagnosis alone",
     "Integrate trusted supporter information without transferring patient authority",
-    "Reassess intervention response and document uncertainty"
+    "Reassess intervention response and document uncertainty",
+    "Recognise high fever and acute marked lethargy as potentially serious deterioration without assigning them to baseline cerebral palsy",
+    "Perform infection-source and possible sepsis assessment in parallel with respiratory stabilisation and accessible communication",
+    "Separate a clinical working diagnosis of chest infection from pneumonia confirmation and sepsis-related organ dysfunction",
+    "Explain and recheck fever, alertness, respiration and perfusion without generating unobserved results"
   ],
   "beats": [
     {
@@ -64,9 +72,24 @@
       "gate": "assessment_and_access_in_parallel"
     },
     {
+      "id": "febrile-triage",
+      "phase": "ED",
+      "visible": "Alex has a fictional triage temperature of 39.4°C, worsening cough and pronounced new lethargy. Alex keeps their eyes closed between questions but has no documented capacity or consciousness finding.",
+      "options": [
+        "Begin urgent qualified A–G assessment and complete observations",
+        "Notify senior clinician; check local CERS and adult sepsis pathway",
+        "Support Alex's communication and ask directly about their symptoms in parallel"
+      ],
+      "cues": [
+        "Fever and clinical deterioration are observable; pneumonia, sepsis and organ dysfunction are not confirmed",
+        "Response delay is not refusal or incapacity"
+      ],
+      "gate": "fever_lethargy_urgent_escalation"
+    },
+    {
       "id": "access",
       "phase": "ED",
-      "visible": "Alex attempts to use AAC but positioning and response time are not yet optimised.",
+      "visible": "Alex is markedly lethargic and fatigued; speech is slower and the AAC device needs improved positioning and response time. Difficulty keeping eyes open requires assessment, not a default incapacity conclusion.",
       "options": [
         "Restore device position and extra time",
         "Confirm intended message rather than assuming meaning",
@@ -86,9 +109,38 @@
       "gate": "local_protocol"
     },
     {
+      "id": "possible-sepsis",
+      "phase": "ED",
+      "visible": "A working diagnosis of chest infection is documented. The high fever and new marked lethargy trigger consideration of possible sepsis, but no complete observations, mental-state assessment, lactate or perfusion findings exist yet.",
+      "options": [
+        "Senior-led review under NSW adult sepsis pathway and local CERS if indicated",
+        "Assess airway, breathing, circulation, disability baseline, current alertness and glucose",
+        "Identify missing evidence and repeat observations; avoid declaring sepsis or shock"
+      ],
+      "cues": [
+        "Unverified organ dysfunction and unknown SpO₂ cannot be assigned synthetic normal or abnormal values",
+        "Urgent assessment and communication access proceed concurrently"
+      ],
+      "gate": "no_sepsis_without_evidence"
+    },
+    {
+      "id": "infection-source",
+      "phase": "ED",
+      "visible": "Chest infection remains a clinical working diagnosis. Chest imaging, microbiology and other investigations are not yet reported.",
+      "options": [
+        "Senior clinician to consider chest imaging and investigation for a respiratory source under local protocol",
+        "Assess swallowing, aspiration risks, airway clearance and alternative diagnoses without stereotypes",
+        "Request authorised treatment review while allergies and individual history are checked"
+      ],
+      "cues": [
+        "No pathogen, chest X-ray result, antibiotic administration or organ injury can be inferred"
+      ],
+      "gate": "infection_workup_requires_results"
+    },
+    {
       "id": "differential",
       "phase": "ED",
-      "visible": "Potential contributors remain unknown; aspiration, infection, posture and airway clearance are questions, not diagnoses.",
+      "visible": "Chest infection is the documented working diagnosis. Pneumonia, aspiration contribution and pathogen are unconfirmed. There is no established sepsis diagnosis without assessment of organ dysfunction.",
       "options": [
         "Investigate clinically indicated causes",
         "Document what is unknown",
@@ -110,7 +162,7 @@
     {
       "id": "reassessment",
       "phase": "ED",
-      "visible": "Any intervention requires repeat observation before concluding improvement or deterioration.",
+      "visible": "The team must repeat temperature and assess alertness, respiratory status, perfusion and communication after any intervention; no improvement or deterioration is automatic.",
       "options": [
         "Check clinical response",
         "Correct inaccessible workflow",
@@ -121,7 +173,7 @@
     {
       "id": "handover",
       "phase": "WARD",
-      "visible": "The receiving team needs baseline, access plan and pending investigations.",
+      "visible": "The receiving team needs the 39.4°C synthetic fever, acute marked lethargy, respiratory observations, possible sepsis work-up, ongoing risks and Alex's AAC/baseline plan.",
       "options": [
         "Handover change-from-baseline and unresolved items",
         "Preserve AAC equipment",
@@ -155,6 +207,230 @@
     "What changed compared with Alex's baseline?",
     "Which observations supported or ruled against respiratory concerns?",
     "Did the patient remain the primary decision maker?",
-    "What would make the hospital access plan reliable across transfers?"
+    "What would make the hospital access plan reliable across transfers?",
+    "Did the team distinguish a new febrile illness from Alex's pre-existing cerebral palsy?",
+    "Was marked lethargy assessed promptly without equating slower AAC with incapacity?",
+    "Did escalation and full observations happen even without a confirmed pneumonia or sepsis diagnosis?",
+    "Were antibiotics and invasive interventions held at role and protocol gates while urgent clinical care planning proceeded?",
+    "Did handover include the fictional 39.4°C temperature, unresolved sepsis assessment, new lethargy and communication-access plan?"
+  ],
+  "scenarioRevision": "v0.2-febrile-chest-infection-20261109",
+  "clinicalOverlay": {
+    "eventId": "ALEX-FEVER-ED-001",
+    "syntheticOnly": true,
+    "temporalContext": "First ED clinical assessment; independently separate from Rohan Malik's fictional paediatric branch",
+    "chestInfection": {
+      "clinicalWorkingDiagnosis": "Chest infection / lower respiratory tract infection",
+      "status": "CLINICIAN_WORKING_DIAGNOSIS",
+      "pneumonia": "NOT_CONFIRMED",
+      "organism": "UNKNOWN",
+      "aspirationContribution": "UNKNOWN"
+    },
+    "fever": {
+      "temperatureC": 39.4,
+      "method": "Fictional triage temperature observation; measurement method not specified",
+      "unit": "°C",
+      "status": "AUTHOR_AUTHORED_SYNTHETIC",
+      "repeatMeasurement": "PENDING"
+    },
+    "lethargy": {
+      "severity": "MARKED_NEW_LETHARGY",
+      "observed": "Difficulty sustaining eye opening and extended pauses between responses relative to usual baseline",
+      "consciousness": "UNASSESSED",
+      "orientation": "UNASSESSED",
+      "risk": "Requires prompt assessment; do not attribute to cerebral palsy or dysarthria"
+    },
+    "respiratory": {
+      "cough": "Worsening; patient reported",
+      "breathing": "Patient reports more difficulty than usual",
+      "workOfBreathing": "Requires clinician observation",
+      "respiratoryRate": "NOT_MEASURED",
+      "oxygenation": "UNVERIFIED",
+      "pulseOximetryReliability": "NOT_ASSESSED",
+      "airwayClearance": "PERSONAL_PLAN_UNKNOWN"
+    },
+    "systemic": {
+      "bloodPressure": "NOT_MEASURED",
+      "heartRate": "NOT_MEASURED",
+      "perfusion": "NOT_ASSESSED",
+      "lactate": "NOT_OBTAINED",
+      "bloodGlucose": "NOT_ASSESSED",
+      "sepsisStatus": "SUSPECTED_RISK_NEEDS_CLINICAL_ASSESSMENT",
+      "shock": "NOT_ESTABLISHED"
+    },
+    "communication": {
+      "usualCognition": "No impairment established",
+      "newAccessIssue": "Fatigue slows speech and AAC input; access setup needs support",
+      "capacity": "NOT_INFERRED_FROM_FATIGUE",
+      "supporterAuthority": "NOT_ASSUMED"
+    },
+    "escalation": {
+      "urgency": "URGENT_SENIOR_REVIEW_AND_COMPLETE_A_G_ASSESSMENT",
+      "pathway": "NSW adult CERS and adult sepsis pathway if criteria met",
+      "legalAndClinicalAuthority": "CURRENT_LOCAL_PROTOCOL_REVIEW_REQUIRED"
+    }
+  },
+  "interventionStations": [
+    {
+      "id": "AAC",
+      "title": "Support Alex's communication",
+      "purpose": "Restore usable AAC and allow extra response time",
+      "trigger": "Fatigue slows speech/AAC",
+      "evidenceGate": "Individual preference and physical setup confirmed",
+      "assignedWorkstream": "Bedside RN with AAC support",
+      "actionConsequence": "Communication aid and time offered; no patient utterance or consent inferred",
+      "reassessment": "Confirm usable response route",
+      "failureOrRescue": "Use alternative access and qualified staff while clinical assessment continues",
+      "clinical_state": "reviewed_educational"
+    },
+    {
+      "id": "OBS",
+      "title": "Urgent A–G and full vital-sign assessment",
+      "purpose": "Assess fever, respiratory status, circulation, alertness and glucose",
+      "trigger": "39.4°C fever with marked new lethargy and breathing concern",
+      "evidenceGate": "Qualified clinical assessor; proper measurement",
+      "assignedWorkstream": "ED nurse and senior clinician",
+      "actionConsequence": "Assessment documented/requested only; numbers remain unreported until authored and verified",
+      "reassessment": "Repeat and trend observations",
+      "failureOrRescue": "Escalate if monitoring unobtainable or condition concerning",
+      "clinical_state": "reviewed_educational"
+    },
+    {
+      "id": "CERS",
+      "title": "Escalate to senior clinician / local CERS",
+      "purpose": "Respond to possible serious deterioration",
+      "trigger": "High fever, lethargy, reported breathing deterioration",
+      "evidenceGate": "NSW adult escalation framework and local response criteria; do not require confirmed sepsis",
+      "assignedWorkstream": "ED RN and senior clinician",
+      "actionConsequence": "Educational escalation request recorded; no real staff called",
+      "reassessment": "Review response/clinical state",
+      "failureOrRescue": "Follow current local urgent escalation procedures",
+      "clinical_state": "reviewed_educational"
+    },
+    {
+      "id": "SEPSIS",
+      "title": "Assess possible sepsis",
+      "purpose": "Assess whether infection plus organ dysfunction is present",
+      "trigger": "Chest infection working diagnosis plus serious symptoms",
+      "evidenceGate": "A–G, objective perfusion and consciousness assessment; senior clinical review",
+      "assignedWorkstream": "Senior medical clinician",
+      "actionConsequence": "Sepsis pathway assessment requested only; no diagnosis or medication triggered",
+      "reassessment": "Recheck organ dysfunction signs and ongoing response",
+      "failureOrRescue": "Escalate rapidly under current local pathway",
+      "clinical_state": "reviewed_educational"
+    },
+    {
+      "id": "CHEST",
+      "title": "Investigate chest infection / pneumonia",
+      "purpose": "Investigate source and severity",
+      "trigger": "Cough, respiratory symptoms and fever",
+      "evidenceGate": "Appropriately authorised investigation and result provenance",
+      "assignedWorkstream": "Qualified medical clinician",
+      "actionConsequence": "Imaging / diagnostic review requested; pneumonia remains unconfirmed",
+      "reassessment": "Review findings and other causes",
+      "failureOrRescue": "Escalate to respiratory/critical care team if warranted",
+      "clinical_state": "reviewed_educational"
+    },
+    {
+      "id": "MED",
+      "title": "Request authorised infection treatment review",
+      "purpose": "Clinician assessment of treatment options",
+      "trigger": "Working chest infection diagnosis and possible sepsis",
+      "evidenceGate": "Allergies, history, age-specific and current local guidelines, prescriber authority",
+      "assignedWorkstream": "Authorised prescriber and pharmacy",
+      "actionConsequence": "Medication review request only; no order, antibiotic, dose or administration",
+      "reassessment": "Monitor response if any actual intervention is separately authorised",
+      "failureOrRescue": "Senior/ID or antimicrobial stewardship review",
+      "clinical_state": "reviewed_educational"
+    },
+    {
+      "id": "ANTIBIOTICS",
+      "title": "Administer antimicrobial treatment",
+      "purpose": "Emergency infection management",
+      "trigger": "Independent qualified clinical indication",
+      "evidenceGate": "Current local treatment protocol, qualified orders, allergies, weight and other checks",
+      "assignedWorkstream": "Qualified clinical staff only",
+      "actionConsequence": "BLOCKED IN SIMULATION: no medication authority",
+      "reassessment": "Not applicable until separate reviewed pathway",
+      "failureOrRescue": "Urgent prescriber review does not wait for simulator",
+      "clinical_state": "context_only_locked"
+    },
+    {
+      "id": "AIRWAY",
+      "title": "Perform invasive airway procedure",
+      "purpose": "Airway rescue if clinically indicated",
+      "trigger": "Current qualified clinical assessment",
+      "evidenceGate": "Verified airway emergency, anatomy and current local protocol",
+      "assignedWorkstream": "Qualified airway team",
+      "actionConsequence": "BLOCKED IN SIMULATION",
+      "reassessment": "Not applicable until reviewed authorisation",
+      "failureOrRescue": "Continue indicated real clinical escalation; simulator not an authority",
+      "clinical_state": "context_only_locked"
+    }
+  ],
+  "branches": [
+    {
+      "id": "cause-led",
+      "trigger": "Immediate assessment, senior escalation and AAC support in parallel",
+      "consequence": "Investigation and treatment planning proceeds with documented uncertainty; outcomes await further clinical observations",
+      "rescuePath": "CERS and senior respiratory/critical-care review if deterioration observed"
+    },
+    {
+      "id": "missed-sepsis",
+      "trigger": "Team treats fever as uncomplicated without assessing marked new lethargy",
+      "consequence": "Unsafe delayed-escalation teaching event; not an invented collapse or shock",
+      "rescuePath": "Reassess A–G, mental status and sepsis risk, then escalate"
+    },
+    {
+      "id": "aac-failure",
+      "trigger": "Slow replies interpreted as incapacity",
+      "consequence": "Rights safeguard holds affected consent decision; urgent lawful emergency assessment may continue on its own basis",
+      "rescuePath": "Restore access, document decision-specific capacity and appropriate authority"
+    },
+    {
+      "id": "number-only",
+      "trigger": "Team focuses only on temperature and SpO₂",
+      "consequence": "Failure to assess ventilation, consciousness, perfusion and cause remains unresolved",
+      "rescuePath": "Comprehensive assessment and senior clinical review"
+    },
+    {
+      "id": "premature-treatment",
+      "trigger": "Medication or invasive equipment selected without a reviewed clinical indication",
+      "consequence": "Only unsupported action branch is blocked; assessment, escalation and access remain active",
+      "rescuePath": "Qualified clinician review and local protocol verification"
+    },
+    {
+      "id": "handover",
+      "trigger": "Case moves to ongoing care",
+      "consequence": "Carry temperature, lethargy, infection assessment, unknown findings, patient preferences and AAC across teams",
+      "rescuePath": "Receiving team confirms observations and access plan"
+    }
+  ],
+  "sourceAuthorities": [
+    {
+      "title": "NSW Agency for Clinical Innovation, Adult ECAT: Sepsis (suspected)",
+      "url": "https://aci.health.nsw.gov.au/ecat/adult/sepsis",
+      "published": "October 2026",
+      "scope": "Adult age 16+; clinician and nurse roles within local protocols",
+      "supports": "Recognise and escalate suspected sepsis, complete observations and reassess; not a simulated medication order",
+      "sourceClass": "current_guideline",
+      "reviewStatus": "LOCAL_PROTOCOL_PENDING"
+    },
+    {
+      "title": "NSW Clinical Excellence Commission Sepsis pathways",
+      "url": "https://cec.health.nsw.gov.au/safety-essentials/deterioration/sepsis",
+      "scope": "Adult sepsis pathway; NSW health",
+      "supports": "Recognition and early escalation of possible sepsis",
+      "sourceClass": "current_guideline",
+      "reviewStatus": "LOCAL_PROTOCOL_PENDING"
+    },
+    {
+      "title": "NICE Pneumonia: diagnosis and management NG250",
+      "url": "https://www.nice.org.uk/guidance/NG250/chapter/recommendations",
+      "scope": "General UK recommendations, not NSW binding authority",
+      "supports": "Pneumonia diagnostic investigation and reassessment concepts",
+      "sourceClass": "guideline_comparator",
+      "reviewStatus": "REVIEW_REQUIRED"
+    }
   ]
 }

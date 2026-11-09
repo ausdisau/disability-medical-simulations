@@ -54,3 +54,8 @@ npm run build
 No medication doses, administration simulation, actual suction/airway maneuvers, invasive FONA, energy parameters, medical device connection, staff privilege management, consent decisions, organ injury prediction, certified competency assessment, authenticated sessions, live database, or production deployment.
 
 The `CHECK → ASSIGN → COMMIT → REASSESS` experience records *synthetic training actions only*; no unverified clinical effect is produced. Clinical and paid disability-led review, browser/screen-reader/switch access testing, and security checks remain release gates.
+
+
+## Alex Morgan v0.2 — High fever and differential branch
+
+The separate adult fictional Alex scenario now opens at 39.4°C synthetic fever with marked new lethargy and a chest infection working diagnosis. The React cockpit offers parallel urgent assessment, CERS/senior escalation, AAC repair, infection source evaluation, and facilitator-gated alternatives for viral, bacterial, mixed and aspiration-related causes. **No diagnosis, clinical physiological response, order or treatment is generated** by selecting or revealing educational evidence. See `docs/ALEX-FEBRILE-INFECTION-DIAGNOSTIC-TENSION.md`. Rohan's DMD resuscitation case is unchanged.

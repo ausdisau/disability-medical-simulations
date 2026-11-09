@@ -4,6 +4,7 @@ import {ACTIONS, CASE, CBCP, createAURA, dispatchAURA, clockText, gate, stationS
 import './style.css';
 import EvidenceDesk from './EvidenceDesk.jsx';
 import ReviewBoard from './ReviewBoard.jsx';
+import AlexInfectionPanel from './AlexInfectionPanel.jsx';
 
 const badgeFor = s => s==='locked_by_evidence'?'locked':s==='reassessed'?'complete':s==='committed'?'pending':s;
 function App(){
@@ -97,6 +98,7 @@ function App(){
       </aside>
     </main>
     <div className="lower">
+      <AlexInfectionPanel/>
       <EvidenceDesk/>
       <ReviewBoard/>
       <section className="card">
