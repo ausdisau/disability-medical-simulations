@@ -50,8 +50,10 @@ export function freeplayGate(state,actionId){
  return Object.freeze({allow:true,status:'EDUCATIONAL_ACTION_ALLOWED',reason:'Learning-only activity. No medication, device or physiological effect.'});
 }
 export function freeplayDispatch(prior,raw){
- const cmd={kind:String(raw?.kind||''),id:raw?.id??null,text:plain(raw?.text),value:raw?.value??null};
+ const cmd={kind:String(raw?.kind||''),id:raw?.id??null,text:plain(raw?.text),value:raw?.value??null,
+  title:plain(raw?.title),focus:plain(raw?.focus),description:plain(raw?.description)};
  if(cmd.kind==='RESET')return createFreeplay({audience:prior.audience,caseId:prior.caseId,seed:prior.seed});
+ if(cmd.kind==='LOAD_CASE')return createFreeplay({audience:raw?.audience,caseId:raw?.caseId,seed:Number.isInteger(raw?.seed)?raw.seed:0});
  let s=record(prior,cmd);
  const scene=freeplayCase(s.caseId);
  if(cmd.kind==='ACK_WARNING'){
@@ -89,9 +91,9 @@ export function freeplayDispatch(prior,raw){
  }
  if(cmd.kind==='DRAFT'){
   if(s.audience!=='creator'||s.phase!=='PLAY')return log({...s,notice:'Drafting is restricted to creator learning mode.'},'HOLD','safety','Role boundary for creative drafting','GATE_CLOSED');
-  const title=plain(raw?.title)||'Untitled fictional workshop';
-  const focus=plain(raw?.focus)||'Access and assessment';
-  const description=plain(raw?.description)||'A learning idea awaiting clinical and lived-experience review.';
+  const title=cmd.title||'Untitled fictional workshop';
+  const focus=cmd.focus||'Access and assessment';
+  const description=cmd.description||'A learning idea awaiting clinical and lived-experience review.';
   const d={title,focus,description,fictional:true,dataOrigin:'UNREVIEWED_USER_AUTHOR_NOTE',
     reviewStatus:'NOT_APPROVED',allowedClinicalEffect:false,authoringWarnings:[
      'Do not include real patient identifiers','Never use unreviewed prose to modify physiology',

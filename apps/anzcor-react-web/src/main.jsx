@@ -32,7 +32,7 @@ function App(){
     <a className="skip" href="#main">Skip to simulation content</a>
     <header className="mast">
       <div className="brand"><span className="monogram" aria-hidden="true">A</span><div><strong>AURA</strong><small>Project Hope · Intervention-Level Environment</small></div></div>
-      <div className="mast-right"><span className="tag synthetic">FICTIONAL / SYNTHETIC</span><span className="tag critical">CODE BLUE · {state.clinical.rhythm}</span><strong className="clock">{clockText(state.clock)}</strong></div>
+      <div className="mast-right"><a className="btn" href="./freeplay.html" style={{whiteSpace:"nowrap"}}>Open Freeplay Studio</a><span className="tag synthetic">FICTIONAL / SYNTHETIC</span><span className="tag critical">CODE BLUE · {state.clinical.rhythm}</span><strong className="clock">{clockText(state.clock)}</strong></div>
     </header>
     <div className="topline"><strong>Rohan Malik</strong><span>Age 12 · Duchenne muscular dystrophy · NSW PICU</span><span className="tag outline">NON-CANONICAL BRANCH</span></div>
     <main id="main" className="cockpit">

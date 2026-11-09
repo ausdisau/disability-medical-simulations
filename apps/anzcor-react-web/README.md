@@ -67,3 +67,25 @@ The app's initial role is `SCENARIO_DIRECTOR`, explicitly a **non-clinician** ed
 ## Deterministic cascade crisis (Alex case only)
 
 The **non-clinician scenario director** may trigger a four-cue synthetic crisis with an explicitly recorded seed. Each cue is committed separately to Alex's fictional clinical/event record and time; cues include respiratory worsening, an unverified monitor alarm, a new clinician-authored fictional low blood pressure, and AAC disruption. Use `NEXT_CASCADE` to reveal each subsequent event or `PAUSE` to freeze. No random death, arrest, shock diagnosis, patient speech or treatment result is introduced. Select qualified workstream stations for urgent review while AAC is restored concurrently. Full specifications: `docs/ALEX-SEEDED-CASCADE-CRISIS.md`.
+
+## Freeplay Studio (standalone patient / student / creator entry)
+
+The accessible educational studio is available at **/freeplay.html** (also linked from AURA's existing cockpit). This separate landing page does **not** start on the fictional Code Blue scene.
+
+Learning modes:
+- **Patient and supporter** (default): plain-language understanding of chest infections, respiratory support, choices, communication and appointment questions. No personalised medical advice or real-patient intake.
+- **Clinical student**: free-order assessment, escalation, communication, evidence comparison and debrief, with a voluntary, content-warned, **fictional** adult PEA review scene. No real learner credential assumed.
+- **Creative studio**: source-labelled, bounded authored cues and storyboards that never become clinical observations, procedures or treatments.
+
+Engine: `src/freeplay-engine.mjs` (fully separate from VIRGAL truth); cases `src/freeplay-data.mjs`; React `src/FreeplayStudio.jsx`; tests `tests/freeplay.test.mjs`. All data stays in browser memory, unless a user intentionally exports local JSON/TXT. No localStorage, network calls or patient records are used. Each cue has known, unknown, domain and author provenance. Replaying the same seed and commands produces the same educational state.
+
+```bash
+cd apps/anzcor-react-web
+npm ci
+npm test
+npm run build
+npm run dev
+# open http://127.0.0.1:5173/freeplay.html
+```
+
+This is an **experimental learning prototype**, not a validated clinical simulation, prescribing tool, accredited student examination, health-record system or approved patient education resource. Qualified Australian clinical, paid disability-led co-design, accessibility and governance reviews remain pending. Detailed gate and acceptance notes: `docs/AURA-FREEPLAY-LEARNING-MODEL.md`.
